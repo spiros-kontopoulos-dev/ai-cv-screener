@@ -5,6 +5,7 @@ Other application modules can import these types directly from
 """
 
 from .candidate import (
+    CandidateProfile,
     Certification,
     ContactDetails,
     Education,
@@ -20,6 +21,7 @@ from .candidate import (
 
 # These names form the deliberate public interface of the schemas package.
 __all__ = [
+    "CandidateProfile",
     "Certification",
     "ContactDetails",
     "Education",

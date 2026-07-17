@@ -13,6 +13,10 @@ from pydantic import BaseModel, ConfigDict, EmailStr, Field
 # The pattern accepts values such as "2022-01" but rejects invalid months.
 YEAR_MONTH_PATTERN = r"^\d{4}-(0[1-9]|1[0-2])$"
 
+# Candidate IDs become stable links between the structured profile,
+# candidate image, generated PDF, and later retrieval metadata.
+CANDIDATE_ID_PATTERN = r"^candidate_\d{3}$"
+
 class CandidateSchema(BaseModel):
     """Shared validation behaviour for all candidate-related models.
 
@@ -223,4 +227,85 @@ class Project(CandidateSchema):
         default=None,
         ge=1990,
         le=2035,
+    )
+
+
+class CandidateProfile(CandidateSchema):
+    """Complete validated representation of one fictional candidate.
+
+    The structured profile is used to generate a deterministic CV PDF.
+    Later, the RAG pipeline will extract and index the PDF rather than
+    reading this original structured object.
+    """
+
+    # Stable identifiers such as candidate_001 make filenames and metadata
+    # predictable across profile generation, PDF rendering, and retrieval.
+    candidate_id: str = Field(pattern=CANDIDATE_ID_PATTERN)
+
+    full_name: str = Field(
+        min_length=3,
+        max_length=100,
+    )
+
+    # The exact title is more specific than the broad profession category.
+    # Example: profession=backend_engineering while the title is
+    # "Senior Python Backend Engineer".
+    professional_title: str = Field(
+        min_length=3,
+        max_length=120,
+    )
+
+    profession: ProfessionCategory
+    seniority: SeniorityLevel
+
+    # Half-year values such as 4.5 are allowed.
+    years_of_experience: float = Field(
+        ge=0,
+        le=50,
+    )
+
+    # The summary should contain enough useful evidence without becoming
+    # too long for the top section of the generated CV.
+    summary: str = Field(
+        min_length=80,
+        max_length=600,
+    )
+
+    contact: ContactDetails
+
+    # Every candidate must have at least one employment entry.
+    work_experience: list[WorkExperience] = Field(
+        min_length=1,
+        max_length=8,
+    )
+
+    # Education is allowed to be empty because professional experience or
+    # vocational training may be more relevant for some candidates.
+    education: list[Education] = Field(
+        default_factory=list,
+        max_length=4,
+    )
+
+    # At least three skills keep every profile useful for retrieval while
+    # the upper limit protects the PDF from oversized skill sections.
+    skills: list[Skill] = Field(
+        min_length=3,
+        max_length=30,
+    )
+
+    # Every candidate must have at least one spoken language.
+    languages: list[Language] = Field(
+        min_length=1,
+        max_length=8,
+    )
+
+    # Empty lists make optional PDF sections easy to omit consistently.
+    certifications: list[Certification] = Field(
+        default_factory=list,
+        max_length=8,
+    )
+
+    projects: list[Project] = Field(
+        default_factory=list,
+        max_length=6,
     )
