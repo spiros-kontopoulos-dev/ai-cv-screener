@@ -13,6 +13,7 @@ from pydantic import (
     ConfigDict,
     EmailStr,
     Field,
+    field_validator,
     model_validator,
 )
 
@@ -23,6 +24,29 @@ YEAR_MONTH_PATTERN = r"^\d{4}-(0[1-9]|1[0-2])$"
 # Candidate IDs become stable links between the structured profile,
 # candidate image, generated PDF, and later retrieval metadata.
 CANDIDATE_ID_PATTERN = r"^candidate_\d{3}$"
+
+def _find_case_insensitive_duplicates(values: list[str]) -> list[str]:
+    """Return normalized values that appear more than once.
+
+    ``casefold()`` performs a stronger case-insensitive comparison than
+    ``lower()`` and works reliably with a wider range of Unicode text.
+    """
+
+    seen: set[str] = set()
+    duplicates: set[str] = set()
+
+    for value in values:
+        normalized_value = value.casefold()
+
+        if normalized_value in seen:
+            duplicates.add(normalized_value)
+        else:
+            seen.add(normalized_value)
+
+    # Sorting makes validation messages deterministic and easier to test.
+    return sorted(duplicates)
+
+
 
 class CandidateSchema(BaseModel):
     """Shared validation behaviour for all candidate-related models.
@@ -168,6 +192,24 @@ class WorkExperience(CandidateSchema):
         le=100,
     )
 
+    @field_validator("technologies")
+    @classmethod
+    def validate_unique_technologies(
+        cls,
+        technologies: list[str],
+    ) -> list[str]:
+        """Reject repeated technology names regardless of capitalization."""
+
+        duplicates = _find_case_insensitive_duplicates(technologies)
+
+        if duplicates:
+            raise ValueError(
+                "Work experience technologies must not contain duplicate "
+                f"values: {', '.join(duplicates)}."
+            )
+
+        return technologies
+
     # After normal field validation succeeds, this method runs to check the model as a whole.
     @model_validator(mode="after")
     def validate_date_order(self) -> Self:
@@ -266,6 +308,24 @@ class Project(CandidateSchema):
         le=2035,
     )
 
+    @field_validator("technologies")
+    @classmethod
+    def validate_unique_technologies(
+        cls,
+        technologies: list[str],
+    ) -> list[str]:
+        """Reject repeated project technologies regardless of case."""
+
+        duplicates = _find_case_insensitive_duplicates(technologies)
+
+        if duplicates:
+            raise ValueError(
+                "Project technologies must not contain duplicate "
+                f"values: {', '.join(duplicates)}."
+            )
+
+        return technologies
+
 
 class CandidateProfile(CandidateSchema):
     """Complete validated representation of one fictional candidate.
@@ -346,3 +406,41 @@ class CandidateProfile(CandidateSchema):
         default_factory=list,
         max_length=6,
     )
+
+    @field_validator("skills")
+    @classmethod
+    def validate_unique_skills(
+        cls,
+        skills: list[Skill],
+    ) -> list[Skill]:
+        """Ensure each skill name appears only once per candidate."""
+
+        skill_names = [skill.name for skill in skills]
+        duplicates = _find_case_insensitive_duplicates(skill_names)
+
+        if duplicates:
+            raise ValueError(
+                "Candidate skills must not contain duplicate names: "
+                f"{', '.join(duplicates)}."
+            )
+
+        return skills
+
+    @field_validator("languages")
+    @classmethod
+    def validate_unique_languages(
+        cls,
+        languages: list[Language],
+    ) -> list[Language]:
+        """Ensure each spoken language appears only once per candidate."""
+
+        language_names = [language.name for language in languages]
+        duplicates = _find_case_insensitive_duplicates(language_names)
+
+        if duplicates:
+            raise ValueError(
+                "Candidate languages must not contain duplicate names: "
+                f"{', '.join(duplicates)}."
+            )
+
+        return languages

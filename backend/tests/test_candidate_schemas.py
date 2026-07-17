@@ -7,6 +7,7 @@ from app.schemas import (
     CandidateProfile,
     ContactDetails,
     Education,
+    Project,
     WorkExperience,
 )
 
@@ -138,3 +139,79 @@ def test_candidate_requires_at_least_three_skills(
         CandidateProfile(**valid_candidate_payload)
 
     assert error.value.errors()[0]["loc"] == ("skills",)
+
+
+def test_duplicate_candidate_skills_are_rejected(
+    valid_candidate_payload: dict,
+) -> None:
+    """Skill names should be unique regardless of capitalization."""
+
+    valid_candidate_payload["skills"][1]["name"] = "python"
+
+    with pytest.raises(
+        ValidationError,
+        match="Candidate skills must not contain duplicate names",
+    ):
+        CandidateProfile(**valid_candidate_payload)
+
+
+def test_duplicate_candidate_languages_are_rejected(
+    valid_candidate_payload: dict,
+) -> None:
+    """Language names should be unique regardless of capitalization."""
+
+    valid_candidate_payload["languages"].append(
+        {
+            "name": "english",
+            "proficiency": "professional",
+        }
+    )
+
+    with pytest.raises(
+        ValidationError,
+        match="Candidate languages must not contain duplicate names",
+    ):
+        CandidateProfile(**valid_candidate_payload)
+
+
+def test_duplicate_work_technologies_are_rejected() -> None:
+    """One employment entry should not repeat the same technology."""
+
+    with pytest.raises(
+        ValidationError,
+        match="Work experience technologies must not contain duplicate",
+    ):
+        WorkExperience(
+            job_title="Backend Engineer",
+            company="Northstar Systems",
+            start_date="2022-01",
+            end_date="2025-01",
+            highlights=["Built reliable Python APIs."],
+            technologies=[
+                "Python",
+                "FastAPI",
+                "python",
+            ],
+        )
+
+
+def test_duplicate_project_technologies_are_rejected() -> None:
+    """One project should not repeat the same technology."""
+
+    with pytest.raises(
+        ValidationError,
+        match="Project technologies must not contain duplicate",
+    ):
+        Project(
+            name="Candidate Matching API",
+            description=(
+                "Built a candidate-ranking API using structured fictional "
+                "profiles and deterministic matching rules."
+            ),
+            technologies=[
+                "Python",
+                "FastAPI",
+                "PYTHON",
+            ],
+            year=2025,
+        )
