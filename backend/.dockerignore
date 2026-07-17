@@ -1,0 +1,26 @@
+# Python cache and local virtual environments.
+__pycache__
+*.py[cod]
+.venv
+venv
+
+# Test, lint, and coverage artifacts.
+.pytest_cache
+.ruff_cache
+.mypy_cache
+.coverage
+htmlcov
+
+# Local secrets must not enter the image.
+.env
+.env.*
+
+# Git and editor metadata.
+.git
+.gitignore
+.vscode
+.idea
+
+# Operating-system files.
+.DS_Store
+Thumbs.db

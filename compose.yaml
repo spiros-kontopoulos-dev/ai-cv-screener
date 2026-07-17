@@ -13,3 +13,31 @@ services:
       --host 0.0.0.0
       --port 8000
       --reload
+  frontend:
+    # Build the React/Vite image from frontend/Dockerfile.
+    build:
+      context: ./frontend
+
+    # Expose Vite on the evaluator's local machine.
+    ports:
+      - "5173:5173"
+
+    volumes:
+      # Mount the frontend project so Vite detects source-code changes.
+      - ./frontend:/app
+
+      # Keep container-installed dependencies inside Docker.
+      #
+      # Without this separate volume, the local frontend mount would hide
+      # the node_modules directory installed during the Docker image build.
+      - /app/node_modules
+
+    # Start the Vite development server and make it reachable outside
+    # the container.
+    command:
+      - npm
+      - run
+      - dev
+      - --
+      - --host
+      - 0.0.0.0
