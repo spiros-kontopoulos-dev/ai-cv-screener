@@ -215,3 +215,87 @@ def test_duplicate_project_technologies_are_rejected() -> None:
             ],
             year=2025,
         )
+
+@pytest.mark.parametrize(
+    ("seniority", "years_of_experience", "expected_message"),
+    [
+        (
+            "junior",
+            8,
+            "Junior candidates cannot have more than 4 years",
+        ),
+        (
+            "mid",
+            1,
+            "Mid-level candidates must have between 2 and 10 years",
+        ),
+        (
+            "senior",
+            3,
+            "Senior candidates must have at least 5 years",
+        ),
+    ],
+)
+def test_inconsistent_seniority_is_rejected(
+    valid_candidate_payload: dict,
+    seniority: str,
+    years_of_experience: float,
+    expected_message: str,
+) -> None:
+    """Seniority should not clearly contradict total experience."""
+
+    valid_candidate_payload["seniority"] = seniority
+    valid_candidate_payload["years_of_experience"] = years_of_experience
+
+    with pytest.raises(
+        ValidationError,
+        match=expected_message,
+    ):
+        CandidateProfile(**valid_candidate_payload)
+
+
+def test_candidate_cannot_have_multiple_current_roles(
+    valid_candidate_payload: dict,
+) -> None:
+    """Only one employment entry may omit its end date."""
+
+    valid_candidate_payload["work_experience"].append(
+        {
+            "job_title": "Technical Advisor",
+            "company": "Bluepeak Consulting",
+            "location": "Remote",
+            "start_date": "2024-01",
+            "end_date": None,
+            "highlights": [
+                "Advised product teams on Python API architecture."
+            ],
+            "technologies": [
+                "Python",
+                "FastAPI",
+            ],
+        }
+    )
+
+    with pytest.raises(
+        ValidationError,
+        match="cannot have more than one current",
+    ):
+        CandidateProfile(**valid_candidate_payload)
+
+
+def test_overlapping_seniority_ranges_allow_realistic_profiles(
+    valid_candidate_payload: dict,
+) -> None:
+    """Five years may reasonably represent either mid or senior level."""
+
+    valid_candidate_payload["seniority"] = "mid"
+    valid_candidate_payload["years_of_experience"] = 5
+
+    mid_candidate = CandidateProfile(**valid_candidate_payload)
+
+    valid_candidate_payload["seniority"] = "senior"
+
+    senior_candidate = CandidateProfile(**valid_candidate_payload)
+
+    assert mid_candidate.seniority == SeniorityLevel.MID
+    assert senior_candidate.seniority == SeniorityLevel.SENIOR

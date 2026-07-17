@@ -444,3 +444,50 @@ class CandidateProfile(CandidateSchema):
             )
 
         return languages
+
+    @model_validator(mode="after")
+    def validate_profile_consistency(self) -> Self:
+        """Validate relationships between candidate-level fields.
+
+        Individual fields may be valid by themselves while still creating
+        an implausible profile when considered together. These checks reject
+        clear contradictions without trying to model every possible career.
+        """
+
+        experience = self.years_of_experience
+
+        # The ranges intentionally overlap because seniority is not determined
+        # by an exact universal number of years in the real world.
+        if self.seniority == SeniorityLevel.JUNIOR and experience > 4:
+            raise ValueError(
+                "Junior candidates cannot have more than 4 years "
+                "of total experience."
+            )
+
+        if self.seniority == SeniorityLevel.MID and not 2 <= experience <= 10:
+            raise ValueError(
+                "Mid-level candidates must have between 2 and 10 years "
+                "of total experience."
+            )
+
+        if self.seniority == SeniorityLevel.SENIOR and experience < 5:
+            raise ValueError(
+                "Senior candidates must have at least 5 years "
+                "of total experience."
+            )
+
+        # A missing end date represents a current position. More than one
+        # current role would usually indicate contradictory generated data.
+        current_roles = [
+            role
+            for role in self.work_experience
+            if role.end_date is None
+        ]
+
+        if len(current_roles) > 1:
+            raise ValueError(
+                "A candidate cannot have more than one current "
+                "work-experience entry."
+            )
+
+        return self
