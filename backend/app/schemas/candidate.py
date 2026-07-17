@@ -6,8 +6,15 @@ into CV PDFs, but the RAG system will index only the generated PDFs.
 """
 
 from enum import StrEnum
+from typing import Self
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    EmailStr,
+    Field,
+    model_validator,
+)
 
 # Employment dates use year and month because CVs rarely need an exact day.
 # The pattern accepts values such as "2022-01" but rejects invalid months.
@@ -161,6 +168,23 @@ class WorkExperience(CandidateSchema):
         le=100,
     )
 
+    # After normal field validation succeeds, this method runs to check the model as a whole.
+    @model_validator(mode="after")
+    def validate_date_order(self) -> Self:
+        """Ensure a finished position does not end before it starts."""
+
+        # A missing end date represents the candidate's current position,
+        # so there is no completed date range to compare in that case.
+        if self.end_date is not None and self.end_date < self.start_date:
+            raise ValueError(
+                "Work experience end_date must be the same as or later "
+                "than start_date."
+            )
+
+        # After-model validators must return the validated model instance.
+        return self
+
+
 
 class Education(CandidateSchema):
     """One education entry displayed in the candidate's CV."""
@@ -188,6 +212,19 @@ class Education(CandidateSchema):
         ge=1980,
         le=2035,
     )
+
+    @model_validator(mode="after")
+    def validate_year_order(self) -> Self:
+        """Ensure completed education does not end before it starts."""
+
+        # None means that the education program is still in progress.
+        if self.end_year is not None and self.end_year < self.start_year:
+            raise ValueError(
+                "Education end_year must be the same as or later "
+                "than start_year."
+            )
+
+        return self
 
 class Certification(CandidateSchema):
     """One professional certification listed on a candidate's CV."""

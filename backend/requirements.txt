@@ -2,3 +2,4 @@ fastapi
 uvicorn[standard]
 pydantic-settings
 email-validator>=2.0,<3.0
+pytest>=8.0,<9.0
