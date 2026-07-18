@@ -71,6 +71,16 @@ class Settings(BaseSettings):
         "data/candidate_profiles/candidate_profiles.json"
     )
 
+    # WP4 keeps visual assets in shared repository directories mounted at
+    # /app/data by Compose.  Candidate IDs provide the stable mapping between
+    # one validated profile, normalized portrait, HTML preview, and PDF file.
+    candidate_images_directory: Path = Path("data/candidate_images")
+    cv_pdfs_output_directory: Path = Path("data/cv_pdfs")
+
+    # HTML previews are developer-only inspection artifacts.  They make CSS
+    # iteration faster but are not the source indexed by the future RAG system.
+    cv_html_preview_directory: Path = Path("data/cv_html")
+
     # The model is configurable because model availability and cost choices may
     # change without requiring a code edit.
     candidate_generation_model: str = Field(

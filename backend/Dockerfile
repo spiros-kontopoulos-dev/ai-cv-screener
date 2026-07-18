@@ -5,6 +5,17 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
+# WeasyPrint uses Pango and HarfBuzz to lay out text.  Installing only the
+# runtime libraries keeps the image small while supporting the prebuilt Python
+# wheels used by this project.  DejaVu provides predictable Latin/Greek fonts.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        fonts-dejavu-core \
+        libharfbuzz-subset0 \
+        libpango-1.0-0 \
+        libpangoft2-1.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt

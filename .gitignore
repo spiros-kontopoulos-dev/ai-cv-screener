@@ -27,6 +27,10 @@ frontend/.vite/
 # Temporary files from atomic candidate-profile writes
 data/candidate_profiles/.*.tmp
 
+# Developer-only rendered HTML previews
+data/cv_html/*
+!data/cv_html/.gitkeep
+
 # ChromaDB local persistence
 storage/chroma/*
 !storage/chroma/.gitkeep
