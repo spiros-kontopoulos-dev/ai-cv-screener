@@ -1,6 +1,6 @@
-"""Validate the complete normalized candidate portrait collection."""
+"""Validate the normalized portrait subset defined by the coverage plan."""
 
-from collections.abc import Sequence
+from collections.abc import Collection, Sequence
 from pathlib import Path
 
 from app.schemas import CandidateProfile
@@ -15,15 +15,24 @@ _IMAGE_EXTENSIONS = {".jpeg", ".jpg", ".png", ".webp"}
 def validate_portrait_collection(
     profiles: Sequence[CandidateProfile],
     *,
+    portrait_candidate_ids: Collection[str],
     images_directory: Path,
     expected_size: int,
 ) -> PortraitCollectionValidation:
-    """Verify one valid WebP portrait exists for every profile and no extras."""
+    """Verify every planned portrait exists and no unplanned images remain."""
 
-    expected_ids = {
+    profile_ids = {
         profile.candidate_id
         for profile in profiles
     }
+    expected_ids = set(portrait_candidate_ids)
+    unknown_ids = expected_ids.difference(profile_ids)
+    if unknown_ids:
+        raise ValueError(
+            "Portrait validation received unknown candidate IDs: "
+            f"{', '.join(sorted(unknown_ids))}."
+        )
+
     expected_paths = {
         candidate_id: images_directory / f"{candidate_id}.webp"
         for candidate_id in expected_ids

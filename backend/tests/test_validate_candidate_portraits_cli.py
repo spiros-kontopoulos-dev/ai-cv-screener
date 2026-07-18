@@ -23,6 +23,7 @@ def test_validation_passes_for_complete_normalized_collection(
     capsys,
     tmp_path: Path,
     valid_candidate_payload: dict,
+    portrait_plan_factory,
 ) -> None:
     """One valid WebP per profile produces a passing report."""
 
@@ -40,6 +41,9 @@ def test_validation_passes_for_complete_normalized_collection(
     status = run_cli(
         settings=Settings(
             candidate_profiles_output_path=profiles_path,
+            candidate_portrait_plan_path=portrait_plan_factory(
+                ["candidate_001"]
+            ),
             candidate_images_directory=images_directory,
             portrait_normalized_size=512,
         )
@@ -47,6 +51,7 @@ def test_validation_passes_for_complete_normalized_collection(
 
     captured = capsys.readouterr()
     assert status == 0
+    assert "Planned portraits: 1" in captured.out
     assert "Valid portraits: 1" in captured.out
     assert "Result: PASS" in captured.out
 
@@ -55,6 +60,7 @@ def test_validation_fails_for_missing_portrait(
     capsys,
     tmp_path: Path,
     valid_candidate_payload: dict,
+    portrait_plan_factory,
 ) -> None:
     """Missing candidate assets produce a clear failing report."""
 
@@ -65,6 +71,9 @@ def test_validation_fails_for_missing_portrait(
     status = run_cli(
         settings=Settings(
             candidate_profiles_output_path=profiles_path,
+            candidate_portrait_plan_path=portrait_plan_factory(
+                ["candidate_001"]
+            ),
             candidate_images_directory=tmp_path / "images",
         )
     )

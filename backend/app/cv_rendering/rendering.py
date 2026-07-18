@@ -5,6 +5,7 @@ owns paged layout, and PyMuPDF performs a small post-render integrity check.  No
 step reads from the dataset plan or bypasses the validated ``CandidateProfile``.
 """
 
+import base64
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -49,26 +50,26 @@ def render_cv_jobs(
     jobs: Sequence[CvRenderJob],
     *,
     keep_html: bool,
-    require_portraits: bool = False,
+    enforce_portrait_plan: bool = False,
     template_path: Path = DEFAULT_CV_TEMPLATE_PATH,
     stylesheet_path: Path = DEFAULT_CV_STYLESHEET_PATH,
 ) -> list[CvRenderResult]:
     """Render selected jobs in deterministic order and return their results.
 
-    ``require_portraits`` protects final dataset generation from silently
-    falling back to the development initials placeholder. Sample layout work
-    may still omit portraits by leaving the option disabled.
+    ``enforce_portrait_plan`` protects final dataset generation from silently
+    falling back to initials for candidates selected by the committed portrait
+    plan. Intentionally photo-free candidates remain valid.
     """
 
-    if require_portraits:
+    if enforce_portrait_plan:
         missing_portraits = [
             job.candidate_id
             for job in jobs
-            if not job.portrait_exists
+            if job.portrait_planned and not job.portrait_exists
         ]
         if missing_portraits:
             raise CvRenderingError(
-                "Real portraits are required but missing for: "
+                "Planned portraits are missing for: "
                 f"{', '.join(sorted(missing_portraits))}."
             )
 
@@ -128,7 +129,10 @@ def render_cv_job(
         html_preview_path=saved_html_path,
         page_count=page_count,
         extracted_text_characters=extracted_text_characters,
-        used_placeholder_portrait=not job.portrait_exists,
+        portrait_planned=job.portrait_planned,
+        used_placeholder_portrait=(
+            job.portrait_planned and not job.portrait_exists
+        ),
     )
 
 
@@ -155,11 +159,8 @@ def render_cv_html(
         return template.render(
             candidate=job.profile,
             candidate_initials=candidate_initials(job.profile.full_name),
-            portrait_uri=(
-                job.portrait_path.resolve().as_uri()
-                if job.portrait_exists
-                else None
-            ),
+            portrait_planned=job.portrait_planned,
+            portrait_uri=_build_portrait_data_uri(job),
             skill_groups=group_skills(job.profile.skills),
             stylesheet=stylesheet,
         )
@@ -171,6 +172,24 @@ def render_cv_html(
         raise CvRenderingError(
             f"CV template failed for {job.candidate_id}: {error}"
         ) from error
+
+
+def _build_portrait_data_uri(job: CvRenderJob) -> str | None:
+    """Embed a real portrait so saved HTML previews work outside Docker.
+
+    A ``file:///app/...`` URI is readable by WeasyPrint inside the backend
+    container but not by a Windows browser opening the mounted HTML file.
+    Embedding the small normalized WebP as a data URI makes the standalone
+    preview portable while preserving identical input for PDF rendering.
+    """
+
+    if not (job.portrait_planned and job.portrait_exists):
+        return None
+
+    encoded_portrait = base64.b64encode(
+        job.portrait_path.read_bytes()
+    ).decode("ascii")
+    return f"data:image/webp;base64,{encoded_portrait}"
 
 
 def _build_jinja_environment(template_directory: Path) -> Environment:

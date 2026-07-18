@@ -31,6 +31,12 @@ from app.cv_rendering import (
     select_cv_render_jobs,
 )
 
+from app.portrait_generation import (
+    PortraitCoveragePlanError,
+    load_portrait_coverage_plan,
+    validate_portrait_coverage_against_profiles,
+)
+
 
 def _positive_integer(value: str) -> int:
     """Convert one command-line value to an integer greater than zero."""
@@ -99,11 +105,12 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
-        "--require-portraits",
+        "--enforce-portrait-plan",
         action="store_true",
         help=(
-            "Fail before rendering when any selected candidate lacks a real "
-            "normalized portrait. Use this for the final PDF dataset."
+            "Fail before rendering when a candidate selected by the committed "
+            "portrait plan lacks a normalized portrait. Intentionally "
+            "photo-free CVs remain valid."
         ),
     )
 
@@ -133,6 +140,17 @@ def run_cli(
         profiles = load_candidate_profiles(
             active_settings.candidate_profiles_output_path
         )
+        if not profiles:
+            raise CvRenderingPlanError(
+                "At least one candidate profile is required for CV rendering."
+            )
+        coverage_plan = load_portrait_coverage_plan(
+            active_settings.candidate_portrait_plan_path
+        )
+        validate_portrait_coverage_against_profiles(
+            coverage_plan,
+            profiles,
+        )
         all_jobs = build_cv_render_jobs(
             profiles,
             images_directory=(
@@ -141,6 +159,9 @@ def run_cli(
             pdf_directory=active_settings.cv_pdfs_output_directory,
             html_preview_directory=(
                 active_settings.cv_html_preview_directory
+            ),
+            portrait_candidate_ids=(
+                coverage_plan.portrait_candidate_id_set
             ),
         )
         selected_jobs = select_cv_render_jobs(
@@ -165,10 +186,11 @@ def run_cli(
         results = render_cv_jobs(
             selected_jobs,
             keep_html=arguments.keep_html,
-            require_portraits=arguments.require_portraits,
+            enforce_portrait_plan=arguments.enforce_portrait_plan,
         )
     except (
         CandidateProfilesFileError,
+        PortraitCoveragePlanError,
         CvRenderingError,
         CvRenderingPlanError,
     ) as error:
@@ -192,7 +214,9 @@ def _print_rendering_plan(
 ) -> None:
     """Print concise paths, boundary cases, and portrait readiness."""
 
-    portrait_count = sum(job.portrait_exists for job in all_jobs)
+    planned_jobs = [job for job in all_jobs if job.portrait_planned]
+    portrait_count = sum(job.portrait_exists for job in planned_jobs)
+    photo_free_count = sum(not job.portrait_planned for job in all_jobs)
 
     print("CV RENDERING DRY RUN")
     print(f"  Profiles path: {settings.candidate_profiles_output_path}")
@@ -200,7 +224,10 @@ def _print_rendering_plan(
     print(f"  Candidate images: {settings.candidate_images_directory}")
     print(f"  PDF output: {settings.cv_pdfs_output_directory}")
     print(f"  HTML previews: {settings.cv_html_preview_directory}")
-    print(f"  Portraits available: {portrait_count}/{len(all_jobs)}")
+    print(f"  Portrait plan: {settings.candidate_portrait_plan_path}")
+    print(f"  Planned portraits: {len(planned_jobs)}")
+    print(f"  Portraits available: {portrait_count}/{len(planned_jobs)}")
+    print(f"  Planned photo-free CVs: {photo_free_count}")
     print(f"  Selected jobs: {len(selected_jobs)}")
     print(
         "  Shortest profile: "
@@ -217,7 +244,12 @@ def _print_rendering_plan(
 
     print("\nPLANNED ARTIFACTS")
     for job in selected_jobs:
-        portrait_status = "ready" if job.portrait_exists else "placeholder"
+        if not job.portrait_planned:
+            portrait_status = "photo-free"
+        elif job.portrait_exists:
+            portrait_status = "ready"
+        else:
+            portrait_status = "planned-missing"
         print(
             f"  {job.candidate_id} | {job.profile.full_name} | "
             f"portrait={portrait_status} | pdf={job.pdf_path.name}"
@@ -237,11 +269,21 @@ def _print_rendering_summary(
         result.used_placeholder_portrait
         for result in results
     )
+    portrait_count = sum(
+        result.portrait_planned and not result.used_placeholder_portrait
+        for result in results
+    )
+    photo_free_count = sum(
+        not result.portrait_planned
+        for result in results
+    )
 
     print("CV RENDERING COMPLETE")
     print(f"  PDF output: {settings.cv_pdfs_output_directory}")
     print(f"  Rendered CVs: {len(results)}")
-    print(f"  Placeholder portraits: {placeholder_count}/{len(results)}")
+    print(f"  Portrait CVs: {portrait_count}")
+    print(f"  Photo-free CVs: {photo_free_count}")
+    print(f"  Placeholder portraits: {placeholder_count}")
 
     print("\nRENDERED ARTIFACTS")
     for result in results:
@@ -250,11 +292,12 @@ def _print_rendering_summary(
             if result.html_preview_path is not None
             else "not saved"
         )
-        portrait_status = (
-            "placeholder"
-            if result.used_placeholder_portrait
-            else "portrait"
-        )
+        if not result.portrait_planned:
+            portrait_status = "photo-free"
+        elif result.used_placeholder_portrait:
+            portrait_status = "placeholder"
+        else:
+            portrait_status = "portrait"
         print(
             f"  {result.candidate_id} | pages={result.page_count} | "
             f"text={result.extracted_text_characters} chars | "

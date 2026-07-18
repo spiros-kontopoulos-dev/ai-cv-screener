@@ -51,6 +51,14 @@ body {
   min-width: 0;
 }
 
+.cv-header--photo-free {
+  padding-right: 14mm;
+}
+
+.cv-header--photo-free .identity-block {
+  max-width: 175mm;
+}
+
 .eyebrow {
   color: #a9c8ff;
   font-size: 7.4pt;

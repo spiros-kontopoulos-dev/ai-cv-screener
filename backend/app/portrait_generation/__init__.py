@@ -1,6 +1,12 @@
 """Public interface for fictional candidate portrait generation."""
 
 from .client import OpenAIPortraitGenerator, PortraitProviderError
+from .coverage import (
+    PortraitCoveragePlan,
+    PortraitCoveragePlanError,
+    load_portrait_coverage_plan,
+    validate_portrait_coverage_against_profiles,
+)
 from .generation import (
     PortraitGenerationFailed,
     PortraitImageProvider,
@@ -29,6 +35,8 @@ from .validation import validate_portrait_collection
 __all__ = [
     "NORMALIZED_PORTRAIT_EXTENSION",
     "OpenAIPortraitGenerator",
+    "PortraitCoveragePlan",
+    "PortraitCoveragePlanError",
     "PortraitCollectionValidation",
     "PortraitGenerationFailed",
     "PortraitGenerationJob",
@@ -42,7 +50,9 @@ __all__ = [
     "build_portrait_prompt",
     "generate_portrait_with_retries",
     "inspect_portrait_image",
+    "load_portrait_coverage_plan",
     "normalize_portrait_image",
     "select_portrait_generation_jobs",
     "validate_portrait_collection",
+    "validate_portrait_coverage_against_profiles",
 ]

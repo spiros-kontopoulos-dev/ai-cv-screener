@@ -93,6 +93,7 @@ def test_collection_validation_reports_missing_and_unexpected_images(
 
     result = validate_portrait_collection(
         [profile],
+        portrait_candidate_ids={"candidate_001"},
         images_directory=images_directory,
         expected_size=512,
     )

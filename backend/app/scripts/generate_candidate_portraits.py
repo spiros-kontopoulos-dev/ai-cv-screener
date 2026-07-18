@@ -26,15 +26,18 @@ from app.candidate_generation.persistence import (
 from app.core.config import Settings, get_settings
 from app.portrait_generation import (
     OpenAIPortraitGenerator,
+    PortraitCoveragePlanError,
     PortraitGenerationFailed,
     PortraitGenerationJob,
     PortraitGenerationPlanError,
     PortraitImageError,
     PortraitImageProvider,
     build_portrait_generation_jobs,
+    load_portrait_coverage_plan,
     generate_portrait_with_retries,
     inspect_portrait_image,
     select_portrait_generation_jobs,
+    validate_portrait_coverage_against_profiles,
 )
 
 
@@ -81,7 +84,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--all",
         action="store_true",
         dest="select_all",
-        help="Select every validated candidate profile.",
+        help="Select every candidate in the committed portrait plan.",
     )
 
     parser.add_argument(
@@ -144,9 +147,19 @@ def run_cli(
         profiles = load_candidate_profiles(
             active_settings.candidate_profiles_output_path
         )
+        coverage_plan = load_portrait_coverage_plan(
+            active_settings.candidate_portrait_plan_path
+        )
+        validate_portrait_coverage_against_profiles(
+            coverage_plan,
+            profiles,
+        )
         all_jobs = build_portrait_generation_jobs(
             profiles,
             images_directory=active_settings.candidate_images_directory,
+            portrait_candidate_ids=(
+                coverage_plan.portrait_candidate_id_set
+            ),
         )
         selected_jobs = select_portrait_generation_jobs(
             all_jobs,
@@ -157,6 +170,7 @@ def run_cli(
         )
     except (
         CandidateProfilesFileError,
+        PortraitCoveragePlanError,
         PortraitGenerationPlanError,
     ) as error:
         print(f"ERROR: {error}", file=sys.stderr)
@@ -165,6 +179,7 @@ def run_cli(
     if arguments.dry_run:
         _print_dry_run(
             settings=active_settings,
+            profile_count=len(profiles),
             all_jobs=all_jobs,
             selected_jobs=selected_jobs,
             show_prompts=arguments.show_prompts,
@@ -303,6 +318,7 @@ def _read_openai_api_key(settings: Settings) -> str:
 def _print_dry_run(
     *,
     settings: Settings,
+    profile_count: int,
     all_jobs: Sequence[PortraitGenerationJob],
     selected_jobs: Sequence[PortraitGenerationJob],
     show_prompts: bool,
@@ -313,12 +329,14 @@ def _print_dry_run(
 
     print("CANDIDATE PORTRAIT GENERATION DRY RUN")
     print(f"  Profiles path: {settings.candidate_profiles_output_path}")
-    print(f"  Profiles available: {len(all_jobs)}")
+    print(f"  Profiles available: {profile_count}")
+    print(f"  Planned portraits: {len(all_jobs)}")
     print(f"  Portraits available: {existing_count}/{len(all_jobs)}")
     print(f"  Selected portraits: {len(selected_jobs)}")
     print(f"  Future model: {settings.portrait_generation_model}")
     print(f"  Future provider size: {settings.portrait_generation_size}")
     print(f"  Future quality: {settings.portrait_generation_quality}")
+    print(f"  Portrait plan: {settings.candidate_portrait_plan_path}")
     print(f"  Output directory: {settings.candidate_images_directory}")
 
     for position, job in enumerate(selected_jobs, start=1):

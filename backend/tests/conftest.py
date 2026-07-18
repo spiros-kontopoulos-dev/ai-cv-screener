@@ -259,3 +259,33 @@ def valid_candidate_002_payload() -> dict:
         ],
         "projects": [],
     }
+
+@pytest.fixture
+def portrait_plan_factory(tmp_path):
+    """Write a small valid portrait coverage plan for isolated CLI tests."""
+
+    import json
+
+    def write_plan(candidate_ids: list[str]):
+        path = tmp_path / "candidate_portrait_plan.json"
+        path.write_text(
+            json.dumps(
+                {
+                    "plan_version": 1,
+                    "portrait_count": len(candidate_ids),
+                    "purpose": (
+                        "Test portrait coverage plan for isolated candidate "
+                        "rendering and generation workflows."
+                    ),
+                    "selection_strategy": (
+                        "Use the exact candidate identifiers supplied by the "
+                        "test while keeping the plan deterministic."
+                    ),
+                    "portrait_candidate_ids": sorted(candidate_ids),
+                }
+            ),
+            encoding="utf-8",
+        )
+        return path
+
+    return write_plan

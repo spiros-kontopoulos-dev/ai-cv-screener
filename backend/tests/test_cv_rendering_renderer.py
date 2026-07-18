@@ -21,8 +21,10 @@ from app.schemas import CandidateProfile
 def _build_job(
     tmp_path: Path,
     valid_candidate_payload: dict,
+    *,
+    portrait_planned: bool = True,
 ):
-    """Create one isolated render job without a real portrait asset."""
+    """Create one isolated render job with controlled portrait coverage."""
 
     profile = CandidateProfile.model_validate(valid_candidate_payload)
     return build_cv_render_jobs(
@@ -30,6 +32,11 @@ def _build_job(
         images_directory=tmp_path / "images",
         pdf_directory=tmp_path / "pdfs",
         html_preview_directory=tmp_path / "html",
+        portrait_candidate_ids=(
+            {profile.candidate_id}
+            if portrait_planned
+            else set()
+        ),
     )[0]
 
 
@@ -55,6 +62,25 @@ def test_html_template_renders_all_required_profile_sections(
     assert "portrait-placeholder" in rendered_html
 
 
+def test_photo_free_template_omits_portrait_frame(
+    tmp_path: Path,
+    valid_candidate_payload: dict,
+) -> None:
+    """Intentional photo-free CVs use a wider header without initials."""
+
+    job = _build_job(
+        tmp_path,
+        valid_candidate_payload,
+        portrait_planned=False,
+    )
+
+    rendered_html = render_cv_html(job)
+
+    assert "cv-header--photo-free" in rendered_html
+    assert '<div class="portrait-frame"' not in rendered_html
+    assert '<div class="portrait-placeholder"' not in rendered_html
+
+
 def test_render_job_writes_searchable_pdf_and_optional_html(
     tmp_path: Path,
     valid_candidate_payload: dict,
@@ -71,6 +97,7 @@ def test_render_job_writes_searchable_pdf_and_optional_html(
     assert result.html_preview_path.is_file()
     assert result.page_count >= 1
     assert result.extracted_text_characters > 200
+    assert result.portrait_planned is True
     assert result.used_placeholder_portrait is True
 
     with pymupdf.open(result.pdf_path) as document:
@@ -83,22 +110,47 @@ def test_render_job_writes_searchable_pdf_and_optional_html(
     assert "FastAPI" in extracted_text
     assert "managed 4 people" in extracted_text
 
-def test_final_batch_can_require_real_portraits(
+
+def test_final_batch_enforces_only_planned_portraits(
     tmp_path: Path,
     valid_candidate_payload: dict,
 ) -> None:
-    """Final dataset rendering fails before writing placeholder-based PDFs."""
+    """Final rendering rejects missing planned portraits before PDF writes."""
 
-    job = _build_job(tmp_path, valid_candidate_payload)
+    planned_job = _build_job(tmp_path, valid_candidate_payload)
 
     with pytest.raises(CvRenderingError, match="candidate_001"):
         render_cv_jobs(
-            [job],
+            [planned_job],
             keep_html=False,
-            require_portraits=True,
+            enforce_portrait_plan=True,
         )
 
-    assert not job.pdf_path.exists()
+    assert not planned_job.pdf_path.exists()
+
+
+def test_final_batch_accepts_intentional_photo_free_cv(
+    tmp_path: Path,
+    valid_candidate_payload: dict,
+) -> None:
+    """A candidate outside the portrait plan remains valid without an image."""
+
+    photo_free_job = _build_job(
+        tmp_path,
+        valid_candidate_payload,
+        portrait_planned=False,
+    )
+
+    result = render_cv_jobs(
+        [photo_free_job],
+        keep_html=False,
+        enforce_portrait_plan=True,
+    )[0]
+
+    assert result.pdf_path.is_file()
+    assert result.portrait_planned is False
+    assert result.used_placeholder_portrait is False
+
 
 def test_final_batch_renders_with_verified_real_portrait(
     tmp_path: Path,
@@ -120,9 +172,13 @@ def test_final_batch_renders_with_verified_real_portrait(
     result = render_cv_jobs(
         [job],
         keep_html=False,
-        require_portraits=True,
+        enforce_portrait_plan=True,
     )[0]
 
     assert result.pdf_path.is_file()
+    assert result.portrait_planned is True
     assert result.used_placeholder_portrait is False
 
+    rendered_html = render_cv_html(job)
+    assert 'src="data:image/webp;base64,' in rendered_html
+    assert "file:///" not in rendered_html

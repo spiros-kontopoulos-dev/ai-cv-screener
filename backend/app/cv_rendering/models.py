@@ -36,6 +36,7 @@ class CvRenderJob:
 
     profile: CandidateProfile
     portrait_path: Path
+    portrait_planned: bool
     pdf_path: Path
     html_preview_path: Path
     metrics: CvProfileMetrics
@@ -62,4 +63,5 @@ class CvRenderResult:
     html_preview_path: Path | None
     page_count: int
     extracted_text_characters: int
+    portrait_planned: bool
     used_placeholder_portrait: bool

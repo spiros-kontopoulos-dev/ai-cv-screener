@@ -1,6 +1,6 @@
 """Build and select deterministic candidate portrait-generation jobs."""
 
-from collections.abc import Sequence
+from collections.abc import Collection, Sequence
 from pathlib import Path
 
 from app.schemas import CandidateProfile
@@ -20,6 +20,7 @@ def build_portrait_generation_jobs(
     profiles: Sequence[CandidateProfile],
     *,
     images_directory: Path,
+    portrait_candidate_ids: Collection[str] | None = None,
 ) -> list[PortraitGenerationJob]:
     """Map validated profiles to prompts and stable WebP output paths."""
 
@@ -34,6 +35,18 @@ def build_portrait_generation_jobs(
             "Candidate profiles contain duplicate candidate IDs."
         )
 
+    planned_ids = (
+        set(candidate_ids)
+        if portrait_candidate_ids is None
+        else set(portrait_candidate_ids)
+    )
+    unknown_ids = planned_ids.difference(candidate_ids)
+    if unknown_ids:
+        raise PortraitGenerationPlanError(
+            "Portrait plan contains unknown candidate IDs: "
+            f"{', '.join(sorted(unknown_ids))}."
+        )
+
     return [
         PortraitGenerationJob(
             profile=profile,
@@ -44,6 +57,7 @@ def build_portrait_generation_jobs(
             prompt=build_portrait_prompt(profile),
         )
         for profile in ordered_profiles
+        if profile.candidate_id in planned_ids
     ]
 
 
@@ -55,7 +69,7 @@ def select_portrait_generation_jobs(
     start_from: str | None,
     select_all: bool,
 ) -> list[PortraitGenerationJob]:
-    """Select one portrait, a bounded batch, or the complete collection."""
+    """Select one planned portrait, a bounded batch, or all planned portraits."""
 
     selected_modes = sum(
         mode_selected
@@ -83,7 +97,7 @@ def select_portrait_generation_jobs(
             return [jobs_by_id[candidate_id]]
         except KeyError as error:
             raise PortraitGenerationPlanError(
-                f"Unknown candidate ID: {candidate_id}."
+                f"Candidate ID is not selected by the portrait plan: {candidate_id}."
             ) from error
 
     start_index = 0
@@ -92,7 +106,8 @@ def select_portrait_generation_jobs(
             start_job = jobs_by_id[start_from]
         except KeyError as error:
             raise PortraitGenerationPlanError(
-                f"Unknown start candidate ID: {start_from}."
+                "Start candidate ID is not selected by the portrait plan: "
+                f"{start_from}."
             ) from error
 
         start_index = ordered_jobs.index(start_job)

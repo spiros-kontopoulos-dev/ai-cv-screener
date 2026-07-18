@@ -8,7 +8,7 @@
 </head>
 <body>
   <article class="cv-document">
-    <header class="cv-header">
+    <header class="cv-header{% if not portrait_planned %} cv-header--photo-free{% endif %}">
       <div class="identity-block">
         <p class="eyebrow">Curriculum Vitae</p>
         <h1>{{ candidate.full_name }}</h1>
@@ -21,19 +21,21 @@
         </p>
       </div>
 
-      <div class="portrait-frame" aria-label="Candidate portrait">
-        {% if portrait_uri %}
-          <img
-            class="candidate-portrait"
-            src="{{ portrait_uri }}"
-            alt="Portrait of {{ candidate.full_name }}"
-          >
-        {% else %}
-          <div class="portrait-placeholder" aria-hidden="true">
-            {{ candidate_initials }}
-          </div>
-        {% endif %}
-      </div>
+      {% if portrait_planned %}
+        <div class="portrait-frame" aria-label="Candidate portrait">
+          {% if portrait_uri %}
+            <img
+              class="candidate-portrait"
+              src="{{ portrait_uri }}"
+              alt="Portrait of {{ candidate.full_name }}"
+            >
+          {% else %}
+            <div class="portrait-placeholder" aria-hidden="true">
+              {{ candidate_initials }}
+            </div>
+          {% endif %}
+        </div>
+      {% endif %}
     </header>
 
     <section class="contact-strip" aria-label="Contact information">

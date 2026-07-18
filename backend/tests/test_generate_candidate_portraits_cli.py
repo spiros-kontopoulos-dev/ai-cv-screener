@@ -11,10 +11,15 @@ from app.schemas import CandidateProfile
 from app.scripts.generate_candidate_portraits import run_cli
 
 
-def _settings(tmp_path: Path, profiles_path: Path) -> Settings:
+def _settings(
+    tmp_path: Path,
+    profiles_path: Path,
+    portrait_plan_path: Path,
+) -> Settings:
     return Settings(
         openai_api_key="test-key",
         candidate_profiles_output_path=profiles_path,
+        candidate_portrait_plan_path=portrait_plan_path,
         candidate_images_directory=tmp_path / "images",
         portrait_normalized_size=512,
         portrait_webp_quality=88,
@@ -41,6 +46,7 @@ def test_dry_run_prints_prompt_plan_without_provider(
     capsys,
     tmp_path: Path,
     valid_candidate_payload: dict,
+    portrait_plan_factory,
 ) -> None:
     """Dry-run mode does not require a key or create image files."""
 
@@ -49,6 +55,9 @@ def test_dry_run_prints_prompt_plan_without_provider(
     save_candidate_profiles(profiles_path, [profile])
     settings = Settings(
         candidate_profiles_output_path=profiles_path,
+        candidate_portrait_plan_path=portrait_plan_factory(
+            ["candidate_001"]
+        ),
         candidate_images_directory=tmp_path / "images",
     )
 
@@ -63,6 +72,7 @@ def test_dry_run_prints_prompt_plan_without_provider(
     captured = capsys.readouterr()
     assert status == 0
     assert "CANDIDATE PORTRAIT GENERATION DRY RUN" in captured.out
+    assert "Planned portraits: 1" in captured.out
     assert "candidate_001.webp" in captured.out
     assert "completely fictional adult" in captured.out
     assert not (tmp_path / "images").exists()
@@ -72,13 +82,18 @@ def test_real_generation_saves_normalized_portrait_and_resume_skips_it(
     capsys,
     tmp_path: Path,
     valid_candidate_payload: dict,
+    portrait_plan_factory,
 ) -> None:
     """A valid existing WebP resumes without another provider request."""
 
     profile = CandidateProfile.model_validate(valid_candidate_payload)
     profiles_path = tmp_path / "candidate_profiles.json"
     save_candidate_profiles(profiles_path, [profile])
-    settings = _settings(tmp_path, profiles_path)
+    settings = _settings(
+        tmp_path,
+        profiles_path,
+        portrait_plan_factory(["candidate_001"]),
+    )
     provider = _Provider()
 
     first_status = run_cli(

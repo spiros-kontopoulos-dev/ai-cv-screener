@@ -121,3 +121,32 @@ def test_portrait_selection_rejects_unknown_candidate(
             start_from=None,
             select_all=False,
         )
+
+
+def test_portrait_jobs_include_only_coverage_plan_candidates(
+    tmp_path: Path,
+    valid_candidate_payload: dict,
+) -> None:
+    """The generation queue excludes intentionally photo-free candidates."""
+
+    second_payload = {
+        **valid_candidate_payload,
+        "candidate_id": "candidate_002",
+        "full_name": "Jordan Lee",
+        "contact": {
+            **valid_candidate_payload["contact"],
+            "email": "jordan.lee@example.com",
+        },
+    }
+    profiles = [
+        CandidateProfile.model_validate(valid_candidate_payload),
+        CandidateProfile.model_validate(second_payload),
+    ]
+
+    jobs = build_portrait_generation_jobs(
+        profiles,
+        images_directory=tmp_path / "images",
+        portrait_candidate_ids={"candidate_002"},
+    )
+
+    assert [job.candidate_id for job in jobs] == ["candidate_002"]

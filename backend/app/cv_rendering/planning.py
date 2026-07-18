@@ -5,7 +5,7 @@ that the validated profile collection can be selected, measured, and mapped to
 stable portrait, HTML-preview, and PDF paths before any visual rendering starts.
 """
 
-from collections.abc import Sequence
+from collections.abc import Collection, Sequence
 from pathlib import Path
 from typing import Any
 
@@ -53,6 +53,7 @@ def build_cv_render_jobs(
     images_directory: Path,
     pdf_directory: Path,
     html_preview_directory: Path,
+    portrait_candidate_ids: Collection[str] | None = None,
 ) -> list[CvRenderJob]:
     """Map every validated profile to stable rendering artifact paths.
 
@@ -72,6 +73,18 @@ def build_cv_render_jobs(
             "CV rendering."
         )
 
+    planned_ids = (
+        set(candidate_ids)
+        if portrait_candidate_ids is None
+        else set(portrait_candidate_ids)
+    )
+    unknown_planned_ids = planned_ids.difference(candidate_ids)
+    if unknown_planned_ids:
+        raise CvRenderingPlanError(
+            "Portrait plan contains unknown candidate IDs: "
+            f"{', '.join(sorted(unknown_planned_ids))}."
+        )
+
     return [
         CvRenderJob(
             profile=profile,
@@ -79,6 +92,7 @@ def build_cv_render_jobs(
                 images_directory
                 / f"{profile.candidate_id}{NORMALIZED_PORTRAIT_EXTENSION}"
             ),
+            portrait_planned=profile.candidate_id in planned_ids,
             pdf_path=pdf_directory / f"{profile.candidate_id}.pdf",
             html_preview_path=(
                 html_preview_directory / f"{profile.candidate_id}.html"

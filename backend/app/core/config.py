@@ -32,6 +32,11 @@ DEFAULT_CANDIDATE_DATASET_PLAN_PATH = (
     / "dataset"
     / "candidate_dataset_plan.json"
 )
+DEFAULT_CANDIDATE_PORTRAIT_PLAN_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "dataset"
+    / "candidate_portrait_plan.json"
+)
 
 
 class Settings(BaseSettings):
@@ -64,6 +69,7 @@ class Settings(BaseSettings):
 
     # WP3 candidate-generation configuration.
     candidate_dataset_plan_path: Path = DEFAULT_CANDIDATE_DATASET_PLAN_PATH
+    candidate_portrait_plan_path: Path = DEFAULT_CANDIDATE_PORTRAIT_PLAN_PATH
 
     # The generated profile collection is preparation data for WP4 PDF
     # rendering. A relative path resolves from /app inside the backend

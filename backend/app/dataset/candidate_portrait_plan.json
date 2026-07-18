@@ -1,0 +1,23 @@
+{
+  "plan_version": 1,
+  "portrait_count": 15,
+  "purpose": "Use AI-generated portraits for a balanced subset of candidates while preserving realistic photo-free CV variation across the remaining profiles.",
+  "selection_strategy": "Select exactly half of the 30 candidates, cover every profession category, and preserve the dataset seniority distribution with 4 junior, 6 mid-level, and 5 senior portrait candidates.",
+  "portrait_candidate_ids": [
+    "candidate_002",
+    "candidate_003",
+    "candidate_004",
+    "candidate_007",
+    "candidate_010",
+    "candidate_012",
+    "candidate_014",
+    "candidate_015",
+    "candidate_018",
+    "candidate_020",
+    "candidate_024",
+    "candidate_026",
+    "candidate_027",
+    "candidate_029",
+    "candidate_030"
+  ]
+}
