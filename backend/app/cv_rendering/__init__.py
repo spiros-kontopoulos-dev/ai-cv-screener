@@ -34,8 +34,28 @@ from app.cv_rendering.rendering import (
     render_cv_job,
     render_cv_jobs,
 )
+from app.cv_rendering.validation import (
+    CandidateCvValidation,
+    CvFactExpectation,
+    CvPdfCollectionValidationReport,
+    CvPdfValidationError,
+    ExtractedCvDocument,
+    build_profile_fact_expectations,
+    extract_cv_pdf,
+    validate_cv_pdf_collection,
+    validate_profile_against_pdf_text,
+)
 
 __all__ = [
+    "CandidateCvValidation",
+    "CvFactExpectation",
+    "CvPdfCollectionValidationReport",
+    "CvPdfValidationError",
+    "ExtractedCvDocument",
+    "build_profile_fact_expectations",
+    "extract_cv_pdf",
+    "validate_cv_pdf_collection",
+    "validate_profile_against_pdf_text",
     "DEFAULT_CV_STYLESHEET_PATH",
     "DEFAULT_CV_TEMPLATE_PATH",
     "NORMALIZED_PORTRAIT_EXTENSION",
