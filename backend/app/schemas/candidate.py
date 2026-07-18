@@ -6,7 +6,7 @@ into CV PDFs, but the RAG system will index only the generated PDFs.
 """
 
 from enum import StrEnum
-from typing import Self
+from typing import Annotated, Self
 
 from pydantic import (
     BaseModel,
@@ -24,6 +24,12 @@ YEAR_MONTH_PATTERN = r"^\d{4}-(0[1-9]|1[0-2])$"
 # Candidate IDs become stable links between the structured profile,
 # candidate image, generated PDF, and later retrieval metadata.
 CANDIDATE_ID_PATTERN = r"^candidate_\d{3}$"
+
+# Reusable constrained strings keep repeated list items bounded without
+# duplicating the same Field configuration across multiple models.
+HighlightText = Annotated[str, Field(min_length=10, max_length=240)]
+TechnologyName = Annotated[str, Field(min_length=1, max_length=80)]
+
 
 def _find_case_insensitive_duplicates(values: list[str]) -> list[str]:
     """Return normalized values that appear more than once.
@@ -45,7 +51,6 @@ def _find_case_insensitive_duplicates(values: list[str]) -> list[str]:
 
     # Sorting makes validation messages deterministic and easier to test.
     return sorted(duplicates)
-
 
 
 class CandidateSchema(BaseModel):
@@ -173,15 +178,16 @@ class WorkExperience(CandidateSchema):
 
     # These become bullet points in the rendered CV.
     # Limiting the count helps keep every PDF compact and readable.
-    highlights: list[str] = Field(
+    highlights: list[HighlightText] = Field(
         min_length=1,
         max_length=6,
     )
 
     # Technologies connect general skills to evidence from a real role.
     # An empty list is valid when a role is not technology-focused.
-    technologies: list[str] = Field(
-        default_factory=list,# This creates a new empty list for every model instance:
+    technologies: list[TechnologyName] = Field(
+        # Create a separate empty list for every model instance.
+        default_factory=list,
         max_length=15,
     )
 
@@ -210,7 +216,6 @@ class WorkExperience(CandidateSchema):
 
         return technologies
 
-    # After normal field validation succeeds, this method runs to check the model as a whole.
     @model_validator(mode="after")
     def validate_date_order(self) -> Self:
         """Ensure a finished position does not end before it starts."""
@@ -225,7 +230,6 @@ class WorkExperience(CandidateSchema):
 
         # After-model validators must return the validated model instance.
         return self
-
 
 
 class Education(CandidateSchema):
@@ -268,6 +272,7 @@ class Education(CandidateSchema):
 
         return self
 
+
 class Certification(CandidateSchema):
     """One professional certification listed on a candidate's CV."""
 
@@ -295,7 +300,7 @@ class Project(CandidateSchema):
 
     # Project technologies provide searchable evidence, especially for
     # junior candidates with limited professional work history.
-    technologies: list[str] = Field(
+    technologies: list[TechnologyName] = Field(
         min_length=1,
         max_length=15,
     )
@@ -474,6 +479,22 @@ class CandidateProfile(CandidateSchema):
             raise ValueError(
                 "Senior candidates must have at least 5 years "
                 "of total experience."
+            )
+
+        # A skill cannot claim more years than the candidate's total career.
+        # Skills without an exact duration remain valid because their value is None.
+        skills_exceeding_total = [
+            skill.name
+            for skill in self.skills
+            if skill.years_of_experience is not None
+            and skill.years_of_experience > experience
+        ]
+
+        if skills_exceeding_total:
+            raise ValueError(
+                "Skill experience cannot exceed the candidate's total "
+                "years of experience: "
+                f"{', '.join(sorted(skills_exceeding_total))}."
             )
 
         # A missing end date represents a current position. More than one

@@ -4,6 +4,12 @@ import json
 from collections import Counter
 from pathlib import Path
 
+from app.schemas import (
+    LanguageProficiency,
+    ProfessionCategory,
+    SeniorityLevel,
+)
+
 
 PLAN_PATH = (
     Path(__file__).resolve().parents[1]
@@ -126,3 +132,26 @@ def test_fictional_data_and_pdf_grounding_rules_are_locked() -> None:
     policy = _load_plan()["fictional_data_policy"]
 
     assert all(policy.values())
+
+
+def test_plan_uses_only_schema_controlled_values() -> None:
+    """The dataset plan must stay compatible with the candidate schema."""
+
+    plan = _load_plan()
+    valid_professions = {value.value for value in ProfessionCategory}
+    valid_seniority = {value.value for value in SeniorityLevel}
+    valid_proficiency = {value.value for value in LanguageProficiency}
+
+    for candidate in plan["candidates"]:
+        assert candidate["profession"] in valid_professions
+        assert candidate["seniority"] in valid_seniority
+        assert len(candidate["required_skills"]) == len(
+            {skill.casefold() for skill in candidate["required_skills"]}
+        )
+        assert len(candidate["languages"]) == len(
+            {language["name"].casefold() for language in candidate["languages"]}
+        )
+        assert all(
+            language["proficiency"] in valid_proficiency
+            for language in candidate["languages"]
+        )

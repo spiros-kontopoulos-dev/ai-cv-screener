@@ -292,6 +292,14 @@ def test_overlapping_seniority_ranges_allow_realistic_profiles(
     valid_candidate_payload["seniority"] = "mid"
     valid_candidate_payload["years_of_experience"] = 5
 
+    # Keep the nested skill claims consistent with the reduced career total.
+    for skill in valid_candidate_payload["skills"]:
+        if skill["years_of_experience"] is not None:
+            skill["years_of_experience"] = min(
+                skill["years_of_experience"],
+                5,
+            )
+
     mid_candidate = CandidateProfile(**valid_candidate_payload)
 
     valid_candidate_payload["seniority"] = "senior"
@@ -300,3 +308,31 @@ def test_overlapping_seniority_ranges_allow_realistic_profiles(
 
     assert mid_candidate.seniority == SeniorityLevel.MID
     assert senior_candidate.seniority == SeniorityLevel.SENIOR
+
+
+def test_skill_experience_cannot_exceed_candidate_total(
+    valid_candidate_payload: dict,
+) -> None:
+    """A skill cannot claim a longer history than the complete career."""
+
+    valid_candidate_payload["skills"][1]["years_of_experience"] = 9
+
+    with pytest.raises(
+        ValidationError,
+        match="Skill experience cannot exceed the candidate's total",
+    ):
+        CandidateProfile(**valid_candidate_payload)
+
+
+def test_work_highlights_have_bounded_length() -> None:
+    """Oversized bullets are rejected before they can overflow a PDF."""
+
+    with pytest.raises(ValidationError) as error:
+        WorkExperience(
+            job_title="Backend Engineer",
+            company="Northstar Systems",
+            start_date="2022-01",
+            highlights=["A" * 241],
+        )
+
+    assert error.value.errors()[0]["loc"] == ("highlights", 0)
