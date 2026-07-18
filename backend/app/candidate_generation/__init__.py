@@ -7,6 +7,10 @@ checks, bounded generation, and safe profile persistence.
 
 from .client import CandidateProviderError, OpenAICandidateGenerator
 from .compliance import validate_profile_against_slot
+from .dataset_validation import (
+    CandidateDatasetValidationReport,
+    validate_candidate_dataset,
+)
 from .experience import (
     CandidateExperienceNormalizationError,
     calculate_employment_years,
@@ -46,6 +50,7 @@ __all__ = [
     "CANDIDATE_GENERATION_INSTRUCTIONS",
     "CandidateExperienceNormalizationError",
     "CandidateDatasetPlan",
+    "CandidateDatasetValidationReport",
     "CandidateGenerationFailed",
     "CandidateGenerationResult",
     "CandidateGenerationSlot",
@@ -67,6 +72,7 @@ __all__ = [
     "normalize_profile_experience",
     "save_candidate_profiles",
     "select_candidate_slots",
+    "validate_candidate_dataset",
     "validate_profile_against_slot",
     "validate_profile_uniqueness",
 ]
