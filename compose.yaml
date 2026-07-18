@@ -14,6 +14,9 @@ services:
       # immediately visible without rebuilding the backend image.
       - ./backend/tests:/app/tests
       - ./backend/pytest.ini:/app/pytest.ini:ro
+
+      # Persist generated profiles and later CV assets on the host.
+      - ./data:/app/data
     command: >
       uvicorn app.main:app
       --host 0.0.0.0

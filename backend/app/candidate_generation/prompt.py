@@ -8,6 +8,7 @@ without mixing provider calls or validation logic into the prompt text.
 
 from collections.abc import Sequence
 
+from .experience import extract_locked_experience_years
 from .models import CandidateGenerationSlot
 
 
@@ -26,8 +27,6 @@ Follow these rules:
 - Keep the profile concise enough for a polished one-to-two-page CV.
 - Use two to four work-experience entries with two to four concise highlights
   per role. Order work experience newest first.
-- Make the employment dates consistent with years_of_experience. The visible
-  non-overlapping work history should cover approximately the declared total.
 - Use one current role at most. Do not create dates later than July 2026.
 - Include every required skill in the skills list and support it with visible
   evidence in the summary, work highlights, work technologies, or projects.
@@ -55,12 +54,12 @@ def build_candidate_prompt(
     """Build the user prompt for one candidate-generation attempt.
 
     ``correction_feedback`` is empty on the first attempt. After a structurally
-    valid response fails deterministic slot checks, the retry loop passes the
-    exact validation problems back to the model so it can repair only the
-    conflicting details.
+    valid response fails deterministic checks, the retry loop passes the exact
+    problems back to the model so it can repair only the conflicting details.
     """
 
     slot_json = slot.model_dump_json(indent=2)
+    experience_instruction = _build_experience_instruction(slot)
 
     prompt_sections = [
         "Generate the candidate described by this controlled dataset slot:",
@@ -70,6 +69,7 @@ def build_candidate_prompt(
             "naturally in visible CV fields. Preserve their meaning, but do not "
             "repeat wording such as 'fictional' in the candidate-facing text."
         ),
+        experience_instruction,
     ]
 
     if correction_feedback:
@@ -82,9 +82,34 @@ def build_candidate_prompt(
                 formatted_feedback,
                 (
                     "Return a complete corrected CandidateProfile. Keep every "
-                    "already-correct slot requirement unchanged."
+                    "already-correct slot requirement unchanged. Python owns "
+                    "experience arithmetic, so repair the requested dates or "
+                    "wording rather than trying to estimate interval totals."
                 ),
             ]
         )
 
     return "\n\n".join(prompt_sections)
+
+
+def _build_experience_instruction(slot: CandidateGenerationSlot) -> str:
+    """Explain whether experience is plan-locked or Python-derived."""
+
+    locked_years = extract_locked_experience_years(slot)
+
+    if locked_years is not None:
+        return (
+            f"This slot locks total experience at {locked_years:g} years. Set "
+            "years_of_experience to that exact value and create employment "
+            "dates whose non-overlapping duration is approximately consistent "
+            "with it. Exact experience wording in the summary must use the "
+            "same value."
+        )
+
+    return (
+        "This slot does not lock an exact experience total. Treat the "
+        "years_of_experience field as provisional because Python will derive "
+        "the final value from the employment dates. Do not state a numeric "
+        "total such as '6 years of experience' in the summary; describe the "
+        "candidate as experienced or mid-level instead."
+    )

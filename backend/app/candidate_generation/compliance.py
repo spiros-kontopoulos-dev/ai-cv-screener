@@ -10,23 +10,23 @@ import re
 
 from app.schemas import CandidateProfile
 
+from .experience import (
+    LATEST_ALLOWED_YEAR,
+    LATEST_ALLOWED_YEAR_MONTH,
+    calculate_employment_years,
+    extract_locked_experience_years,
+)
 from .models import CandidateGenerationSlot
 
 
-# The assignment is being prepared in July 2026. Generated timelines must not
-# contain future employment, education, project, or certification dates.
-LATEST_ALLOWED_YEAR_MONTH = "2026-07"
-LATEST_ALLOWED_YEAR = 2026
-
-# CVs commonly round experience to a whole year. A one-year tolerance keeps
-# the check practical while still rejecting clear contradictions between the
-# declared total and the employment timeline.
+# Locked experience facts may be rounded in a CV. A one-year tolerance still
+# rejects clear contradictions while allowing ordinary human phrasing.
 EXPERIENCE_TOLERANCE_YEARS = 1.0
 
-# Several known facts explicitly lock the total experience value. The pattern
-# captures sentences such as "Has 8 years of backend experience."
-_EXPERIENCE_FACT_PATTERN = re.compile(
-    r"\bhas\s+(?P<years>\d+(?:\.\d+)?)\s+years\b",
+# Unlocked profiles must not repeat the provisional LLM total in their summary
+# because Python derives the final value from employment dates after generation.
+_SUMMARY_TOTAL_EXPERIENCE_PATTERN = re.compile(
+    r"\b(?P<years>\d+(?:\.\d+)?)\+?\s+years?\s+of\s+experience\b",
     flags=re.IGNORECASE,
 )
 
@@ -51,7 +51,8 @@ def validate_profile_against_slot(
     _check_education(profile, slot, problems)
     _check_project(profile, slot, problems)
     _check_explicit_experience_fact(profile, slot, problems)
-    _check_experience_duration(profile, problems)
+    _check_experience_duration(profile, slot, problems)
+    _check_summary_experience_statement(profile, slot, problems)
     _check_ordering_and_future_dates(profile, problems)
 
     return problems
@@ -299,13 +300,7 @@ def _check_explicit_experience_fact(
 ) -> None:
     """Enforce total years when a known fact states an exact value."""
 
-    expected_years: float | None = None
-
-    for known_fact in slot.known_facts:
-        match = _EXPERIENCE_FACT_PATTERN.search(known_fact)
-        if match is not None:
-            expected_years = float(match.group("years"))
-            break
+    expected_years = extract_locked_experience_years(slot)
 
     if (
         expected_years is not None
@@ -320,72 +315,63 @@ def _check_explicit_experience_fact(
 
 def _check_experience_duration(
     profile: CandidateProfile,
+    slot: CandidateGenerationSlot,
     problems: list[str],
 ) -> None:
-    """Compare declared experience with non-overlapping employment months.
+    """Check employment duration only when the plan locks an exact total.
 
-    A schema-valid profile can still claim eight years of experience while its
-    work history visibly spans ten years. The PDF would expose that conflict,
-    so we calculate the union of all role date ranges and reject only material
-    differences. Overlapping roles are merged rather than double-counted.
+    Unlocked totals are already normalized from the timeline by ``experience.py``
+    before compliance runs. Locked totals remain plan-owned, so their generated
+    dates must stay approximately consistent with the required value.
     """
 
-    covered_months = _calculate_non_overlapping_employment_months(profile)
-    calculated_years = covered_months / 12
+    locked_years = extract_locked_experience_years(slot)
+    if locked_years is None:
+        return
 
-    if (
-        abs(calculated_years - profile.years_of_experience)
-        > EXPERIENCE_TOLERANCE_YEARS
-    ):
+    calculated_years = calculate_employment_years(profile)
+    if abs(calculated_years - locked_years) > EXPERIENCE_TOLERANCE_YEARS:
+        minimum_years = max(0.0, locked_years - EXPERIENCE_TOLERANCE_YEARS)
+        maximum_years = locked_years + EXPERIENCE_TOLERANCE_YEARS
         problems.append(
-            "years_of_experience is inconsistent with the visible work "
-            f"history: declared {profile.years_of_experience:g}, but the "
-            f"employment dates cover approximately {calculated_years:.1f} "
-            "non-overlapping years."
+            "The controlled experience total is "
+            f"{locked_years:g} years, but the employment dates cover "
+            f"approximately {calculated_years:.1f} non-overlapping years. "
+            "Keep years_of_experience unchanged and adjust the work dates so "
+            f"they cover between {minimum_years:.1f} and "
+            f"{maximum_years:.1f} years."
         )
 
 
-def _calculate_non_overlapping_employment_months(
+def _check_summary_experience_statement(
     profile: CandidateProfile,
-) -> int:
-    """Return the union of every employment interval in whole months."""
+    slot: CandidateGenerationSlot,
+    problems: list[str],
+) -> None:
+    """Prevent provisional unlocked totals from leaking into visible text."""
 
-    latest_month = _year_month_to_index(LATEST_ALLOWED_YEAR_MONTH)
-    intervals = sorted(
-        (
-            _year_month_to_index(role.start_date),
-            (
-                _year_month_to_index(role.end_date)
-                if role.end_date is not None
-                else latest_month
-            ),
+    summary_match = _SUMMARY_TOTAL_EXPERIENCE_PATTERN.search(profile.summary)
+    if summary_match is None:
+        return
+
+    locked_years = extract_locked_experience_years(slot)
+    stated_years = float(summary_match.group("years"))
+
+    if locked_years is None:
+        problems.append(
+            "The summary must not state an exact phrase such as "
+            f"'{stated_years:g} years of experience' because this slot has a "
+            "Python-derived experience total. Use non-numeric wording such as "
+            "'experienced mid-level backend engineer'."
         )
-        for role in profile.work_experience
-    )
+        return
 
-    merged_intervals: list[tuple[int, int]] = []
-    for start_month, end_month in intervals:
-        if not merged_intervals or start_month > merged_intervals[-1][1] + 1:
-            merged_intervals.append((start_month, end_month))
-            continue
-
-        previous_start, previous_end = merged_intervals[-1]
-        merged_intervals[-1] = (
-            previous_start,
-            max(previous_end, end_month),
+    if stated_years != locked_years:
+        problems.append(
+            "The summary states "
+            f"{stated_years:g} years of experience, but the controlled known "
+            f"fact requires {locked_years:g}."
         )
-
-    return sum(
-        end_month - start_month + 1
-        for start_month, end_month in merged_intervals
-    )
-
-
-def _year_month_to_index(value: str) -> int:
-    """Convert ``YYYY-MM`` into an integer suitable for interval arithmetic."""
-
-    year_text, month_text = value.split("-", maxsplit=1)
-    return int(year_text) * 12 + int(month_text) - 1
 
 
 def _check_ordering_and_future_dates(

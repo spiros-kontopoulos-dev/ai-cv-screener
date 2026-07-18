@@ -173,3 +173,89 @@ def valid_candidate_001_payload(valid_candidate_payload: dict) -> dict:
     )
 
     return valid_candidate_payload
+
+
+@pytest.fixture
+def valid_candidate_002_payload() -> dict:
+    """Return a profile that satisfies candidate_002 after normalization."""
+
+    return {
+        "candidate_id": "candidate_002",
+        "full_name": "Jonas Keller",
+        "professional_title": "Python Backend Engineer",
+        "profession": "backend_engineering",
+        "seniority": "mid",
+        # This is intentionally provisional. Python derives 7.7 years from
+        # the employment dates before the profile is accepted.
+        "years_of_experience": 6,
+        "summary": (
+            "Experienced mid-level backend engineer building Python and Django "
+            "services with PostgreSQL, Redis, and Docker for product teams."
+        ),
+        "contact": {
+            "email": "jonas.keller@example.com",
+            "phone": "+49 30 5550 0192",
+            "city": "Berlin",
+            "country": "Germany",
+        },
+        "work_experience": [
+            {
+                "job_title": "Python Backend Engineer",
+                "company": "Rheinwerk Digital",
+                "location": "Berlin, Germany",
+                "start_date": "2018-12",
+                "end_date": None,
+                "highlights": [
+                    "Built production Django APIs with PostgreSQL and Redis."
+                ],
+                "technologies": [
+                    "Python",
+                    "Django",
+                    "PostgreSQL",
+                    "Redis",
+                    "Docker",
+                ],
+                "managed_team_size": None,
+            }
+        ],
+        "education": [],
+        "skills": [
+            {
+                "name": "Python",
+                "category": "programming_language",
+                "years_of_experience": 6,
+            },
+            {
+                "name": "Django",
+                "category": "framework",
+                "years_of_experience": 5,
+            },
+            {
+                "name": "PostgreSQL",
+                "category": "database",
+                "years_of_experience": 5,
+            },
+            {
+                "name": "Redis",
+                "category": "database",
+                "years_of_experience": 4,
+            },
+            {
+                "name": "Docker",
+                "category": "devops",
+                "years_of_experience": 4,
+            },
+        ],
+        "languages": [
+            {"name": "German", "proficiency": "native"},
+            {"name": "English", "proficiency": "fluent"},
+        ],
+        "certifications": [
+            {
+                "name": "Python Web Engineering Certificate",
+                "issuer": "European Software Guild",
+                "year": 2024,
+            }
+        ],
+        "projects": [],
+    }

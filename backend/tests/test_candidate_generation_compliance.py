@@ -159,10 +159,15 @@ def test_compliance_rejects_declared_experience_that_conflicts_with_history(
         _candidate_001_slot(),
     )
 
-    assert any(
-        "inconsistent with the visible work history" in problem
+    matching_problem = next(
+        problem
         for problem in problems
+        if "controlled experience total is 8 years" in problem
     )
+
+    assert "controlled experience total is 8 years" in matching_problem
+    assert "Keep years_of_experience unchanged" in matching_problem
+    assert "between 7.0 and 9.0 years" in matching_problem
 
 
 def test_compliance_does_not_double_count_overlapping_roles(
@@ -199,5 +204,29 @@ def test_compliance_does_not_double_count_overlapping_roles(
 
     assert not any(
         "inconsistent with the visible work history" in problem
+        for problem in problems
+    )
+
+
+def test_compliance_rejects_exact_summary_total_for_unlocked_slot(
+    valid_candidate_002_payload: dict,
+) -> None:
+    """Python-derived candidates must not expose the provisional LLM total."""
+
+    from app.candidate_generation import normalize_profile_experience
+
+    plan = load_candidate_dataset_plan(PLAN_PATH)
+    slot = plan.candidates[1]
+    valid_candidate_002_payload["summary"] = (
+        "Python backend engineer with 6 years of experience building "
+        "Django, PostgreSQL, Redis, and Docker services for product teams."
+    )
+
+    generated = CandidateProfile.model_validate(valid_candidate_002_payload)
+    normalized = normalize_profile_experience(generated, slot)
+    problems = validate_profile_against_slot(normalized, slot)
+
+    assert any(
+        "summary must not state an exact phrase" in problem
         for problem in problems
     )

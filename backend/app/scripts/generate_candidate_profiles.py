@@ -5,13 +5,16 @@ Examples:
     # Inspect three slots without making network requests.
     python -m app.scripts.generate_candidate_profiles --count 3 --dry-run
 
-    # Generate one validated candidate and print its full JSON.
+    # Generate one validated candidate and persist it.
     python -m app.scripts.generate_candidate_profiles \
-        --candidate-id candidate_001 --print-json
+        --candidate-id candidate_001
 
-WP3 Patch 02 validates and displays generated profiles but deliberately does
-not persist them yet. Safe JSON persistence and resume behavior belong to the
-next cohesive patch.
+    # Continue a partially generated collection without repeating completed IDs.
+    python -m app.scripts.generate_candidate_profiles --all --resume
+
+The command owns developer-facing arguments and output. Prompting, provider
+calls, validation, duplicate detection, and persistence remain in focused
+candidate-generation modules so this script stays an orchestration boundary.
 """
 
 import argparse
@@ -23,13 +26,18 @@ from app.candidate_generation import (
     CandidateGenerationSlot,
     CandidatePlanError,
     CandidateProfileProvider,
+    CandidateProfilesFileError,
     CandidateSelectionError,
     OpenAICandidateGenerator,
+    find_profile_uniqueness_problems,
     generate_candidate_with_retries,
     load_candidate_dataset_plan,
+    load_candidate_profiles,
+    save_candidate_profiles,
     select_candidate_slots,
 )
 from app.core.config import Settings, get_settings
+from app.schemas import CandidateProfile
 
 
 ProviderFactory = Callable[[Settings], CandidateProfileProvider]
@@ -93,7 +101,25 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--print-json",
         action="store_true",
-        help="Print each accepted CandidateProfile as formatted JSON.",
+        help="Print each newly accepted CandidateProfile as formatted JSON.",
+    )
+
+    existing_file_mode = parser.add_mutually_exclusive_group()
+    existing_file_mode.add_argument(
+        "--resume",
+        action="store_true",
+        help=(
+            "Preserve the existing output file and skip selected candidate "
+            "IDs that are already present."
+        ),
+    )
+    existing_file_mode.add_argument(
+        "--overwrite",
+        action="store_true",
+        help=(
+            "Replace the existing generated collection with only the "
+            "profiles selected by this command."
+        ),
     )
 
     return parser
@@ -120,7 +146,7 @@ def run_cli(
     settings: Settings | None = None,
     provider_factory: ProviderFactory = create_openai_provider,
 ) -> int:
-    """Run dry-run inspection or real bounded candidate generation."""
+    """Run dry-run inspection or persisted candidate generation."""
 
     parser = build_parser()
     arguments = parser.parse_args(argv)
@@ -151,14 +177,56 @@ def run_cli(
         return 0
 
     try:
-        provider = provider_factory(active_settings)
-    except ValueError as error:
+        accepted_profiles = _prepare_existing_profiles(
+            active_settings,
+            resume=arguments.resume,
+            overwrite=arguments.overwrite,
+        )
+    except CandidateProfilesFileError as error:
         print(f"ERROR: {error}", file=sys.stderr)
         return 2
 
+    existing_candidate_ids = {
+        profile.candidate_id for profile in accepted_profiles
+    }
+    slots_to_generate = [
+        slot
+        for slot in selected_slots
+        if not (
+            arguments.resume
+            and slot.candidate_id in existing_candidate_ids
+        )
+    ]
+    skipped_existing = len(selected_slots) - len(slots_to_generate)
+
+    # A completed resume command should not require an API key or instantiate
+    # the provider because it has no remaining network work.
+    if slots_to_generate:
+        try:
+            provider = provider_factory(active_settings)
+        except ValueError as error:
+            print(f"ERROR: {error}", file=sys.stderr)
+            return 2
+    else:
+        provider = None
+
+    # Delay the destructive reset until provider configuration is valid. A
+    # missing API key must not erase an existing generated collection.
+    if arguments.overwrite:
+        try:
+            save_candidate_profiles(
+                active_settings.candidate_profiles_output_path,
+                [],
+            )
+        except CandidateProfilesFileError as error:
+            print(f"ERROR: {error}", file=sys.stderr)
+            return 2
+
     print("CANDIDATE GENERATION")
     print(f"  Model: {active_settings.candidate_generation_model}")
+    print(f"  Output: {active_settings.candidate_profiles_output_path}")
     print(f"  Selected slots: {len(selected_slots)}")
+    print(f"  Skipped existing: {skipped_existing}")
     print(
         "  Maximum attempts per candidate: "
         f"{active_settings.candidate_generation_max_retries + 1}"
@@ -168,22 +236,47 @@ def run_cli(
     failed = 0
     total_attempts = 0
 
-    for slot in selected_slots:
+    for slot in slots_to_generate:
         print(f"\nGenerating {slot.candidate_id} | {slot.full_name} ...")
 
+        # The closure reads the current accepted profile list. After every
+        # successful save, the next candidate is compared with the expanded
+        # collection and exact duplicates can be corrected within the same
+        # bounded retry budget.
+        def uniqueness_validator(
+            profile: CandidateProfile,
+        ) -> Sequence[str]:
+            return find_profile_uniqueness_problems(
+                profile,
+                accepted_profiles,
+            )
+
         try:
+            assert provider is not None
             result = generate_candidate_with_retries(
                 slot,
                 provider=provider,
                 max_retries=(
                     active_settings.candidate_generation_max_retries
                 ),
+                additional_validators=[uniqueness_validator],
             )
         except CandidateGenerationFailed as error:
             failed += 1
             total_attempts += error.attempts
             print(f"  FAILED: {error}", file=sys.stderr)
             continue
+
+        accepted_profiles.append(result.profile)
+
+        try:
+            save_candidate_profiles(
+                active_settings.candidate_profiles_output_path,
+                accepted_profiles,
+            )
+        except CandidateProfilesFileError as error:
+            print(f"  FAILED TO SAVE: {error}", file=sys.stderr)
+            return 2
 
         successful += 1
         total_attempts += result.attempts
@@ -197,12 +290,43 @@ def run_cli(
 
     print("\nGENERATION SUMMARY")
     print(f"  Requested: {len(selected_slots)}")
-    print(f"  Accepted: {successful}")
+    print(f"  Skipped existing: {skipped_existing}")
+    print(f"  Generated and saved: {successful}")
     print(f"  Failed: {failed}")
     print(f"  Provider attempts: {total_attempts}")
-    print("  Profiles persisted: 0 (added in WP3 Patch 03)")
+    print(f"  Profiles in output: {len(accepted_profiles)}")
+    print(f"  Output file: {active_settings.candidate_profiles_output_path}")
 
     return 0 if failed == 0 else 1
+
+
+def _prepare_existing_profiles(
+    settings: Settings,
+    *,
+    resume: bool,
+    overwrite: bool,
+) -> list[CandidateProfile]:
+    """Apply explicit existing-file behavior before provider creation."""
+
+    output_path = settings.candidate_profiles_output_path
+
+    if overwrite:
+        # Return a fresh in-memory collection. The file reset is deliberately
+        # delayed until provider configuration succeeds so a missing API key
+        # cannot destroy previously accepted profiles.
+        return []
+
+    if resume:
+        return load_candidate_profiles(output_path)
+
+    if output_path.exists():
+        raise CandidateProfilesFileError(
+            "Candidate profile output already exists. Use --resume to keep "
+            "completed profiles or --overwrite to replace the collection: "
+            f"{output_path}"
+        )
+
+    return []
 
 
 def _read_openai_api_key(settings: Settings) -> str:
@@ -233,6 +357,7 @@ def _print_dry_run(
     print("CANDIDATE GENERATION DRY RUN")
     print(f"  Plan version: {plan_version}")
     print(f"  Plan path: {settings.candidate_dataset_plan_path}")
+    print(f"  Output path: {settings.candidate_profiles_output_path}")
     print(f"  Available slots: {available_slot_count}")
     print(f"  Selected slots: {len(selected_slots)}")
     print(f"  Future model: {settings.candidate_generation_model}")

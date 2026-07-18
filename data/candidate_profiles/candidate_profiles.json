@@ -1,0 +1,379 @@
+[
+  {
+    "candidate_id": "candidate_001",
+    "full_name": "Eleni Markou",
+    "professional_title": "Senior Python Backend Engineer",
+    "profession": "backend_engineering",
+    "seniority": "senior",
+    "years_of_experience": 8.0,
+    "summary": "Senior Python backend engineer with 8 years of experience building and operating API-driven services. Experienced with FastAPI, PostgreSQL, Docker, and AWS, with a track record of improving reliability, delivery speed, and service observability. Led a team of 5 engineers while delivering backend platforms and data-intensive services.",
+    "contact": {
+      "email": "eleni.markou@example.com",
+      "phone": "+30 210 555 0184",
+      "city": "Athens",
+      "country": "Greece"
+    },
+    "work_experience": [
+      {
+        "job_title": "Senior Backend Engineer",
+        "company": "Astera Commerce",
+        "location": "Athens, Greece",
+        "start_date": "2022-06",
+        "end_date": null,
+        "highlights": [
+          "Led development of FastAPI microservices for checkout and account workflows.",
+          "Designed PostgreSQL schemas and query patterns to support higher traffic and lower latency.",
+          "Packaged services with Docker and deployed workloads on AWS.",
+          "Mentored and coordinated a team of 5 engineers across sprint planning and delivery."
+        ],
+        "technologies": [
+          "Python",
+          "FastAPI",
+          "PostgreSQL",
+          "Docker",
+          "AWS"
+        ],
+        "managed_team_size": 5
+      },
+      {
+        "job_title": "Backend Engineer",
+        "company": "HelioPay Systems",
+        "location": "Athens, Greece",
+        "start_date": "2019-03",
+        "end_date": "2022-05",
+        "highlights": [
+          "Built internal and customer-facing Python APIs for payments and reconciliation.",
+          "Implemented PostgreSQL-backed data models and reporting endpoints.",
+          "Improved deployment consistency using Docker-based development and release workflows.",
+          "Partnered with product and QA to reduce production defects and speed up releases."
+        ],
+        "technologies": [
+          "Python",
+          "FastAPI",
+          "PostgreSQL",
+          "Docker",
+          "AWS"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Software Engineer",
+        "company": "Northwind Digital",
+        "location": "Athens, Greece",
+        "start_date": "2018-01",
+        "end_date": "2019-02",
+        "highlights": [
+          "Developed Python services for user management and notification delivery.",
+          "Created REST endpoints and database integrations with PostgreSQL.",
+          "Supported containerized local environments to streamline team development.",
+          "Contributed to cloud-hosted application maintenance and troubleshooting."
+        ],
+        "technologies": [
+          "Python",
+          "PostgreSQL",
+          "Docker",
+          "AWS"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [
+      {
+        "degree": "Diploma",
+        "field_of_study": "Computer Engineering",
+        "institution": "Ionian Institute of Technology",
+        "location": "Greece",
+        "start_year": 2011,
+        "end_year": 2016
+      }
+    ],
+    "skills": [
+      {
+        "name": "Python",
+        "category": "programming_language",
+        "years_of_experience": 8.0
+      },
+      {
+        "name": "FastAPI",
+        "category": "framework",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "PostgreSQL",
+        "category": "database",
+        "years_of_experience": 7.0
+      },
+      {
+        "name": "Docker",
+        "category": "devops",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "AWS",
+        "category": "cloud",
+        "years_of_experience": 5.0
+      }
+    ],
+    "languages": [
+      {
+        "name": "Greek",
+        "proficiency": "native"
+      },
+      {
+        "name": "English",
+        "proficiency": "fluent"
+      }
+    ],
+    "certifications": [],
+    "projects": []
+  },
+  {
+    "candidate_id": "candidate_002",
+    "full_name": "Jonas Keller",
+    "professional_title": "Python Backend Engineer",
+    "profession": "backend_engineering",
+    "seniority": "mid",
+    "years_of_experience": 7.6,
+    "summary": "Mid-level Python backend engineer based in Berlin with production experience building Django services, integrating Redis-backed caching and queues, and working with PostgreSQL in cloud-hosted environments. Comfortable shipping containerized APIs with Docker, collaborating in agile teams, and writing maintainable backend code for business-critical systems. Native German speaker and fluent in English.",
+    "contact": {
+      "email": "jonas.keller@example.com",
+      "phone": "+49 30 5558 2147",
+      "city": "Berlin",
+      "country": "Germany"
+    },
+    "work_experience": [
+      {
+        "job_title": "Python Backend Engineer",
+        "company": "Nordfluss Digital",
+        "location": "Berlin, Germany",
+        "start_date": "2023-04",
+        "end_date": null,
+        "highlights": [
+          "Designs and maintains Django-based API services for internal operations and customer workflows.",
+          "Uses Redis for caching, background jobs, and rate-limiting to improve responsiveness.",
+          "Works with PostgreSQL schema changes, query optimization, and data integrity checks.",
+          "Containerizes services with Docker and supports deployment automation in the release pipeline."
+        ],
+        "technologies": [
+          "Python",
+          "Django",
+          "PostgreSQL",
+          "Redis",
+          "Docker"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Backend Developer",
+        "company": "Mitte Commerce Labs",
+        "location": "Berlin, Germany",
+        "start_date": "2020-08",
+        "end_date": "2023-03",
+        "highlights": [
+          "Built and extended Python services for order processing and account management.",
+          "Implemented Django endpoints and data models connected to PostgreSQL.",
+          "Introduced Redis caching for frequently accessed data and asynchronous task handling.",
+          "Improved API reliability through code reviews, testing, and production issue triage."
+        ],
+        "technologies": [
+          "Python",
+          "Django",
+          "PostgreSQL",
+          "Redis",
+          "Docker"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Junior Software Developer",
+        "company": "Alpen Byte Studio",
+        "location": "Potsdam, Germany",
+        "start_date": "2019-01",
+        "end_date": "2020-07",
+        "highlights": [
+          "Developed backend features in Python under senior engineer guidance.",
+          "Supported REST API work, database migrations, and bug fixes across release cycles.",
+          "Used Docker for local development environments and reproducible builds.",
+          "Documented endpoints and collaborated with frontend and QA colleagues."
+        ],
+        "technologies": [
+          "Python",
+          "Django",
+          "PostgreSQL",
+          "Docker"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Science",
+        "field_of_study": "Computer Science",
+        "institution": "Rheinland Institute of Technology",
+        "location": "Cologne, Germany",
+        "start_year": 2015,
+        "end_year": 2018
+      }
+    ],
+    "skills": [
+      {
+        "name": "Python",
+        "category": "programming_language",
+        "years_of_experience": 6.5
+      },
+      {
+        "name": "Django",
+        "category": "framework",
+        "years_of_experience": 5.5
+      },
+      {
+        "name": "PostgreSQL",
+        "category": "database",
+        "years_of_experience": 5.5
+      },
+      {
+        "name": "Redis",
+        "category": "database",
+        "years_of_experience": 4.5
+      },
+      {
+        "name": "Docker",
+        "category": "devops",
+        "years_of_experience": 5.0
+      }
+    ],
+    "languages": [
+      {
+        "name": "German",
+        "proficiency": "native"
+      },
+      {
+        "name": "English",
+        "proficiency": "fluent"
+      }
+    ],
+    "certifications": [
+      {
+        "name": "Python Web Engineering Certificate",
+        "issuer": "European Software Guild",
+        "year": 2024
+      }
+    ],
+    "projects": []
+  },
+  {
+    "candidate_id": "candidate_003",
+    "full_name": "Lucia Navarro",
+    "professional_title": "Junior Python API Engineer",
+    "profession": "backend_engineering",
+    "seniority": "junior",
+    "years_of_experience": 2.0,
+    "summary": "Junior Python API Engineer with 2 years of backend experience building REST APIs, data models, and automated tests. Experienced in Flask, SQLAlchemy, Pytest, and Git, with a focus on clean API design, reliable database integration, and maintainable code.",
+    "contact": {
+      "email": "lucia.navarro@example.com",
+      "phone": "+34 960 482 715",
+      "city": "Valencia",
+      "country": "Spain"
+    },
+    "work_experience": [
+      {
+        "job_title": "Junior Backend Developer",
+        "company": "Arco Labs",
+        "location": "Valencia, Spain",
+        "start_date": "2025-01",
+        "end_date": null,
+        "highlights": [
+          "Develop REST endpoints for internal and customer-facing services using Flask.",
+          "Model application data with SQLAlchemy and write database queries for PostgreSQL-backed features.",
+          "Create automated test coverage with Pytest for API behavior and edge cases.",
+          "Use Git workflows for code reviews, branching, and release preparation."
+        ],
+        "technologies": [
+          "Python",
+          "Flask",
+          "SQLAlchemy",
+          "Pytest",
+          "Git",
+          "PostgreSQL"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Backend Developer Intern",
+        "company": "Northbay Digital",
+        "location": "Valencia, Spain",
+        "start_date": "2024-01",
+        "end_date": "2024-12",
+        "highlights": [
+          "Supported development of Python services and small API enhancements.",
+          "Helped implement SQLAlchemy models and migration-ready schema changes.",
+          "Built and maintained Pytest suites for endpoint validation and regression checks.",
+          "Collaborated with senior engineers through Git pull requests and issue tracking."
+        ],
+        "technologies": [
+          "Python",
+          "Flask",
+          "SQLAlchemy",
+          "Pytest",
+          "Git"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [],
+    "skills": [
+      {
+        "name": "Python",
+        "category": "programming_language",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "Flask",
+        "category": "framework",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "SQLAlchemy",
+        "category": "framework",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "Pytest",
+        "category": "testing",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "Git",
+        "category": "devops",
+        "years_of_experience": 2.0
+      }
+    ],
+    "languages": [
+      {
+        "name": "Spanish",
+        "proficiency": "native"
+      },
+      {
+        "name": "English",
+        "proficiency": "professional"
+      },
+      {
+        "name": "French",
+        "proficiency": "intermediate"
+      }
+    ],
+    "certifications": [],
+    "projects": [
+      {
+        "name": "Community Events API",
+        "description": "Built a Flask API for managing community events, including endpoints for event listings, registrations, and organizer updates. Used SQLAlchemy for persistence and Pytest to verify key API flows and database interactions.",
+        "technologies": [
+          "Python",
+          "Flask",
+          "SQLAlchemy"
+        ],
+        "year": 2025
+      }
+    ]
+  }
+]

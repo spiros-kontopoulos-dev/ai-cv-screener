@@ -30,6 +30,28 @@ def test_prompt_contains_only_the_selected_slot_requirements() -> None:
     assert "Jonas Keller" not in prompt
 
 
+def test_locked_experience_prompt_preserves_the_controlled_total() -> None:
+    """Known experience facts must remain owned by the dataset plan."""
+
+    slot = load_candidate_dataset_plan(PLAN_PATH).candidates[0]
+
+    prompt = build_candidate_prompt(slot)
+
+    assert "locks total experience at 8 years" in prompt
+    assert "Set years_of_experience to that exact value" in prompt
+
+
+def test_unlocked_experience_prompt_delegates_arithmetic_to_python() -> None:
+    """The LLM should generate dates without claiming a visible exact total."""
+
+    slot = load_candidate_dataset_plan(PLAN_PATH).candidates[1]
+
+    prompt = build_candidate_prompt(slot)
+
+    assert "Python will derive the final value" in prompt
+    assert "Do not state a numeric total" in prompt
+
+
 def test_retry_prompt_includes_actionable_compliance_feedback() -> None:
     """A retry should receive every deterministic problem from the validator."""
 
@@ -47,3 +69,4 @@ def test_retry_prompt_includes_actionable_compliance_feedback() -> None:
     assert "city must be 'Athens'" in prompt
     assert "Required skill 'FastAPI'" in prompt
     assert "Return a complete corrected CandidateProfile" in prompt
+    assert "Python owns experience arithmetic" in prompt

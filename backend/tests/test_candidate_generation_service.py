@@ -166,3 +166,51 @@ def test_generation_stops_after_the_fixed_attempt_budget(
 
     assert raised.value.attempts == 3
     assert len(provider.feedback_received) == 3
+
+
+def test_generation_retries_additional_validator_feedback(
+    valid_candidate_001_payload: dict,
+) -> None:
+    """Cross-candidate checks should use the existing correction loop."""
+
+    profile = CandidateProfile.model_validate(valid_candidate_001_payload)
+    provider = StubProvider([profile, profile])
+    validation_calls = 0
+
+    def uniqueness_validator(candidate: CandidateProfile) -> list[str]:
+        nonlocal validation_calls
+        validation_calls += 1
+        if validation_calls == 1:
+            return ["email duplicates candidate candidate_099."]
+        return []
+
+    result = generate_candidate_with_retries(
+        _candidate_001_slot(),
+        provider=provider,
+        max_retries=2,
+        additional_validators=[uniqueness_validator],
+    )
+
+    assert result.attempts == 2
+    assert provider.feedback_received[1] == (
+        "email duplicates candidate candidate_099.",
+    )
+
+
+def test_generation_normalizes_unlocked_experience_before_acceptance(
+    valid_candidate_002_payload: dict,
+) -> None:
+    """The returned and persisted profile should use Python-derived years."""
+
+    slot = load_candidate_dataset_plan(PLAN_PATH).candidates[1]
+    generated = CandidateProfile.model_validate(valid_candidate_002_payload)
+    provider = StubProvider([generated])
+
+    result = generate_candidate_with_retries(
+        slot,
+        provider=provider,
+        max_retries=2,
+    )
+
+    assert result.attempts == 1
+    assert result.profile.years_of_experience == 7.7

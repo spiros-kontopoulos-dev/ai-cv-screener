@@ -1,6 +1,6 @@
 """Bounded generation orchestration for one controlled candidate slot."""
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from typing import Protocol
 
@@ -8,6 +8,10 @@ from app.schemas import CandidateProfile
 
 from .client import CandidateProviderError
 from .compliance import validate_profile_against_slot
+from .experience import (
+    CandidateExperienceNormalizationError,
+    normalize_profile_experience,
+)
 from .models import CandidateGenerationSlot
 
 
@@ -23,6 +27,12 @@ class CandidateProfileProvider(Protocol):
         """Generate one schema-valid profile for the supplied slot."""
 
         ...
+
+
+# Additional validators allow later workflow layers, such as cross-candidate
+# uniqueness, to participate in the same bounded correction loop without
+# coupling the provider or slot-compliance module to persisted dataset state.
+CandidateProfileValidator = Callable[[CandidateProfile], Sequence[str]]
 
 
 @dataclass(frozen=True, slots=True)
@@ -59,11 +69,13 @@ def generate_candidate_with_retries(
     *,
     provider: CandidateProfileProvider,
     max_retries: int,
+    additional_validators: Sequence[CandidateProfileValidator] = (),
 ) -> CandidateGenerationResult:
-    """Generate, validate, and retry one candidate within a fixed budget.
+    """Generate, normalize, validate, and retry within a fixed budget.
 
     ``max_retries`` counts attempts *after* the first request. A value of two
-    therefore allows at most three provider calls.
+    therefore allows at most three provider calls. Python normalizes unlocked
+    experience totals before slot compliance and cross-candidate validators run.
     """
 
     correction_feedback: tuple[str, ...] = ()
@@ -71,7 +83,7 @@ def generate_candidate_with_retries(
 
     for attempt_number in range(1, total_attempts + 1):
         try:
-            profile = provider.generate(
+            generated_profile = provider.generate(
                 slot,
                 correction_feedback=correction_feedback,
             )
@@ -88,8 +100,16 @@ def generate_candidate_with_retries(
             correction_feedback = ()
             continue
 
-        compliance_problems = validate_profile_against_slot(profile, slot)
-        if not compliance_problems:
+        try:
+            profile = normalize_profile_experience(generated_profile, slot)
+        except CandidateExperienceNormalizationError as error:
+            validation_problems = list(error.problems)
+        else:
+            validation_problems = validate_profile_against_slot(profile, slot)
+            for validator in additional_validators:
+                validation_problems.extend(validator(profile))
+
+        if not validation_problems:
             return CandidateGenerationResult(
                 profile=profile,
                 attempts=attempt_number,
@@ -99,10 +119,10 @@ def generate_candidate_with_retries(
             raise CandidateGenerationFailed(
                 candidate_id=slot.candidate_id,
                 attempts=attempt_number,
-                reasons=compliance_problems,
+                reasons=validation_problems,
             )
 
-        correction_feedback = tuple(compliance_problems)
+        correction_feedback = tuple(validation_problems)
 
     # The loop always returns or raises. This guard protects future refactors
     # and keeps static type checkers aware that no implicit None is possible.

@@ -64,6 +64,13 @@ class Settings(BaseSettings):
     # WP3 candidate-generation configuration.
     candidate_dataset_plan_path: Path = DEFAULT_CANDIDATE_DATASET_PLAN_PATH
 
+    # The generated profile collection is preparation data for WP4 PDF
+    # rendering. A relative path resolves from /app inside the backend
+    # container, where Compose mounts the repository's shared data directory.
+    candidate_profiles_output_path: Path = Path(
+        "data/candidate_profiles/candidate_profiles.json"
+    )
+
     # The model is configurable because model availability and cost choices may
     # change without requiring a code edit.
     candidate_generation_model: str = Field(
