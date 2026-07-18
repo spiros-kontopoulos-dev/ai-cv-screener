@@ -98,6 +98,14 @@ def build_parser() -> argparse.ArgumentParser:
             "Use this while tuning the template in a browser."
         ),
     )
+    parser.add_argument(
+        "--require-portraits",
+        action="store_true",
+        help=(
+            "Fail before rendering when any selected candidate lacks a real "
+            "normalized portrait. Use this for the final PDF dataset."
+        ),
+    )
 
     return parser
 
@@ -157,6 +165,7 @@ def run_cli(
         results = render_cv_jobs(
             selected_jobs,
             keep_html=arguments.keep_html,
+            require_portraits=arguments.require_portraits,
         )
     except (
         CandidateProfilesFileError,

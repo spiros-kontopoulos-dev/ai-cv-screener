@@ -113,3 +113,29 @@ def test_dry_run_reports_missing_profile_file_as_empty_collection(
 
     assert status == 2
     assert "At least one candidate profile is required" in captured.err
+
+def test_render_command_can_require_real_portraits(
+    capsys,
+    tmp_path: Path,
+    valid_candidate_payload: dict,
+) -> None:
+    """The final dataset flag rejects initials placeholders."""
+
+    profile = CandidateProfile.model_validate(valid_candidate_payload)
+    profiles_path = tmp_path / "candidate_profiles.json"
+    save_candidate_profiles(profiles_path, [profile])
+
+    status = run_cli(
+        [
+            "--candidate-id",
+            "candidate_001",
+            "--require-portraits",
+        ],
+        settings=_test_settings(tmp_path, profiles_path),
+    )
+
+    captured = capsys.readouterr()
+    assert status == 2
+    assert "Real portraits are required" in captured.err
+    assert not (tmp_path / "pdfs").exists()
+

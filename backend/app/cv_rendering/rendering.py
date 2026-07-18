@@ -49,10 +49,28 @@ def render_cv_jobs(
     jobs: Sequence[CvRenderJob],
     *,
     keep_html: bool,
+    require_portraits: bool = False,
     template_path: Path = DEFAULT_CV_TEMPLATE_PATH,
     stylesheet_path: Path = DEFAULT_CV_STYLESHEET_PATH,
 ) -> list[CvRenderResult]:
-    """Render selected jobs in deterministic order and return their results."""
+    """Render selected jobs in deterministic order and return their results.
+
+    ``require_portraits`` protects final dataset generation from silently
+    falling back to the development initials placeholder. Sample layout work
+    may still omit portraits by leaving the option disabled.
+    """
+
+    if require_portraits:
+        missing_portraits = [
+            job.candidate_id
+            for job in jobs
+            if not job.portrait_exists
+        ]
+        if missing_portraits:
+            raise CvRenderingError(
+                "Real portraits are required but missing for: "
+                f"{', '.join(sorted(missing_portraits))}."
+            )
 
     return [
         render_cv_job(

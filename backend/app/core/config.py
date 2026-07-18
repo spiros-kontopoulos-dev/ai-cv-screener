@@ -12,6 +12,7 @@ application.
 # instead of being recreated every time another module requests it.
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
 # Field adds numeric and text boundaries to configuration values.
 # SecretStr is a Pydantic type designed for sensitive values. When printed,
@@ -80,6 +81,55 @@ class Settings(BaseSettings):
     # HTML previews are developer-only inspection artifacts.  They make CSS
     # iteration faster but are not the source indexed by the future RAG system.
     cv_html_preview_directory: Path = Path("data/cv_html")
+
+    # WP4 portrait generation remains a developer-only dataset preparation
+    # workflow. The model and quality controls are configurable so a reviewer
+    # can trade cost against visual quality without editing application code.
+    portrait_generation_model: str = Field(
+        default="gpt-image-1",
+        min_length=1,
+        max_length=100,
+    )
+    portrait_generation_size: Literal[
+        "1024x1024",
+        "1024x1536",
+        "1536x1024",
+    ] = "1024x1024"
+    portrait_generation_quality: Literal[
+        "low",
+        "medium",
+        "high",
+        "auto",
+    ] = "medium"
+    portrait_generation_output_compression: int = Field(
+        default=85,
+        ge=0,
+        le=100,
+    )
+    portrait_generation_max_retries: int = Field(
+        default=2,
+        ge=0,
+        le=5,
+    )
+    portrait_generation_timeout_seconds: float = Field(
+        default=180.0,
+        ge=10.0,
+        le=600.0,
+    )
+
+    # Every accepted provider image is decoded, centre-cropped, resized, and
+    # re-encoded locally. This gives the renderer one predictable WebP asset
+    # shape regardless of provider metadata or future model changes.
+    portrait_normalized_size: int = Field(
+        default=512,
+        ge=256,
+        le=1024,
+    )
+    portrait_webp_quality: int = Field(
+        default=88,
+        ge=60,
+        le=100,
+    )
 
     # The model is configurable because model availability and cost choices may
     # change without requiring a code edit.
