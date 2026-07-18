@@ -7,12 +7,19 @@ services:
     ports:
       - "8000:8000"
     volumes:
+      # Mount application source for Uvicorn reload during development.
       - ./backend/app:/app/app
+
+      # Mount tests and Pytest configuration so newly edited tests are
+      # immediately visible without rebuilding the backend image.
+      - ./backend/tests:/app/tests
+      - ./backend/pytest.ini:/app/pytest.ini:ro
     command: >
       uvicorn app.main:app
       --host 0.0.0.0
       --port 8000
       --reload
+
   frontend:
     # Build the React/Vite image from frontend/Dockerfile.
     build:

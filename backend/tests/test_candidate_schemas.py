@@ -8,6 +8,7 @@ from app.schemas import (
     ContactDetails,
     Education,
     Project,
+    SeniorityLevel,
     WorkExperience,
 )
 

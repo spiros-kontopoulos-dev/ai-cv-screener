@@ -1,0 +1,1628 @@
+{
+  "dataset_version": 1,
+  "candidate_count": 30,
+  "purpose": "Controlled generation plan for 30 fictional technology-sector CVs.",
+  "fictional_data_policy": {
+    "all_candidate_names_are_fictional": true,
+    "all_employers_are_fictional": true,
+    "all_schools_are_fictional": true,
+    "all_emails_are_fictional": true,
+    "all_employment_histories_are_fictional": true,
+    "all_certification_issuers_are_fictional": true,
+    "no_real_person_is_intentionally_represented": true,
+    "original_json_is_not_a_rag_source": true,
+    "rag_source_must_be_generated_pdfs": true
+  },
+  "generation_rules": {
+    "preserve_candidate_id_and_full_name": true,
+    "preserve_all_required_skills": true,
+    "preserve_all_known_facts": true,
+    "preserve_required_certification_when_present": true,
+    "preserve_required_education_when_present": true,
+    "preserve_required_project_when_present": true,
+    "do_not_add_real_people_companies_schools_or_emails": true,
+    "one_current_role_maximum": true,
+    "render_every_known_fact_as_visible_pdf_text": true,
+    "work_experience_order": "newest_first",
+    "education_order": "newest_first"
+  },
+  "distributions": {
+    "profession": {
+      "backend_engineering": 6,
+      "data_engineering": 4,
+      "data_science": 3,
+      "devops_cloud_engineering": 2,
+      "frontend_engineering": 4,
+      "full_stack_engineering": 4,
+      "machine_learning_engineering": 3,
+      "product_management": 1,
+      "qa_automation": 2,
+      "ux_ui_design": 1
+    },
+    "seniority": {
+      "junior": 8,
+      "mid": 12,
+      "senior": 10
+    },
+    "country": {
+      "Austria": 1,
+      "Belgium": 1,
+      "Bulgaria": 2,
+      "Czechia": 1,
+      "Denmark": 1,
+      "Finland": 1,
+      "France": 2,
+      "Germany": 2,
+      "Greece": 3,
+      "Ireland": 2,
+      "Italy": 2,
+      "Netherlands": 2,
+      "Poland": 2,
+      "Portugal": 2,
+      "Romania": 2,
+      "Spain": 2,
+      "Sweden": 2
+    },
+    "language_mentions": {
+      "Bulgarian": 2,
+      "Czech": 1,
+      "Danish": 1,
+      "Dutch": 4,
+      "English": 30,
+      "Finnish": 2,
+      "French": 9,
+      "German": 13,
+      "Greek": 3,
+      "Irish": 2,
+      "Italian": 2,
+      "Polish": 2,
+      "Portuguese": 3,
+      "Romanian": 2,
+      "Russian": 1,
+      "Spanish": 7,
+      "Swedish": 3
+    },
+    "candidates_with_certifications": 10,
+    "candidates_with_leadership": 8,
+    "candidates_with_required_projects": 8,
+    "candidates_with_three_or_more_languages": 27
+  },
+  "search_scenarios": [
+    {
+      "scenario_id": "python_fastapi_postgresql",
+      "question": "Which candidates have experience with Python, FastAPI, and PostgreSQL?",
+      "expected_candidate_ids": [
+        "candidate_001",
+        "candidate_011"
+      ],
+      "required_evidence": [
+        "Python",
+        "FastAPI",
+        "PostgreSQL"
+      ],
+      "answer_behavior": "Return both matching candidates with source CVs."
+    },
+    {
+      "scenario_id": "german_backend_candidate",
+      "question": "Find a backend engineer who speaks German natively.",
+      "expected_candidate_ids": [
+        "candidate_002"
+      ],
+      "required_evidence": [
+        "backend_engineering",
+        "German native"
+      ],
+      "answer_behavior": "Return Jonas Keller with supporting CV evidence."
+    },
+    {
+      "scenario_id": "accessibility_frontend",
+      "question": "Which frontend candidates have accessibility experience?",
+      "expected_candidate_ids": [
+        "candidate_007",
+        "candidate_009"
+      ],
+      "required_evidence": [
+        "frontend",
+        "Accessibility"
+      ],
+      "answer_behavior": "Return both candidates without mixing their experience."
+    },
+    {
+      "scenario_id": "exact_team_size",
+      "question": "Which candidate managed a team of exactly 8 engineers?",
+      "expected_candidate_ids": [
+        "candidate_006"
+      ],
+      "required_evidence": [
+        "managed team size 8"
+      ],
+      "answer_behavior": "Return Noor van Dijk and cite the leadership evidence."
+    },
+    {
+      "scenario_id": "specific_fictional_university",
+      "question": "Who studied Human-Computer Interaction at Baltic Digital University?",
+      "expected_candidate_ids": [
+        "candidate_009"
+      ],
+      "required_evidence": [
+        "MSc Human-Computer Interaction",
+        "Baltic Digital University"
+      ],
+      "answer_behavior": "Return Marta Kowalska with education evidence."
+    },
+    {
+      "scenario_id": "spanish_data_engineer",
+      "question": "Find a data engineer who speaks Spanish natively and has Spark experience.",
+      "expected_candidate_ids": [
+        "candidate_016"
+      ],
+      "required_evidence": [
+        "Spanish native",
+        "Spark",
+        "data_engineering"
+      ],
+      "answer_behavior": "Return Javier Molina."
+    },
+    {
+      "scenario_id": "pytorch_nlp_vector_search",
+      "question": "Which candidate combines PyTorch, NLP, and vector-database experience?",
+      "expected_candidate_ids": [
+        "candidate_024"
+      ],
+      "required_evidence": [
+        "PyTorch",
+        "NLP",
+        "Vector Databases"
+      ],
+      "answer_behavior": "Return Elena Popescu with all three conditions supported."
+    },
+    {
+      "scenario_id": "qa_playwright_comparison",
+      "question": "Compare the candidates with Playwright experience.",
+      "expected_candidate_ids": [
+        "candidate_027",
+        "candidate_028"
+      ],
+      "required_evidence": [
+        "Playwright"
+      ],
+      "answer_behavior": "Compare their different Python and TypeScript testing backgrounds."
+    },
+    {
+      "scenario_id": "data_engineer_comparison",
+      "question": "Compare Aino Korhonen and Lukas Gruber for a cloud data engineering role.",
+      "expected_candidate_ids": [
+        "candidate_015",
+        "candidate_018"
+      ],
+      "required_evidence": [
+        "Airflow",
+        "cloud data platforms",
+        "certifications"
+      ],
+      "answer_behavior": "Keep each candidate's evidence separate and cite both CVs."
+    },
+    {
+      "scenario_id": "product_sql_leadership",
+      "question": "Which product candidate has SQL experience and led a cross-functional team?",
+      "expected_candidate_ids": [
+        "candidate_029"
+      ],
+      "required_evidence": [
+        "Product Management",
+        "SQL",
+        "team size 9"
+      ],
+      "answer_behavior": "Return Freja Nielsen with product and leadership evidence."
+    },
+    {
+      "scenario_id": "unsupported_security_clearance",
+      "question": "Which candidates hold government security clearance?",
+      "expected_candidate_ids": [],
+      "required_evidence": [],
+      "answer_behavior": "State that the CV collection does not provide this information."
+    }
+  ],
+  "candidates": [
+    {
+      "candidate_id": "candidate_001",
+      "full_name": "Eleni Markou",
+      "professional_title": "Senior Python Backend Engineer",
+      "profession": "backend_engineering",
+      "seniority": "senior",
+      "country": "Greece",
+      "city": "Athens",
+      "languages": [
+        {
+          "name": "Greek",
+          "proficiency": "native"
+        },
+        {
+          "name": "English",
+          "proficiency": "fluent"
+        }
+      ],
+      "required_skills": [
+        "Python",
+        "FastAPI",
+        "PostgreSQL",
+        "Docker",
+        "AWS"
+      ],
+      "certification": null,
+      "leadership_team_size": 5,
+      "required_education": null,
+      "required_project": null,
+      "known_facts": [
+        "Has 8 years of backend experience.",
+        "Built FastAPI services backed by PostgreSQL.",
+        "Managed a team of 5 engineers."
+      ],
+      "demo_tags": [
+        "python_fastapi_postgresql",
+        "leadership"
+      ]
+    },
+    {
+      "candidate_id": "candidate_002",
+      "full_name": "Jonas Keller",
+      "professional_title": "Python Backend Engineer",
+      "profession": "backend_engineering",
+      "seniority": "mid",
+      "country": "Germany",
+      "city": "Berlin",
+      "languages": [
+        {
+          "name": "German",
+          "proficiency": "native"
+        },
+        {
+          "name": "English",
+          "proficiency": "fluent"
+        }
+      ],
+      "required_skills": [
+        "Python",
+        "Django",
+        "PostgreSQL",
+        "Redis",
+        "Docker"
+      ],
+      "certification": {
+        "name": "Python Web Engineering Certificate",
+        "issuer": "European Software Guild",
+        "year": 2024
+      },
+      "leadership_team_size": null,
+      "required_education": null,
+      "required_project": null,
+      "known_facts": [
+        "Speaks German natively and English fluently.",
+        "Has production Django and Redis experience.",
+        "Holds a fictional Python web engineering certification."
+      ],
+      "demo_tags": [
+        "german_backend",
+        "certification"
+      ]
+    },
+    {
+      "candidate_id": "candidate_003",
+      "full_name": "Lucia Navarro",
+      "professional_title": "Junior Python API Engineer",
+      "profession": "backend_engineering",
+      "seniority": "junior",
+      "country": "Spain",
+      "city": "Valencia",
+      "languages": [
+        {
+          "name": "Spanish",
+          "proficiency": "native"
+        },
+        {
+          "name": "English",
+          "proficiency": "professional"
+        },
+        {
+          "name": "French",
+          "proficiency": "intermediate"
+        }
+      ],
+      "required_skills": [
+        "Python",
+        "Flask",
+        "SQLAlchemy",
+        "Pytest",
+        "Git"
+      ],
+      "certification": null,
+      "leadership_team_size": null,
+      "required_education": null,
+      "required_project": {
+        "name": "Community Events API",
+        "technologies": [
+          "Python",
+          "Flask",
+          "SQLAlchemy"
+        ]
+      },
+      "known_facts": [
+        "Has 2 years of backend experience.",
+        "Built a Flask API project using SQLAlchemy.",
+        "Uses Pytest for automated testing."
+      ],
+      "demo_tags": [
+        "junior_backend",
+        "project"
+      ]
+    },
+    {
+      "candidate_id": "candidate_004",
+      "full_name": "Theo Laurent",
+      "professional_title": "Senior Java Backend Engineer",
+      "profession": "backend_engineering",
+      "seniority": "senior",
+      "country": "France",
+      "city": "Lyon",
+      "languages": [
+        {
+          "name": "French",
+          "proficiency": "native"
+        },
+        {
+          "name": "English",
+          "proficiency": "fluent"
+        },
+        {
+          "name": "German",
+          "proficiency": "intermediate"
+        }
+      ],
+      "required_skills": [
+        "Java",
+        "Spring Boot",
+        "PostgreSQL",
+        "Kafka",
+        "Kubernetes"
+      ],
+      "certification": null,
+      "leadership_team_size": 7,
+      "required_education": null,
+      "required_project": null,
+      "known_facts": [
+        "Designed event-driven services with Kafka.",
+        "Deployed Spring Boot workloads to Kubernetes.",
+        "Managed a team of 7 engineers."
+      ],
+      "demo_tags": [
+        "java_kafka",
+        "leadership"
+      ]
+    },
+    {
+      "candidate_id": "candidate_005",
+      "full_name": "Marco Bellini",
+      "professional_title": ".NET Backend Engineer",
+      "profession": "backend_engineering",
+      "seniority": "mid",
+      "country": "Italy",
+      "city": "Milan",
+      "languages": [
+        {
+          "name": "Italian",
+          "proficiency": "native"
+        },
+        {
+          "name": "English",
+          "proficiency": "professional"
+        },
+        {
+          "name": "Spanish",
+          "proficiency": "intermediate"
+        }
+      ],
+      "required_skills": [
+        "C#",
+        ".NET",
+        "SQL Server",
+        "Azure",
+        "Docker"
+      ],
+      "certification": null,
+      "leadership_team_size": null,
+      "required_education": null,
+      "required_project": null,
+      "known_facts": [
+        "Has 6 years of backend experience.",
+        "Built .NET services using SQL Server.",
+        "Deployed containerized services to Azure."
+      ],
+      "demo_tags": [
+        "dotnet_azure"
+      ]
+    },
+    {
+      "candidate_id": "candidate_006",
+      "full_name": "Noor van Dijk",
+      "professional_title": "Senior Distributed Systems Engineer",
+      "profession": "backend_engineering",
+      "seniority": "senior",
+      "country": "Netherlands",
+      "city": "Rotterdam",
+      "languages": [
+        {
+          "name": "Dutch",
+          "proficiency": "native"
+        },
+        {
+          "name": "English",
+          "proficiency": "fluent"
+        },
+        {
+          "name": "German",
+          "proficiency": "professional"
+        }
+      ],
+      "required_skills": [
+        "Go",
+        "gRPC",
+        "PostgreSQL",
+        "Kubernetes",
+        "Terraform"
+      ],
+      "certification": {
+        "name": "Cloud Native Systems Professional",
+        "issuer": "Distributed Systems Institute",
+        "year": 2023
+      },
+      "leadership_team_size": 8,
+      "required_education": null,
+      "required_project": null,
+      "known_facts": [
+        "Built gRPC services in Go.",
+        "Managed a team of exactly 8 engineers.",
+        "Holds a fictional cloud-native systems certification."
+      ],
+      "demo_tags": [
+        "go_grpc",
+        "team_size_8",
+        "certification"
+      ]
+    },
+    {
+      "candidate_id": "candidate_007",
+      "full_name": "Sofia Petrou",
+      "professional_title": "Junior Frontend Engineer",
+      "profession": "frontend_engineering",
+      "seniority": "junior",
+      "country": "Greece",
+      "city": "Thessaloniki",
+      "languages": [
+        {
+          "name": "Greek",
+          "proficiency": "native"
+        },
+        {
+          "name": "English",
+          "proficiency": "fluent"
+        },
+        {
+          "name": "French",
+          "proficiency": "intermediate"
+        }
+      ],
+      "required_skills": [
+        "React",
+        "TypeScript",
+        "CSS",
+        "Vitest",
+        "Accessibility"
+      ],
+      "certification": null,
+      "leadership_team_size": null,
+      "required_education": null,
+      "required_project": {
+        "name": "Accessible City Guide",
+        "technologies": [
+          "React",
+          "TypeScript",
+          "CSS"
+        ]
+      },
+      "known_facts": [
+        "Has 2 years of frontend experience.",
+        "Implemented accessible React components.",
+        "Uses Vitest for component testing."
+      ],
+      "demo_tags": [
+        "react_typescript",
+        "accessibility",
+        "project"
+      ]
+    },
+    {
+      "candidate_id": "candidate_008",
+      "full_name": "Tiago Almeida",
+      "professional_title": "Frontend Engineer",
+      "profession": "frontend_engineering",
+      "seniority": "mid",
+      "country": "Portugal",
+      "city": "Porto",
+      "languages": [
+        {
+          "name": "Portuguese",
+          "proficiency": "native"
+        },
+        {
+          "name": "English",
+          "proficiency": "professional"
+        },
+        {
+          "name": "Spanish",
+          "proficiency": "professional"
+        }
+      ],
+      "required_skills": [
+        "Vue.js",
+        "TypeScript",
+        "Pinia",
+        "Cypress",
+        "HTML"
+      ],
+      "certification": null,
+      "leadership_team_size": null,
+      "required_education": null,
+      "required_project": null,
+      "known_facts": [
+        "Has 5 years of frontend experience.",
+        "Built Vue.js applications with Pinia.",
+        "Uses Cypress for end-to-end testing."
+      ],
+      "demo_tags": [
+        "vue_typescript",
+        "spanish_speaker"
+      ]
+    },
+    {
+      "candidate_id": "candidate_009",
+      "full_name": "Marta Kowalska",
+      "professional_title": "Senior React Engineer",
+      "profession": "frontend_engineering",
+      "seniority": "senior",
+      "country": "Poland",
+      "city": "Warsaw",
+      "languages": [
+        {
+          "name": "Polish",
+          "proficiency": "native"
+        },
+        {
+          "name": "English",
+          "proficiency": "fluent"
+        },
+        {
+          "name": "German",
+          "proficiency": "professional"
+        }
+      ],
+      "required_skills": [
+        "React",
+        "TypeScript",
+        "Next.js",
+        "GraphQL",
+        "Accessibility"
+      ],
+      "certification": {
+        "name": "Accessible Web Applications Certificate",
+        "issuer": "Inclusive Design Council",
+        "year": 2024
+      },
+      "leadership_team_size": 4,
+      "required_education": {
+        "degree": "MSc",
+        "field_of_study": "Human-Computer Interaction",
+        "institution": "Baltic Digital University"
+      },
+      "required_project": null,
+      "known_facts": [
+        "Has an MSc in Human-Computer Interaction from Baltic Digital University.",
+        "Led accessibility improvements in a Next.js product.",
+        "Managed a team of 4 frontend engineers."
+      ],
+      "demo_tags": [
+        "react_typescript",
+        "accessibility",
+        "fictional_university",
+        "leadership"
+      ]
+    },
+    {
+      "candidate_id": "candidate_010",
+      "full_name": "Andrei Ionescu",
+      "professional_title": "Angular Frontend Engineer",
+      "profession": "frontend_engineering",
+      "seniority": "mid",
+      "country": "Romania",
+      "city": "Cluj-Napoca",
+      "languages": [
+        {
+          "name": "Romanian",
+          "proficiency": "native"
+        },
+        {
+          "name": "English",
+          "proficiency": "professional"
+        },
+        {
+          "name": "French",
+          "proficiency": "intermediate"
+        }
+      ],
+      "required_skills": [
+        "Angular",
+        "TypeScript",
+        "RxJS",
+        "Jest",
+        "Sass"
+      ],
+      "certification": null,
+      "leadership_team_size": null,
+      "required_education": null,
+      "required_project": null,
+      "known_facts": [
+        "Has 5 years of frontend experience.",
+        "Built reactive Angular applications with RxJS.",
+        "Uses Jest for unit testing."
+      ],
+      "demo_tags": [
+        "angular_typescript"
+      ]
+    },
+    {
+      "candidate_id": "candidate_011",
+      "full_name": "Mila Stoyanova",
+      "professional_title": "Junior Full-Stack Engineer",
+      "profession": "full_stack_engineering",
+      "seniority": "junior",
+      "country": "Bulgaria",
+      "city": "Sofia",
+      "languages": [
+        {
+          "name": "Bulgarian",
+          "proficiency": "native"
+        },
+        {
+          "name": "English",
+          "proficiency": "fluent"
+        },
+        {
+          "name": "German",
+          "proficiency": "intermediate"
+        }
+      ],
+      "required_skills": [
+        "Python",
+        "FastAPI",
+        "React",
+        "TypeScript",
+        "PostgreSQL"
+      ],
+      "certification": null,
+      "leadership_team_size": null,
+      "required_education": null,
+      "required_project": {
+        "name": "Candidate Tracker",
+        "technologies": [
+          "React",
+          "TypeScript",
+          "FastAPI",
+          "PostgreSQL"
+        ]
+      },
+      "known_facts": [
+        "Has 2 years of full-stack experience.",
+        "Built a React interface backed by FastAPI and PostgreSQL.",
+        "Created a fictional candidate-tracking project."
+      ],
+      "demo_tags": [
+        "python_fastapi_postgresql",
+        "react_typescript",
+        "project"
+      ]
+    },
+    {
+      "candidate_id": "candidate_012",
+      "full_name": "Aoife Brennan",
+      "professional_title": "Full-Stack JavaScript Engineer",
+      "profession": "full_stack_engineering",
+      "seniority": "mid",
+      "country": "Ireland",
+      "city": "Dublin",
+      "languages": [
+        {
+          "name": "English",
+          "proficiency": "native"
+        },
+        {
+          "name": "Irish",
+          "proficiency": "intermediate"
+        }
+      ],
+      "required_skills": [
+        "Node.js",
+        "NestJS",
+        "React",
+        "TypeScript",
+        "MongoDB"
+      ],
+      "certification": null,
+      "leadership_team_size": null,
+      "required_education": null,
+      "required_project": null,
+      "known_facts": [
+        "Has 6 years of full-stack experience.",
+        "Built NestJS APIs and React interfaces.",
+        "Used MongoDB in production applications."
+      ],
+      "demo_tags": [
+        "nestjs_react"
+      ]
+    },
+    {
+      "candidate_id": "candidate_013",
+      "full_name": "Hannah Vogel",
+      "professional_title": "Senior Enterprise Full-Stack Engineer",
+      "profession": "full_stack_engineering",
+      "seniority": "senior",
+      "country": "Germany",
+      "city": "Hamburg",
+      "languages": [
+        {
+          "name": "German",
+          "proficiency": "native"
+        },
+        {
+          "name": "English",
+          "proficiency": "fluent"
+        },
+        {
+          "name": "Dutch",
+          "proficiency": "intermediate"
+        }
+      ],
+      "required_skills": [
+        "Java",
+        "Spring Boot",
+        "React",
+        "TypeScript",
+        "Kubernetes"
+      ],
+      "certification": {
+        "name": "Enterprise Full-Stack Architecture",
+        "issuer": "Software Architecture Academy",
+        "year": 2022
+      },
+      "leadership_team_size": 6,
+      "required_education": null,
+      "required_project": null,
+      "known_facts": [
+        "Has 11 years of full-stack experience.",
+        "Modernized a Spring Boot and React platform.",
+        "Managed a team of 6 engineers."
+      ],
+      "demo_tags": [
+        "spring_react",
+        "leadership",
+        "certification"
+      ]
+    },
+    {
+      "candidate_id": "candidate_014",
+      "full_name": "Erik Lundqvist",
+      "professional_title": "Python Full-Stack Engineer",
+      "profession": "full_stack_engineering",
+      "seniority": "mid",
+      "country": "Sweden",
+      "city": "Gothenburg",
+      "languages": [
+        {
+          "name": "Swedish",
+          "proficiency": "native"
+        },
+        {
+          "name": "English",
+          "proficiency": "fluent"
+        },
+        {
+          "name": "German",
+          "proficiency": "intermediate"
+        }
+      ],
+      "required_skills": [
+        "Python",
+        "Django",
+        "Vue.js",
+        "PostgreSQL",
+        "Docker"
+      ],
+      "certification": null,
+      "leadership_team_size": null,
+      "required_education": null,
+      "required_project": null,
+      "known_facts": [
+        "Has 6 years of full-stack experience.",
+        "Built Django APIs and Vue.js interfaces.",
+        "Containerized services with Docker."
+      ],
+      "demo_tags": [
+        "django_vue"
+      ]
+    },
+    {
+      "candidate_id": "candidate_015",
+      "full_name": "Aino Korhonen",
+      "professional_title": "Senior Data Engineer",
+      "profession": "data_engineering",
+      "seniority": "senior",
+      "country": "Finland",
+      "city": "Helsinki",
+      "languages": [
+        {
+          "name": "Finnish",
+          "proficiency": "native"
+        },
+        {
+          "name": "English",
+          "proficiency": "fluent"
+        },
+        {
+          "name": "Swedish",
+          "proficiency": "professional"
+        }
+      ],
+      "required_skills": [
+        "Python",
+        "Apache Airflow",
+        "PostgreSQL",
+        "dbt",
+        "AWS"
+      ],
+      "certification": {
+        "name": "Data Pipeline Engineering Professional",
+        "issuer": "Modern Data Institute",
+        "year": 2024
+      },
+      "leadership_team_size": 5,
+      "required_education": null,
+      "required_project": null,
+      "known_facts": [
+        "Built Airflow pipelines using Python and PostgreSQL.",
+        "Holds a fictional data pipeline engineering certification.",
+        "Managed a team of 5 data engineers."
+      ],
+      "demo_tags": [
+        "airflow_dbt",
+        "data_certification",
+        "leadership"
+      ]
+    },
+    {
+      "candidate_id": "candidate_016",
+      "full_name": "Javier Molina",
+      "professional_title": "Data Engineer",
+      "profession": "data_engineering",
+      "seniority": "mid",
+      "country": "Spain",
+      "city": "Madrid",
+      "languages": [
+        {
+          "name": "Spanish",
+          "proficiency": "native"
+        },
+        {
+          "name": "English",
+          "proficiency": "fluent"
+        },
+        {
+          "name": "Portuguese",
+          "proficiency": "intermediate"
+        }
+      ],
+      "required_skills": [
+        "Python",
+        "Spark",
+        "SQL",
+        "Kafka",
+        "Azure"
+      ],
+      "certification": null,
+      "leadership_team_size": null,
+      "required_education": null,
+      "required_project": null,
+      "known_facts": [
+        "Has 6 years of data engineering experience.",
+        "Built Spark pipelines processing streaming Kafka data.",
+        "Speaks Spanish natively and English fluently."
+      ],
+      "demo_tags": [
+        "spark_kafka",
+        "spanish_data_engineer"
+      ]
+    },
+    {
+      "candidate_id": "candidate_017",
+      "full_name": "Piotr Zielinski",
+      "professional_title": "Junior Analytics Engineer",
+      "profession": "data_engineering",
+      "seniority": "junior",
+      "country": "Poland",
+      "city": "Krakow",
+      "languages": [
+        {
+          "name": "Polish",
+          "proficiency": "native"
+        },
+        {
+          "name": "English",
+          "proficiency": "professional"
+        },
+        {
+          "name": "German",
+          "proficiency": "intermediate"
+        }
+      ],
+      "required_skills": [
+        "Python",
+        "SQL",
+        "dbt",
+        "BigQuery",
+        "Docker"
+      ],
+      "certification": null,
+      "leadership_team_size": null,
+      "required_education": null,
+      "required_project": {
+        "name": "Warehouse Quality Monitor",
+        "technologies": [
+          "Python",
+          "dbt",
+          "BigQuery"
+        ]
+      },
+      "known_facts": [
+        "Has 2 years of analytics engineering experience.",
+        "Built dbt models in BigQuery.",
+        "Created a data-quality monitoring project."
+      ],
+      "demo_tags": [
+        "dbt_bigquery",
+        "project"
+      ]
+    },
+    {
+      "candidate_id": "candidate_018",
+      "full_name": "Lukas Gruber",
+      "professional_title": "Cloud Data Engineer",
+      "profession": "data_engineering",
+      "seniority": "mid",
+      "country": "Austria",
+      "city": "Vienna",
+      "languages": [
+        {
+          "name": "German",
+          "proficiency": "native"
+        },
+        {
+          "name": "English",
+          "proficiency": "fluent"
+        },
+        {
+          "name": "French",
+          "proficiency": "intermediate"
+        }
+      ],
+      "required_skills": [
+        "Python",
+        "Apache Airflow",
+        "Snowflake",
+        "Terraform",
+        "GCP"
+      ],
+      "certification": {
+        "name": "Cloud Data Platform Specialist",
+        "issuer": "Analytics Engineering Council",
+        "year": 2023
+      },
+      "leadership_team_size": null,
+      "required_education": {
+        "degree": "MSc",
+        "field_of_study": "Data Engineering",
+        "institution": "Danube Institute of Technology"
+      },
+      "required_project": null,
+      "known_facts": [
+        "Has an MSc in Data Engineering from Danube Institute of Technology.",
+        "Automated Snowflake infrastructure with Terraform.",
+        "Holds a fictional cloud data platform certification."
+      ],
+      "demo_tags": [
+        "airflow_snowflake",
+        "certification",
+        "fictional_university"
+      ]
+    },
+    {
+      "candidate_id": "candidate_019",
+      "full_name": "Giulia Romano",
+      "professional_title": "Junior Data Scientist",
+      "profession": "data_science",
+      "seniority": "junior",
+      "country": "Italy",
+      "city": "Bologna",
+      "languages": [
+        {
+          "name": "Italian",
+          "proficiency": "native"
+        },
+        {
+          "name": "English",
+          "proficiency": "professional"
+        },
+        {
+          "name": "French",
+          "proficiency": "intermediate"
+        }
+      ],
+      "required_skills": [
+        "Python",
+        "pandas",
+        "scikit-learn",
+        "SQL",
+        "Jupyter"
+      ],
+      "certification": null,
+      "leadership_team_size": null,
+      "required_education": null,
+      "required_project": {
+        "name": "Customer Churn Study",
+        "technologies": [
+          "Python",
+          "pandas",
+          "scikit-learn"
+        ]
+      },
+      "known_facts": [
+        "Has 2 years of data-analysis experience.",
+        "Built a scikit-learn classification project.",
+        "Uses pandas and SQL for data preparation."
+      ],
+      "demo_tags": [
+        "scikit_learn",
+        "project"
+      ]
+    },
+    {
+      "candidate_id": "candidate_020",
+      "full_name": "Nikolay Petrov",
+      "professional_title": "Data Scientist",
+      "profession": "data_science",
+      "seniority": "mid",
+      "country": "Bulgaria",
+      "city": "Plovdiv",
+      "languages": [
+        {
+          "name": "Bulgarian",
+          "proficiency": "native"
+        },
+        {
+          "name": "English",
+          "proficiency": "fluent"
+        },
+        {
+          "name": "Russian",
+          "proficiency": "professional"
+        }
+      ],
+      "required_skills": [
+        "Python",
+        "R",
+        "SQL",
+        "Tableau",
+        "Statistics"
+      ],
+      "certification": {
+        "name": "Applied Analytics Professional",
+        "issuer": "Data Practice Board",
+        "year": 2022
+      },
+      "leadership_team_size": null,
+      "required_education": null,
+      "required_project": null,
+      "known_facts": [
+        "Has 6 years of analytics experience.",
+        "Builds statistical models in Python and R.",
+        "Holds a fictional applied analytics certification."
+      ],
+      "demo_tags": [
+        "python_r",
+        "certification"
+      ]
+    },
+    {
+      "candidate_id": "candidate_021",
+      "full_name": "Despina Kouris",
+      "professional_title": "Senior Data Scientist",
+      "profession": "data_science",
+      "seniority": "senior",
+      "country": "Greece",
+      "city": "Patras",
+      "languages": [
+        {
+          "name": "Greek",
+          "proficiency": "native"
+        },
+        {
+          "name": "English",
+          "proficiency": "fluent"
+        },
+        {
+          "name": "German",
+          "proficiency": "professional"
+        }
+      ],
+      "required_skills": [
+        "Python",
+        "pandas",
+        "scikit-learn",
+        "NLP",
+        "Experimentation"
+      ],
+      "certification": null,
+      "leadership_team_size": 3,
+      "required_education": null,
+      "required_project": null,
+      "known_facts": [
+        "Has 10 years of data-science experience.",
+        "Built NLP models and experimentation frameworks.",
+        "Managed a team of 3 data scientists."
+      ],
+      "demo_tags": [
+        "nlp",
+        "leadership"
+      ]
+    },
+    {
+      "candidate_id": "candidate_022",
+      "full_name": "Bram de Vries",
+      "professional_title": "Junior Machine Learning Engineer",
+      "profession": "machine_learning_engineering",
+      "seniority": "junior",
+      "country": "Netherlands",
+      "city": "Utrecht",
+      "languages": [
+        {
+          "name": "Dutch",
+          "proficiency": "native"
+        },
+        {
+          "name": "English",
+          "proficiency": "fluent"
+        },
+        {
+          "name": "French",
+          "proficiency": "intermediate"
+        }
+      ],
+      "required_skills": [
+        "Python",
+        "PyTorch",
+        "Transformers",
+        "FastAPI",
+        "Docker"
+      ],
+      "certification": null,
+      "leadership_team_size": null,
+      "required_education": null,
+      "required_project": {
+        "name": "Document Classification Service",
+        "technologies": [
+          "Python",
+          "PyTorch",
+          "Transformers",
+          "FastAPI"
+        ]
+      },
+      "known_facts": [
+        "Has 2 years of machine-learning engineering experience.",
+        "Served a PyTorch transformer model through FastAPI.",
+        "Created a document-classification project."
+      ],
+      "demo_tags": [
+        "pytorch_transformers",
+        "project"
+      ]
+    },
+    {
+      "candidate_id": "candidate_023",
+      "full_name": "Camille Dubois",
+      "professional_title": "Machine Learning Engineer",
+      "profession": "machine_learning_engineering",
+      "seniority": "mid",
+      "country": "France",
+      "city": "Toulouse",
+      "languages": [
+        {
+          "name": "French",
+          "proficiency": "native"
+        },
+        {
+          "name": "English",
+          "proficiency": "fluent"
+        },
+        {
+          "name": "Spanish",
+          "proficiency": "intermediate"
+        }
+      ],
+      "required_skills": [
+        "Python",
+        "TensorFlow",
+        "MLflow",
+        "Kubernetes",
+        "GCP"
+      ],
+      "certification": null,
+      "leadership_team_size": null,
+      "required_education": null,
+      "required_project": null,
+      "known_facts": [
+        "Has 6 years of machine-learning experience.",
+        "Tracks TensorFlow experiments with MLflow.",
+        "Deploys models to Kubernetes on GCP."
+      ],
+      "demo_tags": [
+        "tensorflow_mlflow"
+      ]
+    },
+    {
+      "candidate_id": "candidate_024",
+      "full_name": "Elena Popescu",
+      "professional_title": "Senior NLP Engineer",
+      "profession": "machine_learning_engineering",
+      "seniority": "senior",
+      "country": "Romania",
+      "city": "Bucharest",
+      "languages": [
+        {
+          "name": "Romanian",
+          "proficiency": "native"
+        },
+        {
+          "name": "English",
+          "proficiency": "professional"
+        },
+        {
+          "name": "German",
+          "proficiency": "intermediate"
+        }
+      ],
+      "required_skills": [
+        "Python",
+        "PyTorch",
+        "NLP",
+        "Vector Databases",
+        "Docker"
+      ],
+      "certification": {
+        "name": "Production Machine Learning Professional",
+        "issuer": "Applied AI Institute",
+        "year": 2024
+      },
+      "leadership_team_size": null,
+      "required_education": {
+        "degree": "MSc",
+        "field_of_study": "Artificial Intelligence",
+        "institution": "Carpathian Technical University"
+      },
+      "required_project": null,
+      "known_facts": [
+        "Has an MSc in Artificial Intelligence from Carpathian Technical University.",
+        "Built PyTorch NLP systems using vector databases.",
+        "Holds a fictional production machine-learning certification."
+      ],
+      "demo_tags": [
+        "pytorch_nlp",
+        "vector_databases",
+        "certification"
+      ]
+    },
+    {
+      "candidate_id": "candidate_025",
+      "full_name": "Ines Ferreira",
+      "professional_title": "DevOps and Cloud Engineer",
+      "profession": "devops_cloud_engineering",
+      "seniority": "mid",
+      "country": "Portugal",
+      "city": "Lisbon",
+      "languages": [
+        {
+          "name": "Portuguese",
+          "proficiency": "native"
+        },
+        {
+          "name": "English",
+          "proficiency": "fluent"
+        },
+        {
+          "name": "Spanish",
+          "proficiency": "professional"
+        }
+      ],
+      "required_skills": [
+        "AWS",
+        "Terraform",
+        "Kubernetes",
+        "Docker",
+        "Linux"
+      ],
+      "certification": {
+        "name": "Infrastructure Automation Professional",
+        "issuer": "Cloud Operations Council",
+        "year": 2023
+      },
+      "leadership_team_size": null,
+      "required_education": null,
+      "required_project": null,
+      "known_facts": [
+        "Has 7 years of cloud operations experience.",
+        "Automated AWS infrastructure with Terraform.",
+        "Holds a fictional infrastructure automation certification."
+      ],
+      "demo_tags": [
+        "aws_terraform",
+        "certification"
+      ]
+    },
+    {
+      "candidate_id": "candidate_026",
+      "full_name": "Tomas Novak",
+      "professional_title": "Senior Platform Engineer",
+      "profession": "devops_cloud_engineering",
+      "seniority": "senior",
+      "country": "Czechia",
+      "city": "Prague",
+      "languages": [
+        {
+          "name": "Czech",
+          "proficiency": "native"
+        },
+        {
+          "name": "English",
+          "proficiency": "fluent"
+        },
+        {
+          "name": "German",
+          "proficiency": "professional"
+        }
+      ],
+      "required_skills": [
+        "Azure",
+        "Terraform",
+        "Kubernetes",
+        "GitHub Actions",
+        "Python"
+      ],
+      "certification": null,
+      "leadership_team_size": null,
+      "required_education": null,
+      "required_project": null,
+      "known_facts": [
+        "Has 10 years of platform engineering experience.",
+        "Built Azure infrastructure with Terraform.",
+        "Created deployment automation with GitHub Actions."
+      ],
+      "demo_tags": [
+        "azure_terraform",
+        "github_actions"
+      ]
+    },
+    {
+      "candidate_id": "candidate_027",
+      "full_name": "Ciaran Doyle",
+      "professional_title": "Junior QA Automation Engineer",
+      "profession": "qa_automation",
+      "seniority": "junior",
+      "country": "Ireland",
+      "city": "Cork",
+      "languages": [
+        {
+          "name": "English",
+          "proficiency": "native"
+        },
+        {
+          "name": "Irish",
+          "proficiency": "professional"
+        },
+        {
+          "name": "Spanish",
+          "proficiency": "intermediate"
+        }
+      ],
+      "required_skills": [
+        "Python",
+        "Playwright",
+        "Pytest",
+        "API Testing",
+        "CI/CD"
+      ],
+      "certification": null,
+      "leadership_team_size": null,
+      "required_education": null,
+      "required_project": {
+        "name": "API Regression Toolkit",
+        "technologies": [
+          "Python",
+          "Pytest",
+          "Playwright"
+        ]
+      },
+      "known_facts": [
+        "Has 2 years of quality engineering experience.",
+        "Built Playwright and Pytest test suites.",
+        "Created a fictional API regression project."
+      ],
+      "demo_tags": [
+        "playwright_pytest",
+        "project"
+      ]
+    },
+    {
+      "candidate_id": "candidate_028",
+      "full_name": "Linnea Berg",
+      "professional_title": "QA Automation Engineer",
+      "profession": "qa_automation",
+      "seniority": "mid",
+      "country": "Sweden",
+      "city": "Stockholm",
+      "languages": [
+        {
+          "name": "Swedish",
+          "proficiency": "native"
+        },
+        {
+          "name": "English",
+          "proficiency": "fluent"
+        },
+        {
+          "name": "Finnish",
+          "proficiency": "intermediate"
+        }
+      ],
+      "required_skills": [
+        "TypeScript",
+        "Cypress",
+        "Playwright",
+        "Jest",
+        "GitHub Actions"
+      ],
+      "certification": {
+        "name": "Advanced Test Automation Certificate",
+        "issuer": "Quality Engineering Institute",
+        "year": 2024
+      },
+      "leadership_team_size": null,
+      "required_education": null,
+      "required_project": null,
+      "known_facts": [
+        "Has 6 years of quality engineering experience.",
+        "Built Cypress and Playwright automation in TypeScript.",
+        "Holds a fictional advanced test automation certificate."
+      ],
+      "demo_tags": [
+        "playwright_cypress",
+        "certification"
+      ]
+    },
+    {
+      "candidate_id": "candidate_029",
+      "full_name": "Freja Nielsen",
+      "professional_title": "Senior Technical Product Manager",
+      "profession": "product_management",
+      "seniority": "senior",
+      "country": "Denmark",
+      "city": "Copenhagen",
+      "languages": [
+        {
+          "name": "Danish",
+          "proficiency": "native"
+        },
+        {
+          "name": "English",
+          "proficiency": "fluent"
+        },
+        {
+          "name": "German",
+          "proficiency": "professional"
+        }
+      ],
+      "required_skills": [
+        "Product Strategy",
+        "Roadmapping",
+        "Analytics",
+        "SQL",
+        "Stakeholder Management"
+      ],
+      "certification": null,
+      "leadership_team_size": 9,
+      "required_education": {
+        "degree": "MBA",
+        "field_of_study": "Digital Product Leadership",
+        "institution": "Nordic School of Management"
+      },
+      "required_project": null,
+      "known_facts": [
+        "Has 11 years of product experience.",
+        "Uses SQL and analytics to prioritize product decisions.",
+        "Managed a cross-functional team of 9 people."
+      ],
+      "demo_tags": [
+        "product_sql",
+        "leadership"
+      ]
+    },
+    {
+      "candidate_id": "candidate_030",
+      "full_name": "Amelie Vermeulen",
+      "professional_title": "Junior UX/UI Designer",
+      "profession": "ux_ui_design",
+      "seniority": "junior",
+      "country": "Belgium",
+      "city": "Brussels",
+      "languages": [
+        {
+          "name": "Dutch",
+          "proficiency": "native"
+        },
+        {
+          "name": "French",
+          "proficiency": "fluent"
+        },
+        {
+          "name": "English",
+          "proficiency": "professional"
+        }
+      ],
+      "required_skills": [
+        "Figma",
+        "Design Systems",
+        "Accessibility",
+        "User Research",
+        "Prototyping"
+      ],
+      "certification": null,
+      "leadership_team_size": null,
+      "required_education": {
+        "degree": "BDes",
+        "field_of_study": "Interaction Design",
+        "institution": "Benelux College of Design"
+      },
+      "required_project": {
+        "name": "Accessible Banking Prototype",
+        "technologies": [
+          "Figma",
+          "Design Systems",
+          "Prototyping"
+        ]
+      },
+      "known_facts": [
+        "Has 2 years of product-design experience.",
+        "Created accessible design-system components in Figma.",
+        "Completed a fictional interaction-design degree."
+      ],
+      "demo_tags": [
+        "ux_accessibility",
+        "project"
+      ]
+    }
+  ]
+}

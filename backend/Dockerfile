@@ -9,7 +9,13 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Copy the application source used by the running FastAPI service.
 COPY app ./app
+
+# Include the automated tests and Pytest configuration in the image so a
+# clean Docker build can run the test suite without relying on host mounts.
+COPY tests ./tests
+COPY pytest.ini ./pytest.ini
 
 EXPOSE 8000
 
