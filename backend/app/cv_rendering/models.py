@@ -51,3 +51,15 @@ class CvRenderJob:
         """Return whether the expected normalized portrait is available."""
 
         return self.portrait_path.is_file()
+
+
+@dataclass(frozen=True, slots=True)
+class CvRenderResult:
+    """Verified output metadata for one rendered candidate CV."""
+
+    candidate_id: str
+    pdf_path: Path
+    html_preview_path: Path | None
+    page_count: int
+    extracted_text_characters: int
+    used_placeholder_portrait: bool

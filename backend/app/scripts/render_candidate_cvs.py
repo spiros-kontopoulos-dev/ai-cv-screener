@@ -1,15 +1,14 @@
-"""Inspect and later render validated candidate profiles as CV PDFs.
-
-WP4 Patch 1 exposes a dry-run planning mode before the HTML/CSS template is
-introduced.  Patch 2 will connect these deterministic jobs to Jinja and
-WeasyPrint without changing their candidate-to-asset mapping.
+"""Plan or render validated candidate profiles as HTML and PDF CVs.
 
 Examples:
 
-    python -m app.scripts.render_candidate_cvs \
+    python -m app.scripts.render_candidate_cvs \\
         --candidate-id candidate_003 --dry-run
 
-    python -m app.scripts.render_candidate_cvs --all --dry-run
+    python -m app.scripts.render_candidate_cvs \\
+        --candidate-id candidate_003 --keep-html
+
+    python -m app.scripts.render_candidate_cvs --all
 """
 
 import argparse
@@ -23,9 +22,12 @@ from app.candidate_generation.persistence import (
 from app.core.config import Settings, get_settings
 from app.cv_rendering import (
     CvRenderJob,
+    CvRenderResult,
+    CvRenderingError,
     CvRenderingPlanError,
     build_cv_render_jobs,
     find_profile_boundaries,
+    render_cv_jobs,
     select_cv_render_jobs,
 )
 
@@ -51,8 +53,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     parser = argparse.ArgumentParser(
         description=(
-            "Plan deterministic HTML and PDF artifacts from the validated "
-            "candidate profile collection."
+            "Plan or render deterministic HTML and PDF CV artifacts from "
+            "the validated candidate profile collection."
         )
     )
 
@@ -88,6 +90,14 @@ def build_parser() -> argparse.ArgumentParser:
             "HTML or PDF files."
         ),
     )
+    parser.add_argument(
+        "--keep-html",
+        action="store_true",
+        help=(
+            "Save the standalone HTML preview beside the generated PDF. "
+            "Use this while tuning the template in a browser."
+        ),
+    )
 
     return parser
 
@@ -97,16 +107,16 @@ def run_cli(
     *,
     settings: Settings | None = None,
 ) -> int:
-    """Load profiles and print the deterministic WP4 rendering plan."""
+    """Load profiles, select jobs, then plan or render their CV artifacts."""
 
     parser = build_parser()
     arguments = parser.parse_args(argv)
     active_settings = settings or get_settings()
 
-    if not arguments.dry_run:
+    if arguments.dry_run and arguments.keep_html:
         print(
-            "ERROR: PDF rendering is introduced in WP4 Patch 2. "
-            "Run this Patch 1 command with --dry-run.",
+            "ERROR: --keep-html writes an artifact and cannot be combined "
+            "with --dry-run.",
             file=sys.stderr,
         )
         return 2
@@ -133,16 +143,32 @@ def run_cli(
             select_all=arguments.select_all,
         )
         shortest_job, densest_job = find_profile_boundaries(all_jobs)
-    except (CandidateProfilesFileError, CvRenderingPlanError) as error:
+
+        if arguments.dry_run:
+            _print_rendering_plan(
+                settings=active_settings,
+                all_jobs=all_jobs,
+                selected_jobs=selected_jobs,
+                shortest_job=shortest_job,
+                densest_job=densest_job,
+            )
+            return 0
+
+        results = render_cv_jobs(
+            selected_jobs,
+            keep_html=arguments.keep_html,
+        )
+    except (
+        CandidateProfilesFileError,
+        CvRenderingError,
+        CvRenderingPlanError,
+    ) as error:
         print(f"ERROR: {error}", file=sys.stderr)
         return 2
 
-    _print_rendering_plan(
+    _print_rendering_summary(
         settings=active_settings,
-        all_jobs=all_jobs,
-        selected_jobs=selected_jobs,
-        shortest_job=shortest_job,
-        densest_job=densest_job,
+        results=results,
     )
     return 0
 
@@ -182,13 +208,52 @@ def _print_rendering_plan(
 
     print("\nPLANNED ARTIFACTS")
     for job in selected_jobs:
-        portrait_status = "ready" if job.portrait_exists else "missing"
+        portrait_status = "ready" if job.portrait_exists else "placeholder"
         print(
             f"  {job.candidate_id} | {job.profile.full_name} | "
             f"portrait={portrait_status} | pdf={job.pdf_path.name}"
         )
 
-    print("\n  Result: READY FOR TEMPLATE AND PORTRAIT IMPLEMENTATION")
+    print("\n  Result: READY TO RENDER")
+
+
+def _print_rendering_summary(
+    *,
+    settings: Settings,
+    results: Sequence[CvRenderResult],
+) -> None:
+    """Print the verified output details from one rendering operation."""
+
+    placeholder_count = sum(
+        result.used_placeholder_portrait
+        for result in results
+    )
+
+    print("CV RENDERING COMPLETE")
+    print(f"  PDF output: {settings.cv_pdfs_output_directory}")
+    print(f"  Rendered CVs: {len(results)}")
+    print(f"  Placeholder portraits: {placeholder_count}/{len(results)}")
+
+    print("\nRENDERED ARTIFACTS")
+    for result in results:
+        html_status = (
+            result.html_preview_path.name
+            if result.html_preview_path is not None
+            else "not saved"
+        )
+        portrait_status = (
+            "placeholder"
+            if result.used_placeholder_portrait
+            else "portrait"
+        )
+        print(
+            f"  {result.candidate_id} | pages={result.page_count} | "
+            f"text={result.extracted_text_characters} chars | "
+            f"portrait={portrait_status} | "
+            f"pdf={result.pdf_path.name} | html={html_status}"
+        )
+
+    print("\n  Result: PASS")
 
 
 def main() -> None:

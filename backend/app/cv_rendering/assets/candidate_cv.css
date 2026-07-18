@@ -1,0 +1,378 @@
+@page {
+  size: A4;
+  margin: 10mm 12mm 12mm;
+
+  @bottom-right {
+    color: #64748b;
+    content: "Page " counter(page) " of " counter(pages);
+    font-size: 8pt;
+  }
+}
+
+:root {
+  color: #172033;
+  font-family: "DejaVu Sans", Arial, sans-serif;
+  font-size: 9.4pt;
+  line-height: 1.38;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #eef2f7;
+}
+
+.cv-document {
+  background: #ffffff;
+  margin: 0 auto;
+  max-width: 210mm;
+}
+
+.cv-header {
+  align-items: center;
+  background: #17233b;
+  color: #ffffff;
+  display: flex;
+  gap: 8mm;
+  justify-content: space-between;
+  padding: 8mm 9mm 7mm;
+}
+
+.identity-block {
+  flex: 1;
+  min-width: 0;
+}
+
+.eyebrow {
+  color: #a9c8ff;
+  font-size: 7.4pt;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  margin: 0 0 2mm;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  font-size: 25pt;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  margin-bottom: 2mm;
+}
+
+.professional-title {
+  color: #dbeafe;
+  font-size: 12pt;
+  font-weight: 600;
+  margin-bottom: 2.2mm;
+}
+
+.profile-meta {
+  color: #bac7d9;
+  font-size: 8.3pt;
+  margin-bottom: 0;
+}
+
+.portrait-frame,
+.candidate-portrait,
+.portrait-placeholder {
+  border-radius: 50%;
+  height: 31mm;
+  width: 31mm;
+}
+
+.portrait-frame {
+  border: 1.4mm solid rgba(255, 255, 255, 0.2);
+  flex: 0 0 31mm;
+  overflow: hidden;
+}
+
+.candidate-portrait {
+  display: block;
+  object-fit: cover;
+}
+
+.portrait-placeholder {
+  align-items: center;
+  background: #36527a;
+  color: #ffffff;
+  display: flex;
+  font-size: 15pt;
+  font-weight: 700;
+  justify-content: center;
+  letter-spacing: 0.05em;
+}
+
+.contact-strip {
+  background: #dbeafe;
+  color: #1e3a5f;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 8.4pt;
+  font-weight: 600;
+  gap: 2mm 7mm;
+  padding: 3mm 9mm;
+}
+
+main {
+  padding: 6mm 9mm 2mm;
+}
+
+.cv-section {
+  margin-bottom: 5mm;
+}
+
+.cv-section > h2 {
+  border-bottom: 0.45mm solid #8eb5e7;
+  color: #18375f;
+  font-size: 10.5pt;
+  letter-spacing: 0.08em;
+  margin-bottom: 3mm;
+  padding-bottom: 1.2mm;
+  text-transform: uppercase;
+}
+
+.summary-section p {
+  font-size: 9.4pt;
+  margin-bottom: 0;
+}
+
+.timeline-entry,
+.compact-entry,
+.skill-group,
+.supporting-section {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.timeline-entry {
+  border-left: 0.8mm solid #d7e3f1;
+  margin-left: 1.2mm;
+  padding: 0 0 3.5mm 4mm;
+  position: relative;
+}
+
+.timeline-entry::before {
+  background: #315f91;
+  border: 0.7mm solid #ffffff;
+  border-radius: 50%;
+  content: "";
+  height: 2.8mm;
+  left: -1.85mm;
+  position: absolute;
+  top: 0.8mm;
+  width: 2.8mm;
+}
+
+.timeline-entry:last-child {
+  padding-bottom: 0;
+}
+
+.entry-heading {
+  align-items: flex-start;
+  display: flex;
+  gap: 4mm;
+  justify-content: space-between;
+}
+
+.entry-heading > div,
+.entry-heading > h3 {
+  flex: 1;
+  min-width: 0;
+}
+
+h3 {
+  color: #1f2e46;
+  font-size: 9.8pt;
+  line-height: 1.25;
+  margin-bottom: 0.7mm;
+}
+
+.organization-line,
+.muted-line {
+  color: #5b6678;
+  font-size: 8.4pt;
+}
+
+.organization-line {
+  margin-bottom: 2mm;
+}
+
+.date-range {
+  color: #315f91;
+  flex: 0 0 auto;
+  font-size: 8.1pt;
+  font-weight: 700;
+  margin: 0;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.leadership-badge {
+  background: #edf4fb;
+  border-left: 0.8mm solid #315f91;
+  color: #24496f;
+  display: inline-block;
+  font-size: 8.1pt;
+  font-weight: 700;
+  margin: 0 0 2mm;
+  padding: 1.2mm 2mm;
+}
+
+.highlight-list {
+  margin: 0 0 1.8mm;
+  padding-left: 5mm;
+}
+
+.highlight-list li {
+  margin-bottom: 0.8mm;
+  orphans: 2;
+  widows: 2;
+}
+
+.highlight-list li:last-child {
+  margin-bottom: 0;
+}
+
+.technology-line {
+  color: #475569;
+  font-size: 8pt;
+  margin-bottom: 0;
+}
+
+.skill-groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3mm 5mm;
+}
+
+.skill-group {
+  flex: 1 1 100%;
+  min-width: 0;
+}
+
+.skill-group h3 {
+  color: #5b6678;
+  font-size: 8pt;
+  letter-spacing: 0.05em;
+  margin-bottom: 1.4mm;
+  text-transform: uppercase;
+}
+
+.skill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.3mm;
+}
+
+.skill-chip {
+  background: #eef4fb;
+  border: 0.25mm solid #c8d9ec;
+  border-radius: 10mm;
+  color: #23476c;
+  display: inline-block;
+  font-size: 7.8pt;
+  padding: 1mm 2mm;
+}
+
+.skill-chip small {
+  color: #64748b;
+  font-size: 6.8pt;
+  margin-left: 0.6mm;
+}
+
+.profile-details {
+  align-items: flex-start;
+  display: flex;
+  gap: 7mm;
+}
+
+.skills-section {
+  flex: 1.15;
+  margin-bottom: 0;
+  min-width: 0;
+}
+
+.supporting-sections {
+  flex: 0.85;
+  min-width: 0;
+}
+
+.supporting-section {
+  margin-bottom: 4mm;
+}
+
+.supporting-section:last-child {
+  margin-bottom: 0;
+}
+
+.plain-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.plain-list li {
+  display: flex;
+  gap: 4mm;
+  justify-content: space-between;
+  margin-bottom: 1.2mm;
+}
+
+.plain-list li span {
+  color: #64748b;
+}
+
+.compact-entry {
+  margin-bottom: 2.7mm;
+}
+
+.compact-entry:last-child {
+  margin-bottom: 0;
+}
+
+.compact-entry h3,
+.compact-entry p {
+  margin-bottom: 0.7mm;
+}
+
+.project-entry p {
+  orphans: 2;
+  widows: 2;
+}
+
+
+@media screen {
+  body {
+    padding: 12mm 0;
+  }
+
+  .cv-document {
+    box-shadow: 0 3mm 12mm rgba(23, 32, 51, 0.14);
+    min-height: 297mm;
+  }
+}
+
+@media print {
+  body {
+    background: #ffffff;
+  }
+
+  .cv-document {
+    max-width: none;
+  }
+}

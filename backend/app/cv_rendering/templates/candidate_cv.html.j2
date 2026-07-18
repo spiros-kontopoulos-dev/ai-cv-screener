@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ candidate.full_name }} - CV</title>
+  <style>{{ stylesheet | safe }}</style>
+</head>
+<body>
+  <article class="cv-document">
+    <header class="cv-header">
+      <div class="identity-block">
+        <p class="eyebrow">Curriculum Vitae</p>
+        <h1>{{ candidate.full_name }}</h1>
+        <p class="professional-title">{{ candidate.professional_title }}</p>
+        <p class="profile-meta">
+          {{ candidate.seniority.value | seniority }} ·
+          {{ candidate.profession.value | humanize }} ·
+          {{ candidate.years_of_experience | years_experience }} experience ·
+          {{ candidate.candidate_id }}
+        </p>
+      </div>
+
+      <div class="portrait-frame" aria-label="Candidate portrait">
+        {% if portrait_uri %}
+          <img
+            class="candidate-portrait"
+            src="{{ portrait_uri }}"
+            alt="Portrait of {{ candidate.full_name }}"
+          >
+        {% else %}
+          <div class="portrait-placeholder" aria-hidden="true">
+            {{ candidate_initials }}
+          </div>
+        {% endif %}
+      </div>
+    </header>
+
+    <section class="contact-strip" aria-label="Contact information">
+      <span>{{ candidate.contact.email }}</span>
+      <span>{{ candidate.contact.phone }}</span>
+      <span>{{ candidate.contact.city }}, {{ candidate.contact.country }}</span>
+    </section>
+
+    <main>
+      <section class="cv-section summary-section">
+        <h2>Professional Profile</h2>
+        <p>{{ candidate.summary }}</p>
+      </section>
+
+      <section class="cv-section experience-section">
+        <h2>Professional Experience</h2>
+        {% for experience in candidate.work_experience %}
+          <article class="timeline-entry experience-entry">
+            <div class="entry-heading">
+              <div>
+                <h3>{{ experience.job_title }}</h3>
+                <p class="organization-line">
+                  {{ experience.company }}
+                  {% if experience.location %}
+                    · {{ experience.location }}
+                  {% endif %}
+                </p>
+              </div>
+              <p class="date-range">
+                {{ experience.start_date | work_range(experience.end_date) }}
+              </p>
+            </div>
+
+            {% if experience.managed_team_size %}
+              <p class="leadership-badge">
+                Team leadership: managed {{ experience.managed_team_size }} people
+              </p>
+            {% endif %}
+
+            <ul class="highlight-list">
+              {% for highlight in experience.highlights %}
+                <li>{{ highlight }}</li>
+              {% endfor %}
+            </ul>
+
+            {% if experience.technologies %}
+              <p class="technology-line">
+                <strong>Technologies:</strong>
+                {{ experience.technologies | join(", ") }}
+              </p>
+            {% endif %}
+          </article>
+        {% endfor %}
+      </section>
+
+      <div class="profile-details">
+        <section class="cv-section skills-section">
+          <h2>Skills</h2>
+          <div class="skill-groups">
+            {% for group in skill_groups %}
+              <div class="skill-group">
+                <h3>{{ group.label }}</h3>
+                <div class="skill-list">
+                  {% for skill in group.skills %}
+                    <span class="skill-chip">
+                      {{ skill.name }}
+                      {% if skill.years_of_experience is not none %}
+                        <small>{{ skill.years_of_experience | skill_years }}</small>
+                      {% endif %}
+                    </span>
+                  {% endfor %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </section>
+
+        <div class="supporting-sections">
+          <section class="cv-section supporting-section">
+            <h2>Languages</h2>
+            <ul class="plain-list">
+              {% for language in candidate.languages %}
+                <li>
+                  <strong>{{ language.name }}</strong>
+                  <span>{{ language.proficiency.value | language_proficiency }}</span>
+                </li>
+              {% endfor %}
+            </ul>
+          </section>
+
+          {% if candidate.education %}
+            <section class="cv-section supporting-section">
+              <h2>Education</h2>
+              {% for education in candidate.education %}
+                <article class="compact-entry">
+                  <h3>{{ education.degree }} in {{ education.field_of_study }}</h3>
+                  <p>{{ education.institution }}</p>
+                  <p class="muted-line">
+                    {{ education.start_year | education_range(education.end_year) }}
+                    {% if education.location %}
+                      · {{ education.location }}
+                    {% endif %}
+                  </p>
+                </article>
+              {% endfor %}
+            </section>
+          {% endif %}
+
+          {% if candidate.certifications %}
+            <section class="cv-section supporting-section">
+              <h2>Certifications</h2>
+              {% for certification in candidate.certifications %}
+                <article class="compact-entry">
+                  <h3>{{ certification.name }}</h3>
+                  <p>{{ certification.issuer }} · {{ certification.year }}</p>
+                </article>
+              {% endfor %}
+            </section>
+          {% endif %}
+
+          {% if candidate.projects %}
+            <section class="cv-section supporting-section project-section">
+              <h2>Selected Projects</h2>
+              {% for project in candidate.projects %}
+                <article class="compact-entry project-entry">
+                  <div class="entry-heading">
+                    <h3>{{ project.name }}</h3>
+                    {% if project.year %}
+                      <p class="date-range">{{ project.year }}</p>
+                    {% endif %}
+                  </div>
+                  <p>{{ project.description }}</p>
+                  <p class="technology-line">
+                    <strong>Technologies:</strong>
+                    {{ project.technologies | join(", ") }}
+                  </p>
+                </article>
+              {% endfor %}
+            </section>
+          {% endif %}
+        </div>
+      </div>
+    </main>
+
+  </article>
+</body>
+</html>

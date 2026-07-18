@@ -1,4 +1,4 @@
-"""Tests for the WP4 CV rendering dry-run command."""
+"""Tests for the WP4 CV planning and rendering command."""
 
 from pathlib import Path
 
@@ -27,7 +27,7 @@ def test_dry_run_prints_boundary_and_artifact_information(
     tmp_path: Path,
     valid_candidate_payload: dict,
 ) -> None:
-    """Patch 1 inspects the collection without creating render outputs."""
+    """Dry-run mode inspects the collection without creating outputs."""
 
     profile = CandidateProfile.model_validate(valid_candidate_payload)
     profiles_path = tmp_path / "candidate_profiles.json"
@@ -48,14 +48,41 @@ def test_dry_run_prints_boundary_and_artifact_information(
     assert not (tmp_path / "pdfs").exists()
 
 
-def test_patch_one_requires_explicit_dry_run(
+def test_render_command_writes_verified_pdf_and_html_preview(
+    capsys,
+    tmp_path: Path,
+    valid_candidate_payload: dict,
+) -> None:
+    """Non-dry-run mode now executes the real HTML-to-PDF workflow."""
+
+    profile = CandidateProfile.model_validate(valid_candidate_payload)
+    profiles_path = tmp_path / "candidate_profiles.json"
+    save_candidate_profiles(profiles_path, [profile])
+
+    status = run_cli(
+        ["--candidate-id", "candidate_001", "--keep-html"],
+        settings=_test_settings(tmp_path, profiles_path),
+    )
+
+    captured = capsys.readouterr()
+
+    assert status == 0
+    assert "CV RENDERING COMPLETE" in captured.out
+    assert "Rendered CVs: 1" in captured.out
+    assert "Placeholder portraits: 1/1" in captured.out
+    assert "Result: PASS" in captured.out
+    assert (tmp_path / "pdfs" / "candidate_001.pdf").is_file()
+    assert (tmp_path / "html" / "candidate_001.html").is_file()
+
+
+def test_dry_run_rejects_keep_html(
     capsys,
     tmp_path: Path,
 ) -> None:
-    """The skeleton must not pretend that PDF output already exists."""
+    """A command that promises no writes cannot request an HTML artifact."""
 
     status = run_cli(
-        ["--all"],
+        ["--all", "--dry-run", "--keep-html"],
         settings=_test_settings(
             tmp_path,
             tmp_path / "candidate_profiles.json",
@@ -65,7 +92,7 @@ def test_patch_one_requires_explicit_dry_run(
     captured = capsys.readouterr()
 
     assert status == 2
-    assert "PDF rendering is introduced in WP4 Patch 2" in captured.err
+    assert "cannot be combined with --dry-run" in captured.err
 
 
 def test_dry_run_reports_missing_profile_file_as_empty_collection(
