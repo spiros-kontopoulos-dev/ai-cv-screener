@@ -1,4 +1,4 @@
-"""Deterministic prompts for realistic, fictional professional headshots."""
+"""Deterministic prompts for clean, fictional professional headshots."""
 
 from app.schemas import CandidateProfile, SeniorityLevel
 
@@ -44,38 +44,45 @@ _POSES = (
 
 
 def build_portrait_prompt(profile: CandidateProfile) -> str:
-    """Create one controlled portrait prompt from validated profile facts.
+    """Create one controlled prompt for a clean fictional portrait.
 
-    The prompt uses candidate identity only to keep the rendered artifact
-    coherent. It never asks the model to copy a real person, public figure, or
-    reference photograph. Stable candidate-ID variation keeps the collection
-    visually diverse without maintaining another 30-entry data file.
+    Candidate names, job titles, and locations are intentionally excluded from
+    the provider prompt. Those values do not determine a person's appearance,
+    and image models may incorrectly turn identity text into captions,
+    nameplates, or profile-card layouts. The stable candidate ID is used only
+    inside Python to choose deterministic visual variation.
     """
 
     variation_index = _candidate_number(profile.candidate_id) - 1
     age_description = _age_description(profile)
 
     return (
-        "Create one photorealistic professional CV headshot of a completely "
-        "fictional adult. The fictional candidate is named "
-        f"{profile.full_name} and works as a {profile.professional_title} "
-        f"based in {profile.contact.city}, {profile.contact.country}. "
-        f"Portray an adult professional in the {age_description}. "
-        f"Use {_WARDROBES[variation_index % len(_WARDROBES)]}, "
+        "Generate only one clean, borderless, square photographic portrait. "
+        "The photograph must fill the entire canvas from edge to edge. Output "
+        "only the portrait photograph itself, with no surrounding document or "
+        "graphic layout. Create one photorealistic head-and-shoulders portrait "
+        "of a completely fictional adult professional in the "
+        f"{age_description}. Use "
+        f"{_WARDROBES[variation_index % len(_WARDROBES)]}, "
         f"{_BACKGROUNDS[variation_index % len(_BACKGROUNDS)]}, "
         f"{_LIGHTING[variation_index % len(_LIGHTING)]}, and "
         f"{_EXPRESSIONS[variation_index % len(_EXPRESSIONS)]}. The subject is "
         f"{_POSES[variation_index % len(_POSES)]}. Frame the image as a "
-        "head-and-shoulders portrait with the full head visible, comfortable "
-        "space above the hair, and the eyes near the upper third. Use realistic "
-        "skin texture, natural facial asymmetry, and restrained professional "
-        "retouching. The appearance should feel plausible within a diverse "
-        "European workforce without stereotyping nationality. Produce one "
-        "person only. Do not depict or imitate any real person, celebrity, or "
-        "public figure. No text, letters, logos, badges, watermarks, company "
-        "marks, dramatic props, hands near the face, full-body framing, or "
-        "illustration style. Square composition, photographic realism, clean "
-        "professional CV aesthetic."
+        "professional head-and-shoulders photograph with the full head visible, "
+        "comfortable space above the hair, and the eyes near the upper third. "
+        "Use realistic skin texture, natural facial asymmetry, restrained "
+        "professional retouching, and a plausible diverse European workforce "
+        "appearance without stereotyping nationality. Produce exactly one "
+        "person. Do not depict or imitate any real person, celebrity, or public "
+        "figure. Do not create a CV, resume, profile card, ID card, business "
+        "card, poster, social-media profile, composite, badge, nameplate, lower "
+        "third, caption strip, banner, footer, border, frame, or white text "
+        "panel. Do not include any text, letters, words, captions, names, job "
+        "titles, numbers, symbols, logos, watermarks, signatures, labels, or "
+        "typography anywhere in the image, background, clothing, or accessories. "
+        "No dramatic props, hands near the face, full-body framing, illustration, "
+        "painting, or cartoon style. Return only the uninterrupted photograph, "
+        "with photographic content extending to every edge of the square canvas."
     )
 
 

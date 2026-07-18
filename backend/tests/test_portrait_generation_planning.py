@@ -13,21 +13,29 @@ from app.portrait_generation import (
 from app.schemas import CandidateProfile
 
 
-def test_portrait_prompt_is_fictional_professional_and_candidate_specific(
+def test_portrait_prompt_is_fictional_professional_and_avoids_caption_layouts(
     valid_candidate_payload: dict,
 ) -> None:
-    """The prompt preserves identity while excluding real-person imitation."""
+    """The prompt excludes identity text and rejects document-style overlays."""
 
     profile = CandidateProfile.model_validate(valid_candidate_payload)
 
     prompt = build_portrait_prompt(profile)
 
-    assert "Alex Morgan" in prompt
-    assert "Senior Python Backend Engineer" in prompt
-    assert "Athens, Greece" in prompt
-    assert "completely fictional adult" in prompt
+    # Identity values are intentionally kept out of the image prompt because
+    # image models may render them as nameplates or lower-third captions.
+    assert "Alex Morgan" not in prompt
+    assert "Senior Python Backend Engineer" not in prompt
+    assert "Athens, Greece" not in prompt
+
+    assert "completely fictional adult professional" in prompt
+    assert "Output only the portrait photograph itself" in prompt
+    assert "photograph must fill the entire canvas from edge to edge" in prompt
+    assert "Do not create a CV, resume, profile card, ID card" in prompt
+    assert "lower third, caption strip, banner, footer" in prompt
+    assert "Do not include any text, letters, words, captions, names" in prompt
+    assert "Return only the uninterrupted photograph" in prompt
     assert "Do not depict or imitate any real person" in prompt
-    assert "No text, letters, logos" in prompt
 
 
 def test_portrait_jobs_use_stable_webp_paths_and_ordering(
