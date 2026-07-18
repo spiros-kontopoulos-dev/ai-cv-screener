@@ -375,5 +375,4562 @@
         "year": 2025
       }
     ]
+  },
+  {
+    "candidate_id": "candidate_004",
+    "full_name": "Theo Laurent",
+    "professional_title": "Senior Java Backend Engineer",
+    "profession": "backend_engineering",
+    "seniority": "senior",
+    "years_of_experience": 12.8,
+    "summary": "Experienced backend engineer specializing in Java and Spring Boot platforms for distributed commerce and logistics systems. Strong track record designing event-driven services with Kafka, building reliable PostgreSQL-backed APIs, and deploying containerized workloads to Kubernetes. Comfortable leading engineering teams, improving delivery practices, and partnering with product and infrastructure stakeholders.",
+    "contact": {
+      "email": "theo.laurent@example.com",
+      "phone": "+33 6 42 18 73 95",
+      "city": "Lyon",
+      "country": "France"
+    },
+    "work_experience": [
+      {
+        "job_title": "Senior Java Backend Engineer",
+        "company": "Novalys Digital",
+        "location": "Lyon, France",
+        "start_date": "2022-03",
+        "end_date": null,
+        "highlights": [
+          "Led a team of 7 engineers delivering backend services for a high-volume order orchestration platform.",
+          "Designed event-driven Spring Boot services using Kafka topics, schema evolution practices, and idempotent consumers.",
+          "Deployed Spring Boot workloads to Kubernetes with health checks, autoscaling policies, and zero-downtime rollout procedures.",
+          "Improved PostgreSQL query performance and transaction handling, reducing payment reconciliation latency."
+        ],
+        "technologies": [
+          "Java",
+          "Spring Boot",
+          "Kafka",
+          "PostgreSQL",
+          "Kubernetes",
+          "Docker",
+          "Helm",
+          "JUnit",
+          "REST APIs"
+        ],
+        "managed_team_size": 7
+      },
+      {
+        "job_title": "Backend Engineer",
+        "company": "Arvencia Systems",
+        "location": "Grenoble, France",
+        "start_date": "2018-07",
+        "end_date": "2022-02",
+        "highlights": [
+          "Built Java microservices for subscription billing, customer identity, and invoicing workflows.",
+          "Implemented Kafka-based integration between billing services and downstream analytics pipelines.",
+          "Designed PostgreSQL schemas, indexes, and migration scripts for multi-tenant data models.",
+          "Introduced automated integration testing and CI checks that improved release confidence."
+        ],
+        "technologies": [
+          "Java",
+          "Spring Boot",
+          "Kafka",
+          "PostgreSQL",
+          "Flyway",
+          "GitLab CI",
+          "Docker",
+          "Mockito"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Java Software Developer",
+        "company": "HelioForge Applications",
+        "location": "Lyon, France",
+        "start_date": "2015-09",
+        "end_date": "2018-06",
+        "highlights": [
+          "Developed RESTful backend modules for transportation scheduling and fleet operations products.",
+          "Migrated legacy service components to Spring Boot, improving maintainability and deployment consistency.",
+          "Created database access layers and reporting queries on PostgreSQL for operational dashboards."
+        ],
+        "technologies": [
+          "Java",
+          "Spring Boot",
+          "PostgreSQL",
+          "REST APIs",
+          "Maven",
+          "JUnit",
+          "Linux"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Junior Backend Developer",
+        "company": "Cerisane Labs",
+        "location": "Lille, France",
+        "start_date": "2013-10",
+        "end_date": "2015-08",
+        "highlights": [
+          "Maintained Java web services and internal APIs for account management applications.",
+          "Added unit tests, logging improvements, and SQL fixes to stabilize production support workflows."
+        ],
+        "technologies": [
+          "Java",
+          "Spring Framework",
+          "PostgreSQL",
+          "SQL",
+          "JUnit",
+          "Git"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [
+      {
+        "degree": "Master of Science",
+        "field_of_study": "Software Engineering",
+        "institution": "Institut Rhodanien des Technologies Numériques",
+        "location": "Lyon, France",
+        "start_year": 2011,
+        "end_year": 2013
+      },
+      {
+        "degree": "Bachelor of Science",
+        "field_of_study": "Computer Science",
+        "institution": "École Supérieure d'Informatique de Valmont",
+        "location": "Lille, France",
+        "start_year": 2008,
+        "end_year": 2011
+      }
+    ],
+    "skills": [
+      {
+        "name": "Java",
+        "category": "programming_language",
+        "years_of_experience": 11.0
+      },
+      {
+        "name": "Spring Boot",
+        "category": "framework",
+        "years_of_experience": 8.0
+      },
+      {
+        "name": "PostgreSQL",
+        "category": "database",
+        "years_of_experience": 10.0
+      },
+      {
+        "name": "Kafka",
+        "category": "devops",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "Kubernetes",
+        "category": "devops",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "Docker",
+        "category": "devops",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "REST APIs",
+        "category": "framework",
+        "years_of_experience": 9.0
+      },
+      {
+        "name": "JUnit",
+        "category": "testing",
+        "years_of_experience": 9.0
+      },
+      {
+        "name": "GitLab CI",
+        "category": "devops",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "Helm",
+        "category": "devops",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "Microservices",
+        "category": "other",
+        "years_of_experience": 7.0
+      },
+      {
+        "name": "SQL Performance Tuning",
+        "category": "database",
+        "years_of_experience": 6.0
+      }
+    ],
+    "languages": [
+      {
+        "name": "French",
+        "proficiency": "native"
+      },
+      {
+        "name": "English",
+        "proficiency": "fluent"
+      },
+      {
+        "name": "German",
+        "proficiency": "intermediate"
+      }
+    ],
+    "certifications": [],
+    "projects": []
+  },
+  {
+    "candidate_id": "candidate_005",
+    "full_name": "Marco Bellini",
+    "professional_title": ".NET Backend Engineer",
+    "profession": "backend_engineering",
+    "seniority": "mid",
+    "years_of_experience": 6.0,
+    "summary": ".NET Backend Engineer with 6 years of backend experience building C# services, REST APIs, and integration components for business platforms. Strong background with .NET, SQL Server data modeling, Azure deployments, and Docker-based delivery workflows, with a focus on reliable, maintainable backend systems.",
+    "contact": {
+      "email": "marco.bellini@example.com",
+      "phone": "+39 02 5550 1846",
+      "city": "Milan",
+      "country": "Italy"
+    },
+    "work_experience": [
+      {
+        "job_title": ".NET Backend Engineer",
+        "company": "NebulaPay Software",
+        "location": "Milan, Italy",
+        "start_date": "2023-09",
+        "end_date": null,
+        "highlights": [
+          "Developed C# and .NET 8 backend services for payment operations, exposing REST APIs consumed by web and partner systems.",
+          "Built data access layers and stored procedures on SQL Server, improving reconciliation query performance by 32%.",
+          "Packaged services with Docker and deployed containerized workloads to Azure using Azure Container Registry and Azure App Service.",
+          "Improved observability with structured logging, health checks, and deployment dashboards in Azure DevOps pipelines."
+        ],
+        "technologies": [
+          "C#",
+          ".NET 8",
+          "ASP.NET Core",
+          "Entity Framework Core",
+          "SQL Server",
+          "Azure",
+          "Azure App Service",
+          "Azure Container Registry",
+          "Docker",
+          "Azure DevOps"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Backend Developer",
+        "company": "Alba Retail Systems",
+        "location": "Milan, Italy",
+        "start_date": "2020-07",
+        "end_date": "2023-08",
+        "highlights": [
+          "Implemented .NET Core APIs for inventory, order processing, and supplier integrations across a multi-tenant retail platform.",
+          "Designed SQL Server schemas, indexes, and migration scripts to support reporting and operational workflows.",
+          "Introduced Docker-based local development environments, reducing onboarding time for backend contributors.",
+          "Created integration tests and CI checks for API contracts, improving release confidence for monthly deployments."
+        ],
+        "technologies": [
+          "C#",
+          ".NET Core",
+          "ASP.NET Core Web API",
+          "SQL Server",
+          "Entity Framework Core",
+          "Docker",
+          "Git",
+          "REST APIs",
+          "xUnit"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Science",
+        "field_of_study": "Computer Engineering",
+        "institution": "Milan School of Digital Engineering",
+        "location": "Milan, Italy",
+        "start_year": 2016,
+        "end_year": 2020
+      }
+    ],
+    "skills": [
+      {
+        "name": "C#",
+        "category": "programming_language",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": ".NET",
+        "category": "framework",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "ASP.NET Core",
+        "category": "framework",
+        "years_of_experience": 5.5
+      },
+      {
+        "name": "Entity Framework Core",
+        "category": "framework",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "SQL Server",
+        "category": "database",
+        "years_of_experience": 5.5
+      },
+      {
+        "name": "Azure",
+        "category": "cloud",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "Azure App Service",
+        "category": "cloud",
+        "years_of_experience": 2.5
+      },
+      {
+        "name": "Docker",
+        "category": "devops",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "Azure DevOps",
+        "category": "devops",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "REST API Design",
+        "category": "other",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "xUnit",
+        "category": "testing",
+        "years_of_experience": 3.0
+      }
+    ],
+    "languages": [
+      {
+        "name": "Italian",
+        "proficiency": "native"
+      },
+      {
+        "name": "English",
+        "proficiency": "professional"
+      },
+      {
+        "name": "Spanish",
+        "proficiency": "intermediate"
+      }
+    ],
+    "certifications": [],
+    "projects": []
+  },
+  {
+    "candidate_id": "candidate_006",
+    "full_name": "Noor van Dijk",
+    "professional_title": "Senior Distributed Systems Engineer",
+    "profession": "backend_engineering",
+    "seniority": "senior",
+    "years_of_experience": 10.9,
+    "summary": "Experienced backend engineer specializing in cloud-native distributed systems, high-throughput Go services, and resilient platform architecture. Strong background designing gRPC APIs, operating Kubernetes workloads, provisioning infrastructure with Terraform, and leading engineering teams delivering reliable product infrastructure.",
+    "contact": {
+      "email": "noor.vandijk@example.com",
+      "phone": "+31 10 245 7381",
+      "city": "Rotterdam",
+      "country": "Netherlands"
+    },
+    "work_experience": [
+      {
+        "job_title": "Senior Distributed Systems Engineer",
+        "company": "HarborPeak Technologies",
+        "location": "Rotterdam, Netherlands",
+        "start_date": "2022-03",
+        "end_date": null,
+        "highlights": [
+          "Led a team of exactly 8 engineers responsible for event-driven backend services, shared platform libraries, and production reliability practices.",
+          "Designed and built gRPC services in Go supporting low-latency account, billing, and notification workflows across multiple product domains.",
+          "Standardized Kubernetes deployment patterns and Terraform modules, reducing environment drift and improving release consistency.",
+          "Improved PostgreSQL query plans, connection pooling, and schema migration practices for services handling high transaction volumes."
+        ],
+        "technologies": [
+          "Go",
+          "gRPC",
+          "PostgreSQL",
+          "Kubernetes",
+          "Terraform",
+          "Prometheus",
+          "Grafana",
+          "NATS"
+        ],
+        "managed_team_size": 8
+      },
+      {
+        "job_title": "Backend Platform Engineer",
+        "company": "CanalWorks Software",
+        "location": "Amsterdam, Netherlands",
+        "start_date": "2018-07",
+        "end_date": "2022-02",
+        "highlights": [
+          "Developed Go microservices with gRPC and REST interfaces for a multi-tenant logistics platform.",
+          "Migrated container workloads from virtual machines to Kubernetes, improving deployment frequency and rollback safety.",
+          "Created Terraform configurations for cloud networking, service accounts, databases, and observability components.",
+          "Partnered with data teams to optimize PostgreSQL schemas and introduce partitioning for operational reporting workloads."
+        ],
+        "technologies": [
+          "Go",
+          "gRPC",
+          "REST",
+          "PostgreSQL",
+          "Kubernetes",
+          "Terraform",
+          "Docker",
+          "Redis"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Software Engineer",
+        "company": "Northstar Ledger Labs",
+        "location": "Utrecht, Netherlands",
+        "start_date": "2015-09",
+        "end_date": "2018-06",
+        "highlights": [
+          "Built backend services for payment reconciliation, batch processing, and internal administration tools.",
+          "Introduced automated integration testing around database-heavy workflows, improving confidence in weekly releases.",
+          "Refactored legacy service modules into clearer domain boundaries and documented API contracts for partner teams."
+        ],
+        "technologies": [
+          "Java",
+          "Go",
+          "PostgreSQL",
+          "Docker",
+          "RabbitMQ",
+          "JUnit"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Science",
+        "field_of_study": "Computer Science",
+        "institution": "Rotterdam College of Applied Technology",
+        "location": "Rotterdam, Netherlands",
+        "start_year": 2011,
+        "end_year": 2015
+      }
+    ],
+    "skills": [
+      {
+        "name": "Go",
+        "category": "programming_language",
+        "years_of_experience": 8.0
+      },
+      {
+        "name": "gRPC",
+        "category": "framework",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "PostgreSQL",
+        "category": "database",
+        "years_of_experience": 10.0
+      },
+      {
+        "name": "Kubernetes",
+        "category": "devops",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "Terraform",
+        "category": "devops",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "Docker",
+        "category": "devops",
+        "years_of_experience": 8.0
+      },
+      {
+        "name": "Microservices Architecture",
+        "category": "other",
+        "years_of_experience": 7.0
+      },
+      {
+        "name": "Distributed Systems",
+        "category": "other",
+        "years_of_experience": 7.0
+      },
+      {
+        "name": "Prometheus",
+        "category": "devops",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "Grafana",
+        "category": "devops",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "Redis",
+        "category": "database",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "Java",
+        "category": "programming_language",
+        "years_of_experience": 4.0
+      }
+    ],
+    "languages": [
+      {
+        "name": "Dutch",
+        "proficiency": "native"
+      },
+      {
+        "name": "English",
+        "proficiency": "fluent"
+      },
+      {
+        "name": "German",
+        "proficiency": "professional"
+      }
+    ],
+    "certifications": [
+      {
+        "name": "Cloud Native Systems Professional",
+        "issuer": "Distributed Systems Institute",
+        "year": 2023
+      }
+    ],
+    "projects": []
+  },
+  {
+    "candidate_id": "candidate_007",
+    "full_name": "Sofia Petrou",
+    "professional_title": "Junior Frontend Engineer",
+    "profession": "frontend_engineering",
+    "seniority": "junior",
+    "years_of_experience": 2.0,
+    "summary": "Junior Frontend Engineer with 2 years of experience building responsive React and TypeScript interfaces. Skilled in CSS, accessible component implementation, and component testing with Vitest. Comfortable collaborating with designers and backend engineers to deliver user-friendly web features.",
+    "contact": {
+      "email": "sofia.petrou@example.com",
+      "phone": "+30 231 055 7842",
+      "city": "Thessaloniki",
+      "country": "Greece"
+    },
+    "work_experience": [
+      {
+        "job_title": "Junior Frontend Engineer",
+        "company": "Aegean Pixel Labs",
+        "location": "Thessaloniki, Greece",
+        "start_date": "2025-01",
+        "end_date": "2026-06",
+        "highlights": [
+          "Built reusable React and TypeScript UI components for customer-facing dashboards and internal tools.",
+          "Implemented accessible React components with semantic HTML, keyboard navigation, focus states, and ARIA attributes.",
+          "Added Vitest component tests for forms, filters, and shared widgets, improving confidence during releases.",
+          "Worked closely with UX designers to refine responsive layouts using modular CSS."
+        ],
+        "technologies": [
+          "React",
+          "TypeScript",
+          "CSS",
+          "Vitest",
+          "HTML",
+          "ARIA",
+          "Git"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Frontend Developer Intern",
+        "company": "Northport Digital Studio",
+        "location": "Thessaloniki, Greece",
+        "start_date": "2024-07",
+        "end_date": "2024-12",
+        "highlights": [
+          "Supported delivery of landing pages and product views using React, TypeScript, and CSS.",
+          "Fixed accessibility issues identified during reviews, including contrast, labels, and keyboard interaction problems.",
+          "Created basic Vitest coverage for interactive components and utility functions."
+        ],
+        "technologies": [
+          "React",
+          "TypeScript",
+          "CSS",
+          "Vitest",
+          "Figma",
+          "Git"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Science",
+        "field_of_study": "Computer Science",
+        "institution": "Thermaikos Institute of Technology",
+        "location": "Thessaloniki, Greece",
+        "start_year": 2020,
+        "end_year": 2024
+      }
+    ],
+    "skills": [
+      {
+        "name": "React",
+        "category": "framework",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "TypeScript",
+        "category": "programming_language",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "CSS",
+        "category": "framework",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "Vitest",
+        "category": "testing",
+        "years_of_experience": 1.5
+      },
+      {
+        "name": "Accessibility",
+        "category": "design",
+        "years_of_experience": 1.5
+      },
+      {
+        "name": "HTML",
+        "category": "programming_language",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "Git",
+        "category": "devops",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "Responsive Design",
+        "category": "design",
+        "years_of_experience": 2.0
+      }
+    ],
+    "languages": [
+      {
+        "name": "Greek",
+        "proficiency": "native"
+      },
+      {
+        "name": "English",
+        "proficiency": "fluent"
+      },
+      {
+        "name": "French",
+        "proficiency": "intermediate"
+      }
+    ],
+    "certifications": [],
+    "projects": [
+      {
+        "name": "Accessible City Guide",
+        "description": "Built a responsive web guide for local points of interest with accessible navigation, clear content structure, keyboard-friendly cards, and reusable React components styled with CSS.",
+        "technologies": [
+          "React",
+          "TypeScript",
+          "CSS"
+        ],
+        "year": 2025
+      }
+    ]
+  },
+  {
+    "candidate_id": "candidate_008",
+    "full_name": "Tiago Almeida",
+    "professional_title": "Frontend Engineer",
+    "profession": "frontend_engineering",
+    "seniority": "mid",
+    "years_of_experience": 5.0,
+    "summary": "Frontend Engineer with 5 years of experience building responsive web applications with Vue.js, TypeScript, Pinia, and modern HTML. Experienced in designing maintainable component libraries, integrating REST APIs, improving accessibility, and using Cypress for reliable end-to-end testing across product workflows.",
+    "contact": {
+      "email": "tiago.almeida@example.com",
+      "phone": "+351 912 456 738",
+      "city": "Porto",
+      "country": "Portugal"
+    },
+    "work_experience": [
+      {
+        "job_title": "Frontend Engineer",
+        "company": "Lusitana Digital Works",
+        "location": "Porto, Portugal",
+        "start_date": "2024-03",
+        "end_date": null,
+        "highlights": [
+          "Built customer-facing Vue.js and TypeScript modules for a subscription management platform, using Pinia for shared state and Vite for fast delivery cycles.",
+          "Created reusable HTML and CSS components that improved consistency across onboarding, billing, and account settings screens.",
+          "Expanded Cypress end-to-end coverage for checkout and user-permission flows, reducing regressions before production releases.",
+          "Collaborated with backend engineers and product designers to refine API contracts, accessibility behavior, and responsive UI states."
+        ],
+        "technologies": [
+          "Vue.js",
+          "TypeScript",
+          "Pinia",
+          "Cypress",
+          "HTML",
+          "CSS",
+          "Vite",
+          "REST APIs",
+          "Git"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Frontend Developer",
+        "company": "Ribeira Cloud Solutions",
+        "location": "Porto, Portugal",
+        "start_date": "2022-01",
+        "end_date": "2024-02",
+        "highlights": [
+          "Developed Vue.js dashboards for logistics clients, converting complex operational data into clear, responsive interfaces.",
+          "Migrated key screens from JavaScript to TypeScript, improving type safety and reducing defects during feature changes.",
+          "Implemented Pinia stores for shipment tracking, user preferences, and notification state across multi-page workflows.",
+          "Maintained Cypress suites for smoke, regression, and role-based access scenarios in the release pipeline."
+        ],
+        "technologies": [
+          "Vue.js",
+          "TypeScript",
+          "Pinia",
+          "Cypress",
+          "HTML",
+          "SCSS",
+          "Chart.js",
+          "Jira",
+          "GitLab CI"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Junior Frontend Developer",
+        "company": "Aurora Web Studio",
+        "location": "Porto, Portugal",
+        "start_date": "2021-07",
+        "end_date": "2021-12",
+        "highlights": [
+          "Built responsive landing pages and product interfaces with semantic HTML, CSS, and Vue.js components.",
+          "Supported accessibility improvements including keyboard navigation, form labels, and contrast adjustments.",
+          "Assisted with Cypress test maintenance for common user journeys such as signup, login, and profile updates."
+        ],
+        "technologies": [
+          "Vue.js",
+          "JavaScript",
+          "HTML",
+          "CSS",
+          "Cypress",
+          "Figma",
+          "Git"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Science",
+        "field_of_study": "Computer Science",
+        "institution": "Porto Institute of Digital Engineering",
+        "location": "Porto, Portugal",
+        "start_year": 2017,
+        "end_year": 2021
+      }
+    ],
+    "skills": [
+      {
+        "name": "Vue.js",
+        "category": "framework",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "TypeScript",
+        "category": "programming_language",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "Pinia",
+        "category": "framework",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "Cypress",
+        "category": "testing",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "HTML",
+        "category": "programming_language",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "CSS",
+        "category": "framework",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "JavaScript",
+        "category": "programming_language",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "Vite",
+        "category": "devops",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "REST APIs",
+        "category": "other",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "Accessibility",
+        "category": "design",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "Git",
+        "category": "devops",
+        "years_of_experience": 5.0
+      }
+    ],
+    "languages": [
+      {
+        "name": "Portuguese",
+        "proficiency": "native"
+      },
+      {
+        "name": "English",
+        "proficiency": "professional"
+      },
+      {
+        "name": "Spanish",
+        "proficiency": "professional"
+      }
+    ],
+    "certifications": [],
+    "projects": []
+  },
+  {
+    "candidate_id": "candidate_009",
+    "full_name": "Marta Kowalska",
+    "professional_title": "Senior React Engineer",
+    "profession": "frontend_engineering",
+    "seniority": "senior",
+    "years_of_experience": 9.1,
+    "summary": "Experienced frontend engineer specializing in React, TypeScript, Next.js, GraphQL, and accessible product experiences. Strong background in human-computer interaction, design-system collaboration, performance tuning, and mentoring frontend teams across international product environments.",
+    "contact": {
+      "email": "marta.kowalska@example.com",
+      "phone": "+48 22 184 73 56",
+      "city": "Warsaw",
+      "country": "Poland"
+    },
+    "work_experience": [
+      {
+        "job_title": "Senior React Engineer",
+        "company": "Vistula Commerce Labs",
+        "location": "Warsaw, Poland",
+        "start_date": "2022-03",
+        "end_date": null,
+        "highlights": [
+          "Led accessibility improvements across a customer-facing Next.js commerce product, raising WCAG alignment through semantic components, keyboard navigation, and screen-reader refinements.",
+          "Managed a team of 4 frontend engineers, coordinating delivery planning, code reviews, mentoring, and frontend architecture decisions.",
+          "Built TypeScript-based React features backed by GraphQL APIs, improving checkout usability and reducing frontend defects.",
+          "Partnered with product designers to evolve a reusable component library with accessible patterns and documented usage guidelines."
+        ],
+        "technologies": [
+          "React",
+          "TypeScript",
+          "Next.js",
+          "GraphQL",
+          "Apollo Client",
+          "Storybook",
+          "Jest",
+          "Playwright",
+          "CSS Modules",
+          "Accessibility"
+        ],
+        "managed_team_size": 4
+      },
+      {
+        "job_title": "Frontend Engineer",
+        "company": "Northline Digital Works",
+        "location": "Krakow, Poland",
+        "start_date": "2019-01",
+        "end_date": "2022-02",
+        "highlights": [
+          "Delivered React and TypeScript dashboards for logistics customers, integrating GraphQL queries with reusable data visualization components.",
+          "Improved application performance through code splitting, memoization, bundle analysis, and server-side rendering practices in Next.js.",
+          "Introduced accessibility checks into pull requests and collaborated with QA to validate keyboard flows, focus states, and ARIA usage."
+        ],
+        "technologies": [
+          "React",
+          "TypeScript",
+          "Next.js",
+          "GraphQL",
+          "Redux Toolkit",
+          "Cypress",
+          "Sass",
+          "Webpack",
+          "Accessibility"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Junior Frontend Developer",
+        "company": "PixelHarbor Studio",
+        "location": "Warsaw, Poland",
+        "start_date": "2017-07",
+        "end_date": "2018-12",
+        "highlights": [
+          "Implemented responsive interfaces for subscription and media clients using React, JavaScript, and component-based CSS.",
+          "Converted UX prototypes into production features while applying usability principles from human-computer interaction research.",
+          "Created unit and integration tests for interactive UI components and supported browser compatibility improvements."
+        ],
+        "technologies": [
+          "React",
+          "JavaScript",
+          "HTML5",
+          "CSS3",
+          "Jest",
+          "Git",
+          "Figma"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [
+      {
+        "degree": "MSc",
+        "field_of_study": "Human-Computer Interaction",
+        "institution": "Baltic Digital University",
+        "location": "Gdansk, Poland",
+        "start_year": 2014,
+        "end_year": 2016
+      },
+      {
+        "degree": "BSc",
+        "field_of_study": "Computer Science",
+        "institution": "Mazovia Institute of Technology",
+        "location": "Warsaw, Poland",
+        "start_year": 2011,
+        "end_year": 2014
+      }
+    ],
+    "skills": [
+      {
+        "name": "React",
+        "category": "framework",
+        "years_of_experience": 8.5
+      },
+      {
+        "name": "TypeScript",
+        "category": "programming_language",
+        "years_of_experience": 6.5
+      },
+      {
+        "name": "Next.js",
+        "category": "framework",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "GraphQL",
+        "category": "framework",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "Accessibility",
+        "category": "design",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "JavaScript",
+        "category": "programming_language",
+        "years_of_experience": 8.5
+      },
+      {
+        "name": "Apollo Client",
+        "category": "framework",
+        "years_of_experience": 4.5
+      },
+      {
+        "name": "Storybook",
+        "category": "testing",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "Jest",
+        "category": "testing",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "Playwright",
+        "category": "testing",
+        "years_of_experience": 2.5
+      },
+      {
+        "name": "Cypress",
+        "category": "testing",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "Design Systems",
+        "category": "design",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "HTML5",
+        "category": "programming_language",
+        "years_of_experience": 8.5
+      },
+      {
+        "name": "CSS3",
+        "category": "programming_language",
+        "years_of_experience": 8.5
+      }
+    ],
+    "languages": [
+      {
+        "name": "Polish",
+        "proficiency": "native"
+      },
+      {
+        "name": "English",
+        "proficiency": "fluent"
+      },
+      {
+        "name": "German",
+        "proficiency": "professional"
+      }
+    ],
+    "certifications": [
+      {
+        "name": "Accessible Web Applications Certificate",
+        "issuer": "Inclusive Design Council",
+        "year": 2024
+      }
+    ],
+    "projects": []
+  },
+  {
+    "candidate_id": "candidate_010",
+    "full_name": "Andrei Ionescu",
+    "professional_title": "Angular Frontend Engineer",
+    "profession": "frontend_engineering",
+    "seniority": "mid",
+    "years_of_experience": 5.0,
+    "summary": "Angular Frontend Engineer with 5 years of frontend experience building responsive, reactive web applications in TypeScript. Strong hands-on background with Angular component architecture, RxJS state and stream handling, Jest unit testing, and maintainable Sass design systems for product-focused teams.",
+    "contact": {
+      "email": "andrei.ionescu@example.com",
+      "phone": "+40 731 246 518",
+      "city": "Cluj-Napoca",
+      "country": "Romania"
+    },
+    "work_experience": [
+      {
+        "job_title": "Angular Frontend Engineer",
+        "company": "Nordbyte Digital",
+        "location": "Cluj-Napoca, Romania",
+        "start_date": "2024-05",
+        "end_date": null,
+        "highlights": [
+          "Developed Angular feature modules for a customer analytics portal, using TypeScript, reactive forms, and reusable component patterns.",
+          "Built reactive data flows with RxJS observables, combining API streams, filters, and user interactions for responsive dashboards.",
+          "Expanded Jest unit test coverage for services, pipes, and UI components, improving reliability before release cycles.",
+          "Maintained Sass-based styling architecture with shared variables, mixins, and responsive layouts."
+        ],
+        "technologies": [
+          "Angular",
+          "TypeScript",
+          "RxJS",
+          "Jest",
+          "Sass",
+          "HTML5",
+          "REST APIs",
+          "Git"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Frontend Developer",
+        "company": "Carpathia Cloud Works",
+        "location": "Cluj-Napoca, Romania",
+        "start_date": "2022-11",
+        "end_date": "2024-04",
+        "highlights": [
+          "Implemented Angular interfaces for internal workflow tools, translating product requirements into accessible, mobile-friendly screens.",
+          "Created RxJS-powered services for search, pagination, and real-time status updates across multiple user journeys.",
+          "Wrote Jest tests for business logic and component behavior, supporting safer refactoring of legacy views.",
+          "Collaborated with backend engineers to define REST API contracts and handle validation feedback in TypeScript."
+        ],
+        "technologies": [
+          "Angular",
+          "TypeScript",
+          "RxJS",
+          "Jest",
+          "Sass",
+          "REST APIs",
+          "JSON",
+          "Jira"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Junior Frontend Developer",
+        "company": "MiraSoft Applications",
+        "location": "Cluj-Napoca, Romania",
+        "start_date": "2021-08",
+        "end_date": "2022-10",
+        "highlights": [
+          "Built and maintained Angular components for booking and account management pages under senior developer guidance.",
+          "Converted design mockups into Sass stylesheets with reusable layout utilities and consistent browser behavior.",
+          "Improved form validation, error handling, and client-side routing in TypeScript-based single-page applications."
+        ],
+        "technologies": [
+          "Angular",
+          "TypeScript",
+          "Sass",
+          "HTML5",
+          "CSS3",
+          "JavaScript",
+          "Git"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Science",
+        "field_of_study": "Computer Science",
+        "institution": "Transilvania Institute of Technology",
+        "location": "Cluj-Napoca, Romania",
+        "start_year": 2016,
+        "end_year": 2019
+      }
+    ],
+    "skills": [
+      {
+        "name": "Angular",
+        "category": "framework",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "TypeScript",
+        "category": "programming_language",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "RxJS",
+        "category": "framework",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "Jest",
+        "category": "testing",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "Sass",
+        "category": "framework",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "HTML5",
+        "category": "programming_language",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "CSS3",
+        "category": "programming_language",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "REST APIs",
+        "category": "other",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "Git",
+        "category": "devops",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "Responsive Web Design",
+        "category": "design",
+        "years_of_experience": 5.0
+      }
+    ],
+    "languages": [
+      {
+        "name": "Romanian",
+        "proficiency": "native"
+      },
+      {
+        "name": "English",
+        "proficiency": "professional"
+      },
+      {
+        "name": "French",
+        "proficiency": "intermediate"
+      }
+    ],
+    "certifications": [],
+    "projects": []
+  },
+  {
+    "candidate_id": "candidate_011",
+    "full_name": "Mila Stoyanova",
+    "professional_title": "Junior Full-Stack Engineer",
+    "profession": "full_stack_engineering",
+    "seniority": "junior",
+    "years_of_experience": 2.0,
+    "summary": "Junior Full-Stack Engineer with 2 years of experience building web applications with Python, FastAPI, React, TypeScript, and PostgreSQL. Comfortable developing REST APIs, reusable UI components, database-backed features, and participating in code reviews within agile product teams.",
+    "contact": {
+      "email": "mila.stoyanova@example.com",
+      "phone": "+359 88 456 2719",
+      "city": "Sofia",
+      "country": "Bulgaria"
+    },
+    "work_experience": [
+      {
+        "job_title": "Junior Full-Stack Engineer",
+        "company": "BrightLedger Systems",
+        "location": "Sofia, Bulgaria",
+        "start_date": "2025-07",
+        "end_date": "2026-07",
+        "highlights": [
+          "Developed FastAPI endpoints in Python for customer onboarding workflows, including validation, pagination, and structured error handling.",
+          "Built React and TypeScript components for internal dashboards, improving form usability and reducing repeated UI code.",
+          "Implemented PostgreSQL queries and schema updates for account, activity, and reporting features.",
+          "Collaborated with QA and product colleagues in sprint planning, code reviews, and release verification."
+        ],
+        "technologies": [
+          "Python",
+          "FastAPI",
+          "React",
+          "TypeScript",
+          "PostgreSQL",
+          "Git",
+          "Docker"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Full-Stack Developer Intern",
+        "company": "Novara Cloudworks",
+        "location": "Sofia, Bulgaria",
+        "start_date": "2024-07",
+        "end_date": "2025-06",
+        "highlights": [
+          "Built a React interface backed by FastAPI and PostgreSQL for tracking applicant profiles, notes, and status changes.",
+          "Created TypeScript form components with client-side validation and reusable table views for operations users.",
+          "Wrote Python service logic and database migrations to support search, filtering, and audit history features.",
+          "Contributed unit tests and API documentation for handover to the engineering team."
+        ],
+        "technologies": [
+          "Python",
+          "FastAPI",
+          "React",
+          "TypeScript",
+          "PostgreSQL",
+          "SQLAlchemy",
+          "Pytest"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Science",
+        "field_of_study": "Software Engineering",
+        "institution": "Danube Institute of Technology",
+        "location": "Sofia, Bulgaria",
+        "start_year": 2020,
+        "end_year": 2024
+      }
+    ],
+    "skills": [
+      {
+        "name": "Python",
+        "category": "programming_language",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "TypeScript",
+        "category": "programming_language",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "FastAPI",
+        "category": "framework",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "React",
+        "category": "framework",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "PostgreSQL",
+        "category": "database",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "SQLAlchemy",
+        "category": "framework",
+        "years_of_experience": 1.0
+      },
+      {
+        "name": "Docker",
+        "category": "devops",
+        "years_of_experience": 1.0
+      },
+      {
+        "name": "Git",
+        "category": "devops",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "Pytest",
+        "category": "testing",
+        "years_of_experience": 1.0
+      }
+    ],
+    "languages": [
+      {
+        "name": "Bulgarian",
+        "proficiency": "native"
+      },
+      {
+        "name": "English",
+        "proficiency": "fluent"
+      },
+      {
+        "name": "German",
+        "proficiency": "intermediate"
+      }
+    ],
+    "certifications": [],
+    "projects": [
+      {
+        "name": "Candidate Tracker",
+        "description": "Designed and implemented a candidate-tracking application with a React and TypeScript interface, FastAPI backend services, and PostgreSQL storage for candidate profiles, interview notes, and pipeline status updates.",
+        "technologies": [
+          "React",
+          "TypeScript",
+          "FastAPI",
+          "PostgreSQL"
+        ],
+        "year": 2025
+      }
+    ]
+  },
+  {
+    "candidate_id": "candidate_012",
+    "full_name": "Aoife Brennan",
+    "professional_title": "Full-Stack JavaScript Engineer",
+    "profession": "full_stack_engineering",
+    "seniority": "mid",
+    "years_of_experience": 6.0,
+    "summary": "Full-Stack JavaScript Engineer with 6 years of experience building TypeScript applications across Node.js, NestJS, React, and MongoDB. Skilled at delivering production APIs, responsive interfaces, and maintainable full-stack features for SaaS and customer-facing platforms.",
+    "contact": {
+      "email": "aoife.brennan@example.com",
+      "phone": "+353 1 555 0148",
+      "city": "Dublin",
+      "country": "Ireland"
+    },
+    "work_experience": [
+      {
+        "job_title": "Full-Stack JavaScript Engineer",
+        "company": "Liffey Digital Systems",
+        "location": "Dublin, Ireland",
+        "start_date": "2023-08",
+        "end_date": null,
+        "highlights": [
+          "Built and maintained NestJS APIs for subscription management, user permissions, and audit logging used by business customers.",
+          "Delivered React and TypeScript interfaces with reusable components, form validation, and accessible dashboard workflows.",
+          "Optimized MongoDB queries and indexes for production collections, reducing slow report loads and improving API response consistency.",
+          "Collaborated with product and QA to ship full-stack features through code reviews, automated checks, and staged releases."
+        ],
+        "technologies": [
+          "Node.js",
+          "NestJS",
+          "React",
+          "TypeScript",
+          "MongoDB",
+          "REST APIs",
+          "Jest",
+          "Docker"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "JavaScript Software Engineer",
+        "company": "Harbourline Software",
+        "location": "Dublin, Ireland",
+        "start_date": "2021-05",
+        "end_date": "2023-07",
+        "highlights": [
+          "Developed customer onboarding journeys using React, TypeScript, and Node.js services integrated with internal identity systems.",
+          "Created NestJS service modules for notifications, profile updates, and account settings with structured validation and logging.",
+          "Used MongoDB in production applications for document storage, reporting views, and operational support tooling.",
+          "Improved frontend performance by splitting bundles, refining state management patterns, and simplifying API data fetching."
+        ],
+        "technologies": [
+          "Node.js",
+          "NestJS",
+          "React",
+          "TypeScript",
+          "MongoDB",
+          "Redux",
+          "Express",
+          "Cypress"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Junior Full-Stack Developer",
+        "company": "Cedar Quay Labs",
+        "location": "Dublin, Ireland",
+        "start_date": "2019-08",
+        "end_date": "2021-04",
+        "highlights": [
+          "Implemented full-stack features for an operations portal using React components and Node.js REST endpoints.",
+          "Added TypeScript gradually across shared frontend utilities and backend request models to improve maintainability.",
+          "Built MongoDB-backed admin screens for searching customer records, updating metadata, and exporting operational reports."
+        ],
+        "technologies": [
+          "Node.js",
+          "React",
+          "TypeScript",
+          "MongoDB",
+          "Express",
+          "HTML",
+          "CSS",
+          "Git"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Science",
+        "field_of_study": "Computer Science",
+        "institution": "Northbank Institute of Technology",
+        "location": "Dublin, Ireland",
+        "start_year": 2015,
+        "end_year": 2019
+      }
+    ],
+    "skills": [
+      {
+        "name": "Node.js",
+        "category": "framework",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "NestJS",
+        "category": "framework",
+        "years_of_experience": 3.5
+      },
+      {
+        "name": "React",
+        "category": "framework",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "TypeScript",
+        "category": "programming_language",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "MongoDB",
+        "category": "database",
+        "years_of_experience": 5.5
+      },
+      {
+        "name": "JavaScript",
+        "category": "programming_language",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "REST APIs",
+        "category": "other",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "Jest",
+        "category": "testing",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "Cypress",
+        "category": "testing",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "Docker",
+        "category": "devops",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "Git",
+        "category": "devops",
+        "years_of_experience": 6.0
+      }
+    ],
+    "languages": [
+      {
+        "name": "English",
+        "proficiency": "native"
+      },
+      {
+        "name": "Irish",
+        "proficiency": "intermediate"
+      }
+    ],
+    "certifications": [],
+    "projects": []
+  },
+  {
+    "candidate_id": "candidate_013",
+    "full_name": "Hannah Vogel",
+    "professional_title": "Senior Enterprise Full-Stack Engineer",
+    "profession": "full_stack_engineering",
+    "seniority": "senior",
+    "years_of_experience": 11.0,
+    "summary": "Senior Enterprise Full-Stack Engineer with 11 years of full-stack experience delivering Java, Spring Boot, React, and TypeScript platforms for enterprise operations. Experienced in modernizing legacy application estates into cloud-ready, Kubernetes-based services and in managing a team of 6 engineers through architecture, delivery planning, and production support.",
+    "contact": {
+      "email": "hannah.vogel@example.com",
+      "phone": "+49 40 5550 1842",
+      "city": "Hamburg",
+      "country": "Germany"
+    },
+    "work_experience": [
+      {
+        "job_title": "Senior Enterprise Full-Stack Engineer",
+        "company": "Elbforge Digital Systems GmbH",
+        "location": "Hamburg, Germany",
+        "start_date": "2022-08",
+        "end_date": null,
+        "highlights": [
+          "Modernized a Spring Boot and React platform used for customer onboarding, reducing release effort through modular services and reusable TypeScript components.",
+          "Managed a team of 6 engineers across backend, frontend, and platform workstreams, including code reviews, mentoring, and sprint delivery.",
+          "Introduced Kubernetes deployment patterns, readiness checks, and structured observability for safer enterprise releases.",
+          "Partnered with product and security stakeholders to evolve architecture standards for Java APIs and React front ends."
+        ],
+        "technologies": [
+          "Java",
+          "Spring Boot",
+          "React",
+          "TypeScript",
+          "Kubernetes",
+          "PostgreSQL",
+          "REST APIs",
+          "Docker",
+          "GitLab CI"
+        ],
+        "managed_team_size": 6
+      },
+      {
+        "job_title": "Full-Stack Engineer",
+        "company": "Harborline Enterprise Solutions GmbH",
+        "location": "Hamburg, Germany",
+        "start_date": "2018-07",
+        "end_date": "2022-07",
+        "highlights": [
+          "Built enterprise workflow modules using Java and Spring Boot services with React and TypeScript user interfaces.",
+          "Migrated monolithic screens into API-driven front-end features, improving maintainability and enabling independent release cycles.",
+          "Implemented automated integration tests and containerized local development environments to shorten onboarding time.",
+          "Collaborated with operations teams to prepare services for Kubernetes-based staging and production environments."
+        ],
+        "technologies": [
+          "Java",
+          "Spring Boot",
+          "React",
+          "TypeScript",
+          "Kubernetes",
+          "MySQL",
+          "Docker",
+          "Jenkins",
+          "JUnit"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Software Developer",
+        "company": "Nordlicht Business Platforms GmbH",
+        "location": "Lübeck, Germany",
+        "start_date": "2015-07",
+        "end_date": "2018-06",
+        "highlights": [
+          "Developed internal web applications with Java services and JavaScript-based front-end components for logistics and finance teams.",
+          "Enhanced REST API performance and improved database access patterns for high-volume reporting features.",
+          "Supported production troubleshooting and release coordination for business-critical enterprise applications."
+        ],
+        "technologies": [
+          "Java",
+          "Spring MVC",
+          "JavaScript",
+          "HTML",
+          "CSS",
+          "Oracle Database",
+          "REST APIs",
+          "Maven"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Science",
+        "field_of_study": "Software Engineering",
+        "institution": "Hanse Institute of Applied Technology",
+        "location": "Hamburg, Germany",
+        "start_year": 2011,
+        "end_year": 2015
+      }
+    ],
+    "skills": [
+      {
+        "name": "Java",
+        "category": "programming_language",
+        "years_of_experience": 11.0
+      },
+      {
+        "name": "TypeScript",
+        "category": "programming_language",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "Spring Boot",
+        "category": "framework",
+        "years_of_experience": 8.0
+      },
+      {
+        "name": "React",
+        "category": "framework",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "Kubernetes",
+        "category": "devops",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "Docker",
+        "category": "devops",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "REST APIs",
+        "category": "framework",
+        "years_of_experience": 9.0
+      },
+      {
+        "name": "PostgreSQL",
+        "category": "database",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "MySQL",
+        "category": "database",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "JUnit",
+        "category": "testing",
+        "years_of_experience": 7.0
+      },
+      {
+        "name": "GitLab CI",
+        "category": "devops",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "Enterprise Architecture",
+        "category": "other",
+        "years_of_experience": 5.0
+      }
+    ],
+    "languages": [
+      {
+        "name": "German",
+        "proficiency": "native"
+      },
+      {
+        "name": "English",
+        "proficiency": "fluent"
+      },
+      {
+        "name": "Dutch",
+        "proficiency": "intermediate"
+      }
+    ],
+    "certifications": [
+      {
+        "name": "Enterprise Full-Stack Architecture",
+        "issuer": "Software Architecture Academy",
+        "year": 2022
+      }
+    ],
+    "projects": []
+  },
+  {
+    "candidate_id": "candidate_014",
+    "full_name": "Erik Lundqvist",
+    "professional_title": "Python Full-Stack Engineer",
+    "profession": "full_stack_engineering",
+    "seniority": "mid",
+    "years_of_experience": 6.0,
+    "summary": "Python Full-Stack Engineer with 6 years of experience building Django APIs, Vue.js interfaces, and PostgreSQL-backed web platforms. Strong in containerizing services with Docker, improving delivery workflows, and collaborating with product and design teams in agile environments.",
+    "contact": {
+      "email": "erik.lundqvist@example.com",
+      "phone": "+46 31 555 0147",
+      "city": "Gothenburg",
+      "country": "Sweden"
+    },
+    "work_experience": [
+      {
+        "job_title": "Python Full-Stack Engineer",
+        "company": "Nordhaven Digital Labs",
+        "location": "Gothenburg, Sweden",
+        "start_date": "2024-03",
+        "end_date": null,
+        "highlights": [
+          "Developed Django REST APIs for customer onboarding, account workflows, and internal administration tools.",
+          "Built Vue.js components for responsive dashboards used by operations and support teams.",
+          "Containerized application services with Docker and streamlined local developer setup across backend and frontend teams."
+        ],
+        "technologies": [
+          "Python",
+          "Django",
+          "Django REST Framework",
+          "Vue.js",
+          "PostgreSQL",
+          "Docker",
+          "Redis",
+          "GitLab CI"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Full-Stack Developer",
+        "company": "SkalaSoft Systems",
+        "location": "Gothenburg, Sweden",
+        "start_date": "2022-01",
+        "end_date": "2024-02",
+        "highlights": [
+          "Delivered Python and Django features for subscription management, billing views, and role-based user access.",
+          "Created Vue.js interfaces connected to PostgreSQL-backed APIs with attention to accessibility and performance.",
+          "Optimized database queries and background jobs, reducing response times for high-volume account pages."
+        ],
+        "technologies": [
+          "Python",
+          "Django",
+          "Vue.js",
+          "PostgreSQL",
+          "Docker",
+          "Celery",
+          "RabbitMQ"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Junior Web Developer",
+        "company": "Fjordbyte Applications",
+        "location": "Gothenburg, Sweden",
+        "start_date": "2020-08",
+        "end_date": "2021-12",
+        "highlights": [
+          "Implemented backend endpoints in Python and Django for content publishing and reporting workflows.",
+          "Maintained Vue.js pages and reusable UI modules for small-business web applications.",
+          "Packaged development environments with Docker to improve consistency between laptops and shared staging servers."
+        ],
+        "technologies": [
+          "Python",
+          "Django",
+          "Vue.js",
+          "PostgreSQL",
+          "Docker",
+          "HTML",
+          "CSS"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Science",
+        "field_of_study": "Software Engineering",
+        "institution": "West Gothenburg Institute of Technology",
+        "location": "Gothenburg, Sweden",
+        "start_year": 2017,
+        "end_year": 2020
+      }
+    ],
+    "skills": [
+      {
+        "name": "Python",
+        "category": "programming_language",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "Django",
+        "category": "framework",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "Vue.js",
+        "category": "framework",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "PostgreSQL",
+        "category": "database",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "Docker",
+        "category": "devops",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "Django REST Framework",
+        "category": "framework",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "Redis",
+        "category": "database",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "Celery",
+        "category": "framework",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "GitLab CI",
+        "category": "devops",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "HTML",
+        "category": "programming_language",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "CSS",
+        "category": "programming_language",
+        "years_of_experience": 6.0
+      }
+    ],
+    "languages": [
+      {
+        "name": "Swedish",
+        "proficiency": "native"
+      },
+      {
+        "name": "English",
+        "proficiency": "fluent"
+      },
+      {
+        "name": "German",
+        "proficiency": "intermediate"
+      }
+    ],
+    "certifications": [],
+    "projects": []
+  },
+  {
+    "candidate_id": "candidate_015",
+    "full_name": "Aino Korhonen",
+    "professional_title": "Senior Data Engineer",
+    "profession": "data_engineering",
+    "seniority": "senior",
+    "years_of_experience": 10.0,
+    "summary": "Experienced Senior Data Engineer specializing in reliable analytics platforms, workflow orchestration, and cloud data pipelines. Strong background building Python and Apache Airflow pipelines backed by PostgreSQL, dbt transformation models, and AWS services, with hands-on leadership of data engineering teams delivering governed data products for product, finance, and operations stakeholders.",
+    "contact": {
+      "email": "aino.korhonen@example.com",
+      "phone": "+358 40 782 6149",
+      "city": "Helsinki",
+      "country": "Finland"
+    },
+    "work_experience": [
+      {
+        "job_title": "Senior Data Engineer",
+        "company": "Nordvale Analytics",
+        "location": "Helsinki, Finland",
+        "start_date": "2022-02",
+        "end_date": null,
+        "highlights": [
+          "Lead a team of 5 data engineers responsible for batch and near-real-time data pipelines across product analytics, billing, and customer success domains.",
+          "Designed and maintained Apache Airflow DAGs in Python that ingest, validate, and load operational data into PostgreSQL and cloud data stores on AWS.",
+          "Introduced dbt standards for modular SQL models, documentation, testing, and lineage, improving trust in executive reporting datasets.",
+          "Partnered with platform engineers to improve pipeline observability, alerting, and deployment reliability using infrastructure-as-code practices."
+        ],
+        "technologies": [
+          "Python",
+          "Apache Airflow",
+          "PostgreSQL",
+          "dbt",
+          "AWS",
+          "Amazon S3",
+          "AWS Glue",
+          "Terraform",
+          "GitHub Actions"
+        ],
+        "managed_team_size": 5
+      },
+      {
+        "job_title": "Data Engineer",
+        "company": "Lumora Digital Services",
+        "location": "Espoo, Finland",
+        "start_date": "2019-04",
+        "end_date": "2022-01",
+        "highlights": [
+          "Built Python-based ETL pipelines orchestrated with Apache Airflow to consolidate subscription, payment, and marketing data into PostgreSQL analytics schemas.",
+          "Developed dbt transformation layers with reusable macros, source freshness checks, and automated data quality tests for BI teams.",
+          "Migrated legacy scheduled scripts to AWS-managed storage and compute patterns, reducing manual maintenance and improving pipeline recovery time.",
+          "Created onboarding documentation and code review guidelines for junior data engineers joining the analytics platform team."
+        ],
+        "technologies": [
+          "Python",
+          "Apache Airflow",
+          "PostgreSQL",
+          "dbt",
+          "AWS",
+          "Amazon Redshift",
+          "Amazon S3",
+          "Docker"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Business Intelligence Developer",
+        "company": "HelioWorks Software",
+        "location": "Helsinki, Finland",
+        "start_date": "2016-08",
+        "end_date": "2019-03",
+        "highlights": [
+          "Developed SQL data marts and reporting datasets for sales, support, and finance stakeholders using PostgreSQL.",
+          "Automated recurring data extracts with Python scripts and scheduled jobs, replacing manual spreadsheet-based reporting processes.",
+          "Worked with analysts to define metric logic, improve dashboard performance, and document source-to-report data flows."
+        ],
+        "technologies": [
+          "Python",
+          "PostgreSQL",
+          "SQL",
+          "Tableau",
+          "Linux",
+          "Git"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [
+      {
+        "degree": "Master of Science",
+        "field_of_study": "Information Systems and Data Management",
+        "institution": "Helsinki Nordic Technical University",
+        "location": "Helsinki, Finland",
+        "start_year": 2014,
+        "end_year": 2016
+      },
+      {
+        "degree": "Bachelor of Engineering",
+        "field_of_study": "Software Engineering",
+        "institution": "Tampere Institute of Applied Computing",
+        "location": "Tampere, Finland",
+        "start_year": 2010,
+        "end_year": 2014
+      }
+    ],
+    "skills": [
+      {
+        "name": "Python",
+        "category": "programming_language",
+        "years_of_experience": 8.0
+      },
+      {
+        "name": "SQL",
+        "category": "programming_language",
+        "years_of_experience": 8.0
+      },
+      {
+        "name": "Apache Airflow",
+        "category": "framework",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "dbt",
+        "category": "data_ai",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "PostgreSQL",
+        "category": "database",
+        "years_of_experience": 8.0
+      },
+      {
+        "name": "AWS",
+        "category": "cloud",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "Amazon S3",
+        "category": "cloud",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "AWS Glue",
+        "category": "cloud",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "Amazon Redshift",
+        "category": "database",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "Docker",
+        "category": "devops",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "Terraform",
+        "category": "devops",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "GitHub Actions",
+        "category": "devops",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "Data Modeling",
+        "category": "data_ai",
+        "years_of_experience": 7.0
+      },
+      {
+        "name": "Data Quality Testing",
+        "category": "testing",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "Team Leadership",
+        "category": "other",
+        "years_of_experience": 4.0
+      }
+    ],
+    "languages": [
+      {
+        "name": "Finnish",
+        "proficiency": "native"
+      },
+      {
+        "name": "English",
+        "proficiency": "fluent"
+      },
+      {
+        "name": "Swedish",
+        "proficiency": "professional"
+      }
+    ],
+    "certifications": [
+      {
+        "name": "Data Pipeline Engineering Professional",
+        "issuer": "Modern Data Institute",
+        "year": 2024
+      }
+    ],
+    "projects": []
+  },
+  {
+    "candidate_id": "candidate_016",
+    "full_name": "Javier Molina",
+    "professional_title": "Data Engineer",
+    "profession": "data_engineering",
+    "seniority": "mid",
+    "years_of_experience": 6.0,
+    "summary": "Data Engineer with 6 years of experience building reliable batch and streaming data platforms. Strong hands-on background with Python, Spark, SQL, Kafka, and Azure, including Spark pipelines that process streaming Kafka data for analytics and operational reporting. Native Spanish speaker and fluent in English, comfortable working across international product and data teams.",
+    "contact": {
+      "email": "javier.molina@example.com",
+      "phone": "+34 611 482 739",
+      "city": "Madrid",
+      "country": "Spain"
+    },
+    "work_experience": [
+      {
+        "job_title": "Data Engineer",
+        "company": "Nubera Analytics",
+        "location": "Madrid, Spain",
+        "start_date": "2023-08",
+        "end_date": null,
+        "highlights": [
+          "Built and maintained Spark Structured Streaming pipelines consuming Kafka topics and delivering curated datasets to Azure Data Lake Storage.",
+          "Developed Python and SQL transformations that reduced daily data reconciliation effort for finance and operations teams.",
+          "Implemented monitoring and schema validation for streaming jobs, improving incident detection and data quality.",
+          "Collaborated with analysts and platform engineers in Spanish and English to define data contracts and delivery SLAs."
+        ],
+        "technologies": [
+          "Python",
+          "Spark",
+          "Spark Structured Streaming",
+          "SQL",
+          "Kafka",
+          "Azure",
+          "Azure Data Lake Storage",
+          "Databricks"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Associate Data Engineer",
+        "company": "Asteria Mobility Systems",
+        "location": "Madrid, Spain",
+        "start_date": "2021-02",
+        "end_date": "2023-07",
+        "highlights": [
+          "Designed ETL pipelines for vehicle telemetry and customer usage data using Python, Spark, and SQL.",
+          "Integrated Kafka event streams into batch and near-real-time reporting models hosted on Azure.",
+          "Optimized Spark jobs by tuning partitions and joins, cutting several pipeline runtimes for high-volume datasets.",
+          "Created reusable data ingestion templates and documentation for analytics stakeholders."
+        ],
+        "technologies": [
+          "Python",
+          "Spark",
+          "SQL",
+          "Kafka",
+          "Azure Synapse Analytics",
+          "Azure Blob Storage",
+          "Airflow"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Junior Data Engineer",
+        "company": "Cielo Verde Digital",
+        "location": "Madrid, Spain",
+        "start_date": "2019-08",
+        "end_date": "2021-01",
+        "highlights": [
+          "Built SQL data marts and Python ingestion scripts for marketing and e-commerce reporting.",
+          "Assisted with migration of scheduled data workflows from on-premise servers to Azure-based storage and compute services.",
+          "Wrote validation queries and automated checks that improved reliability of weekly executive dashboards."
+        ],
+        "technologies": [
+          "Python",
+          "SQL",
+          "Azure",
+          "Azure SQL Database",
+          "Pandas",
+          "Git"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Science",
+        "field_of_study": "Computer Engineering",
+        "institution": "Instituto Metropolitano de Tecnología Aplicada",
+        "location": "Madrid, Spain",
+        "start_year": 2015,
+        "end_year": 2019
+      }
+    ],
+    "skills": [
+      {
+        "name": "Python",
+        "category": "programming_language",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "SQL",
+        "category": "programming_language",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "Spark",
+        "category": "data_ai",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "Kafka",
+        "category": "data_ai",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "Azure",
+        "category": "cloud",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "Databricks",
+        "category": "data_ai",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "Airflow",
+        "category": "devops",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "Azure Data Lake Storage",
+        "category": "cloud",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "Azure Synapse Analytics",
+        "category": "cloud",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "Data Modeling",
+        "category": "data_ai",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "ETL/ELT Pipelines",
+        "category": "data_ai",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "Git",
+        "category": "devops",
+        "years_of_experience": 6.0
+      }
+    ],
+    "languages": [
+      {
+        "name": "Spanish",
+        "proficiency": "native"
+      },
+      {
+        "name": "English",
+        "proficiency": "fluent"
+      },
+      {
+        "name": "Portuguese",
+        "proficiency": "intermediate"
+      }
+    ],
+    "certifications": [],
+    "projects": []
+  },
+  {
+    "candidate_id": "candidate_017",
+    "full_name": "Piotr Zielinski",
+    "professional_title": "Junior Analytics Engineer",
+    "profession": "data_engineering",
+    "seniority": "junior",
+    "years_of_experience": 2.0,
+    "summary": "Junior Analytics Engineer with 2 years of experience building SQL-first data models, dbt transformations, and BigQuery datasets for reporting and operational analytics. Comfortable using Python and Docker to automate data checks, support reproducible development, and improve warehouse reliability.",
+    "contact": {
+      "email": "piotr.zielinski@example.com",
+      "phone": "+48 512 384 729",
+      "city": "Krakow",
+      "country": "Poland"
+    },
+    "work_experience": [
+      {
+        "job_title": "Junior Analytics Engineer",
+        "company": "Vistula Metrics Labs",
+        "location": "Krakow, Poland",
+        "start_date": "2025-01",
+        "end_date": "2026-06",
+        "highlights": [
+          "Built and maintained dbt models in BigQuery for finance and customer-success reporting marts.",
+          "Wrote SQL transformations, incremental models, and documentation to improve trust in core warehouse tables.",
+          "Developed Python checks for freshness, null rates, and duplicate detection, then ran them in Docker for consistent local execution.",
+          "Partnered with analysts to troubleshoot data discrepancies and deliver governed datasets for dashboarding."
+        ],
+        "technologies": [
+          "SQL",
+          "dbt",
+          "BigQuery",
+          "Python",
+          "Docker"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Data Analyst Intern",
+        "company": "Northgate Commerce Systems",
+        "location": "Krakow, Poland",
+        "start_date": "2024-07",
+        "end_date": "2024-12",
+        "highlights": [
+          "Prepared SQL queries and reusable views for weekly sales, inventory, and campaign performance analysis.",
+          "Assisted with migration of spreadsheet-based reporting logic into warehouse tables and dbt staging models.",
+          "Created Python scripts to validate CSV extracts before loading them into analytics workflows."
+        ],
+        "technologies": [
+          "SQL",
+          "Python",
+          "dbt",
+          "BigQuery"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Engineering",
+        "field_of_study": "Computer Science and Econometrics",
+        "institution": "Krakow Institute of Applied Technology",
+        "location": "Krakow, Poland",
+        "start_year": 2020,
+        "end_year": 2024
+      }
+    ],
+    "skills": [
+      {
+        "name": "Python",
+        "category": "programming_language",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "SQL",
+        "category": "programming_language",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "dbt",
+        "category": "data_ai",
+        "years_of_experience": 1.5
+      },
+      {
+        "name": "BigQuery",
+        "category": "database",
+        "years_of_experience": 1.5
+      },
+      {
+        "name": "Docker",
+        "category": "devops",
+        "years_of_experience": 1.0
+      }
+    ],
+    "languages": [
+      {
+        "name": "Polish",
+        "proficiency": "native"
+      },
+      {
+        "name": "English",
+        "proficiency": "professional"
+      },
+      {
+        "name": "German",
+        "proficiency": "intermediate"
+      }
+    ],
+    "certifications": [],
+    "projects": [
+      {
+        "name": "Warehouse Quality Monitor",
+        "description": "Created a data-quality monitoring project that validates dbt-managed BigQuery tables for freshness, row-count anomalies, null thresholds, and duplicate keys, with Python scripts producing concise issue reports for analytics users.",
+        "technologies": [
+          "Python",
+          "dbt",
+          "BigQuery"
+        ],
+        "year": 2026
+      }
+    ]
+  },
+  {
+    "candidate_id": "candidate_018",
+    "full_name": "Lukas Gruber",
+    "professional_title": "Cloud Data Engineer",
+    "profession": "data_engineering",
+    "seniority": "mid",
+    "years_of_experience": 7.9,
+    "summary": "Cloud Data Engineer focused on reliable analytics platforms, orchestration, and infrastructure automation. Experienced with Python-based data pipelines, Apache Airflow scheduling, Snowflake data warehousing, Terraform-managed cloud resources, and GCP services for scalable batch and ELT workloads.",
+    "contact": {
+      "email": "lukas.gruber@example.com",
+      "phone": "+43 660 482 9137",
+      "city": "Vienna",
+      "country": "Austria"
+    },
+    "work_experience": [
+      {
+        "job_title": "Cloud Data Engineer",
+        "company": "AlpenStream Analytics",
+        "location": "Vienna, Austria",
+        "start_date": "2023-04",
+        "end_date": null,
+        "highlights": [
+          "Designed and maintained Apache Airflow DAGs for finance and operations data pipelines, improving pipeline observability and recovery handling.",
+          "Automated Snowflake warehouse, role, database, and schema provisioning with Terraform modules and version-controlled deployment workflows.",
+          "Built Python ELT components running on GCP Cloud Run and Cloud Storage to standardize ingestion from partner APIs and internal event exports.",
+          "Collaborated with analytics engineers to optimize Snowflake models, reducing recurring transformation runtimes for high-volume reporting datasets."
+        ],
+        "technologies": [
+          "Python",
+          "Apache Airflow",
+          "Snowflake",
+          "Terraform",
+          "GCP",
+          "Cloud Run",
+          "Cloud Storage",
+          "SQL",
+          "GitHub Actions"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Data Engineer",
+        "company": "VelaGrid Systems",
+        "location": "Vienna, Austria",
+        "start_date": "2020-10",
+        "end_date": "2023-03",
+        "highlights": [
+          "Developed Python ingestion services for customer, billing, and product telemetry data using scheduled Airflow workflows.",
+          "Implemented Snowflake data marts and secure data sharing patterns for reporting teams across product and finance domains.",
+          "Created Terraform templates for repeatable GCP project setup, IAM bindings, service accounts, and storage resources.",
+          "Improved data quality checks and alerting around daily batch loads, reducing manual investigation effort for failed deliveries."
+        ],
+        "technologies": [
+          "Python",
+          "Apache Airflow",
+          "Snowflake",
+          "Terraform",
+          "GCP",
+          "BigQuery",
+          "SQL",
+          "Docker"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Junior Data Engineer",
+        "company": "Nordlicht Digital Works",
+        "location": "Graz, Austria",
+        "start_date": "2018-09",
+        "end_date": "2020-09",
+        "highlights": [
+          "Supported ETL pipeline development in Python and SQL for marketing analytics and operational dashboards.",
+          "Migrated legacy file-based reporting workflows into cloud storage and scheduled transformations with Airflow.",
+          "Documented data lineage and validation rules to help analysts understand source-to-report dependencies."
+        ],
+        "technologies": [
+          "Python",
+          "SQL",
+          "Apache Airflow",
+          "PostgreSQL",
+          "Cloud Storage",
+          "Linux"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [
+      {
+        "degree": "MSc",
+        "field_of_study": "Data Engineering",
+        "institution": "Danube Institute of Technology",
+        "location": "Krems, Austria",
+        "start_year": 2016,
+        "end_year": 2018
+      },
+      {
+        "degree": "BSc",
+        "field_of_study": "Information Systems",
+        "institution": "Vienna Applied Computing Academy",
+        "location": "Vienna, Austria",
+        "start_year": 2013,
+        "end_year": 2016
+      }
+    ],
+    "skills": [
+      {
+        "name": "Python",
+        "category": "programming_language",
+        "years_of_experience": 5.5
+      },
+      {
+        "name": "SQL",
+        "category": "programming_language",
+        "years_of_experience": 5.5
+      },
+      {
+        "name": "Apache Airflow",
+        "category": "data_ai",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "Snowflake",
+        "category": "database",
+        "years_of_experience": 3.5
+      },
+      {
+        "name": "Terraform",
+        "category": "devops",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "GCP",
+        "category": "cloud",
+        "years_of_experience": 3.5
+      },
+      {
+        "name": "BigQuery",
+        "category": "database",
+        "years_of_experience": 2.5
+      },
+      {
+        "name": "Cloud Run",
+        "category": "cloud",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "Cloud Storage",
+        "category": "cloud",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "Docker",
+        "category": "devops",
+        "years_of_experience": 2.5
+      },
+      {
+        "name": "GitHub Actions",
+        "category": "devops",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "Data Modeling",
+        "category": "data_ai",
+        "years_of_experience": 4.0
+      }
+    ],
+    "languages": [
+      {
+        "name": "German",
+        "proficiency": "native"
+      },
+      {
+        "name": "English",
+        "proficiency": "fluent"
+      },
+      {
+        "name": "French",
+        "proficiency": "intermediate"
+      }
+    ],
+    "certifications": [
+      {
+        "name": "Cloud Data Platform Specialist",
+        "issuer": "Analytics Engineering Council",
+        "year": 2023
+      }
+    ],
+    "projects": []
+  },
+  {
+    "candidate_id": "candidate_019",
+    "full_name": "Giulia Romano",
+    "professional_title": "Junior Data Scientist",
+    "profession": "data_science",
+    "seniority": "junior",
+    "years_of_experience": 2.0,
+    "summary": "Junior Data Scientist with 2 years of data-analysis experience in preparing datasets with pandas and SQL, exploring trends in Jupyter, and building classification models with scikit-learn. Focused on clear analytical reporting, reproducible notebooks, and practical machine learning for customer and operations use cases.",
+    "contact": {
+      "email": "giulia.romano@example.com",
+      "phone": "+39 051 555 0148",
+      "city": "Bologna",
+      "country": "Italy"
+    },
+    "work_experience": [
+      {
+        "job_title": "Junior Data Scientist",
+        "company": "Asteria Retail Analytics",
+        "location": "Bologna, Italy",
+        "start_date": "2025-07",
+        "end_date": null,
+        "highlights": [
+          "Prepared customer, product, and transaction datasets using SQL queries and pandas pipelines for weekly analytics reporting.",
+          "Built scikit-learn classification models to identify churn risk segments and compared performance with precision, recall, and ROC-AUC metrics.",
+          "Created Jupyter notebooks documenting data cleaning steps, exploratory analysis, feature engineering, and model evaluation results.",
+          "Collaborated with business analysts to translate model outputs into retention campaign recommendations."
+        ],
+        "technologies": [
+          "Python",
+          "pandas",
+          "scikit-learn",
+          "SQL",
+          "Jupyter"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Data Analyst Intern",
+        "company": "Luminara Digital Services",
+        "location": "Bologna, Italy",
+        "start_date": "2024-07",
+        "end_date": "2025-06",
+        "highlights": [
+          "Used SQL to extract operational data and pandas to clean missing values, standardize categories, and prepare analysis-ready tables.",
+          "Developed Jupyter notebook dashboards summarizing monthly acquisition, conversion, and support metrics.",
+          "Assisted senior analysts with exploratory analysis and documented reproducible workflows for recurring reporting tasks."
+        ],
+        "technologies": [
+          "Python",
+          "pandas",
+          "SQL",
+          "Jupyter"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Science",
+        "field_of_study": "Statistics and Data Analytics",
+        "institution": "Bologna School of Applied Sciences",
+        "location": "Bologna, Italy",
+        "start_year": 2020,
+        "end_year": 2024
+      }
+    ],
+    "skills": [
+      {
+        "name": "Python",
+        "category": "programming_language",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "pandas",
+        "category": "data_ai",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "scikit-learn",
+        "category": "data_ai",
+        "years_of_experience": 1.0
+      },
+      {
+        "name": "SQL",
+        "category": "database",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "Jupyter",
+        "category": "data_ai",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "Exploratory Data Analysis",
+        "category": "data_ai",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "Feature Engineering",
+        "category": "data_ai",
+        "years_of_experience": 1.0
+      },
+      {
+        "name": "Classification Metrics",
+        "category": "data_ai",
+        "years_of_experience": 1.0
+      }
+    ],
+    "languages": [
+      {
+        "name": "Italian",
+        "proficiency": "native"
+      },
+      {
+        "name": "English",
+        "proficiency": "professional"
+      },
+      {
+        "name": "French",
+        "proficiency": "intermediate"
+      }
+    ],
+    "certifications": [],
+    "projects": [
+      {
+        "name": "Customer Churn Study",
+        "description": "Built a scikit-learn classification project to predict customer churn risk from prepared customer activity data. Used Python and pandas for data cleaning, feature preparation, and exploratory analysis before evaluating classification performance in reproducible notebooks.",
+        "technologies": [
+          "Python",
+          "pandas",
+          "scikit-learn"
+        ],
+        "year": 2026
+      }
+    ]
+  },
+  {
+    "candidate_id": "candidate_020",
+    "full_name": "Nikolay Petrov",
+    "professional_title": "Data Scientist",
+    "profession": "data_science",
+    "seniority": "mid",
+    "years_of_experience": 6.0,
+    "summary": "Data Scientist with 6 years of analytics experience building statistical models, reporting solutions, and decision-support dashboards. Skilled in Python, R, SQL, Tableau, and applied statistics, with experience translating business questions into measurable experiments, forecasts, and customer insights.",
+    "contact": {
+      "email": "nikolay.petrov@example.com",
+      "phone": "+359 32 555 814",
+      "city": "Plovdiv",
+      "country": "Bulgaria"
+    },
+    "work_experience": [
+      {
+        "job_title": "Data Scientist",
+        "company": "Maritsa Insight Labs",
+        "location": "Plovdiv, Bulgaria",
+        "start_date": "2023-08",
+        "end_date": null,
+        "highlights": [
+          "Built churn and demand-forecasting models in Python and R using regression, classification, and time-series methods.",
+          "Designed SQL data marts and Tableau dashboards for commercial teams, reducing recurring manual reporting work by 35%.",
+          "Partnered with product and finance stakeholders to define KPIs, run hypothesis tests, and communicate statistical findings in clear business terms."
+        ],
+        "technologies": [
+          "Python",
+          "R",
+          "SQL",
+          "Tableau",
+          "scikit-learn",
+          "tidyverse",
+          "PostgreSQL",
+          "Statistics"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Analytics Specialist",
+        "company": "Orion Retail Systems",
+        "location": "Sofia, Bulgaria",
+        "start_date": "2020-09",
+        "end_date": "2023-07",
+        "highlights": [
+          "Analyzed sales, inventory, and campaign data with SQL and R to identify regional performance trends and margin opportunities.",
+          "Created Tableau executive dashboards covering revenue, customer segmentation, and promotion effectiveness.",
+          "Developed statistical A/B test evaluations and confidence-interval reporting for pricing and merchandising experiments."
+        ],
+        "technologies": [
+          "R",
+          "SQL",
+          "Tableau",
+          "Python",
+          "PostgreSQL",
+          "Statistics"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Junior Data Analyst",
+        "company": "Balkan Metrics Group",
+        "location": "Plovdiv, Bulgaria",
+        "start_date": "2019-08",
+        "end_date": "2020-08",
+        "highlights": [
+          "Prepared and validated operational datasets using SQL queries and Python scripts for monthly analytics packs.",
+          "Supported descriptive statistics, cohort analysis, and KPI reporting for logistics and customer support teams.",
+          "Automated recurring CSV cleanup and Tableau refresh checks, improving reporting reliability for account managers."
+        ],
+        "technologies": [
+          "Python",
+          "SQL",
+          "Tableau",
+          "Excel",
+          "Statistics"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Science",
+        "field_of_study": "Applied Mathematics and Informatics",
+        "institution": "Plovdiv Institute of Technology and Analytics",
+        "location": "Plovdiv, Bulgaria",
+        "start_year": 2015,
+        "end_year": 2019
+      }
+    ],
+    "skills": [
+      {
+        "name": "Python",
+        "category": "programming_language",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "R",
+        "category": "programming_language",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "SQL",
+        "category": "programming_language",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "Tableau",
+        "category": "data_ai",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "Statistics",
+        "category": "data_ai",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "scikit-learn",
+        "category": "data_ai",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "tidyverse",
+        "category": "data_ai",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "PostgreSQL",
+        "category": "database",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "A/B Testing",
+        "category": "data_ai",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "Time-Series Forecasting",
+        "category": "data_ai",
+        "years_of_experience": 3.0
+      }
+    ],
+    "languages": [
+      {
+        "name": "Bulgarian",
+        "proficiency": "native"
+      },
+      {
+        "name": "English",
+        "proficiency": "fluent"
+      },
+      {
+        "name": "Russian",
+        "proficiency": "professional"
+      }
+    ],
+    "certifications": [
+      {
+        "name": "Applied Analytics Professional",
+        "issuer": "Data Practice Board",
+        "year": 2022
+      }
+    ],
+    "projects": []
+  },
+  {
+    "candidate_id": "candidate_021",
+    "full_name": "Despina Kouris",
+    "professional_title": "Senior Data Scientist",
+    "profession": "data_science",
+    "seniority": "senior",
+    "years_of_experience": 10.0,
+    "summary": "Senior Data Scientist with 10 years of experience building production analytics, NLP models, and experimentation frameworks for digital products. Skilled in Python, pandas, scikit-learn, statistical testing, and translating model outputs into measurable product and customer outcomes. Experienced mentor and people lead, including managing a team of 3 data scientists.",
+    "contact": {
+      "email": "despina.kouris@example.com",
+      "phone": "+30 261 555 0148",
+      "city": "Patras",
+      "country": "Greece"
+    },
+    "work_experience": [
+      {
+        "job_title": "Senior Data Scientist",
+        "company": "Asteri Analytics Group",
+        "location": "Patras, Greece",
+        "start_date": "2022-07",
+        "end_date": null,
+        "highlights": [
+          "Lead product analytics and predictive modelling workstreams for subscription and customer-support teams, using Python and pandas to prepare reliable feature datasets.",
+          "Built NLP classifiers for Greek and English support conversations, improving topic routing and surfacing emerging customer issues for operations managers.",
+          "Designed an experimentation framework for A/B tests, including power analysis, guardrail metrics, and automated reporting for product stakeholders.",
+          "Manage a team of 3 data scientists through roadmap planning, code reviews, coaching, and stakeholder prioritisation."
+        ],
+        "technologies": [
+          "Python",
+          "pandas",
+          "scikit-learn",
+          "NLP",
+          "spaCy",
+          "SQL",
+          "Jupyter",
+          "Experimentation"
+        ],
+        "managed_team_size": 3
+      },
+      {
+        "job_title": "Data Scientist",
+        "company": "HelioMetric Solutions",
+        "location": "Athens, Greece",
+        "start_date": "2019-03",
+        "end_date": "2022-06",
+        "highlights": [
+          "Developed churn and propensity models with scikit-learn, improving campaign targeting for retail and telecom clients.",
+          "Created reusable pandas pipelines for feature engineering, model validation, and weekly monitoring of predictive-model performance.",
+          "Partnered with product teams to define experiment hypotheses, segment users, and interpret uplift and confidence intervals.",
+          "Prototyped NLP entity extraction for customer feedback surveys to quantify recurring themes across markets."
+        ],
+        "technologies": [
+          "Python",
+          "pandas",
+          "scikit-learn",
+          "SQL",
+          "NLP",
+          "NumPy",
+          "Matplotlib",
+          "Experimentation"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Junior Data Scientist",
+        "company": "Ionian Data Works",
+        "location": "Patras, Greece",
+        "start_date": "2016-02",
+        "end_date": "2019-02",
+        "highlights": [
+          "Built forecasting and classification models for logistics datasets using Python, pandas, and scikit-learn.",
+          "Automated data-quality checks and exploratory reporting, reducing manual analysis effort for operations analysts.",
+          "Supported controlled experiments for route-planning changes by preparing cohorts, tracking metrics, and summarising statistical results."
+        ],
+        "technologies": [
+          "Python",
+          "pandas",
+          "scikit-learn",
+          "SQL",
+          "SciPy",
+          "Experimentation"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [
+      {
+        "degree": "Master of Science",
+        "field_of_study": "Applied Data Science",
+        "institution": "Achaia Institute of Technology",
+        "location": "Patras, Greece",
+        "start_year": 2014,
+        "end_year": 2016
+      },
+      {
+        "degree": "Bachelor of Science",
+        "field_of_study": "Statistics and Informatics",
+        "institution": "Hellenic Coastal University",
+        "location": "Patras, Greece",
+        "start_year": 2010,
+        "end_year": 2014
+      }
+    ],
+    "skills": [
+      {
+        "name": "Python",
+        "category": "programming_language",
+        "years_of_experience": 10.0
+      },
+      {
+        "name": "pandas",
+        "category": "data_ai",
+        "years_of_experience": 10.0
+      },
+      {
+        "name": "scikit-learn",
+        "category": "data_ai",
+        "years_of_experience": 9.0
+      },
+      {
+        "name": "NLP",
+        "category": "data_ai",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "Experimentation",
+        "category": "data_ai",
+        "years_of_experience": 7.0
+      },
+      {
+        "name": "SQL",
+        "category": "database",
+        "years_of_experience": 9.0
+      },
+      {
+        "name": "Statistical modelling",
+        "category": "data_ai",
+        "years_of_experience": 8.0
+      },
+      {
+        "name": "A/B testing",
+        "category": "data_ai",
+        "years_of_experience": 7.0
+      },
+      {
+        "name": "Feature engineering",
+        "category": "data_ai",
+        "years_of_experience": 9.0
+      },
+      {
+        "name": "Data visualisation",
+        "category": "data_ai",
+        "years_of_experience": 8.0
+      },
+      {
+        "name": "Team leadership",
+        "category": "other",
+        "years_of_experience": 4.0
+      }
+    ],
+    "languages": [
+      {
+        "name": "Greek",
+        "proficiency": "native"
+      },
+      {
+        "name": "English",
+        "proficiency": "fluent"
+      },
+      {
+        "name": "German",
+        "proficiency": "professional"
+      }
+    ],
+    "certifications": [],
+    "projects": []
+  },
+  {
+    "candidate_id": "candidate_022",
+    "full_name": "Bram de Vries",
+    "professional_title": "Junior Machine Learning Engineer",
+    "profession": "machine_learning_engineering",
+    "seniority": "junior",
+    "years_of_experience": 2.0,
+    "summary": "Junior Machine Learning Engineer with 2 years of experience building Python-based machine learning services, including PyTorch transformer models served through FastAPI. Comfortable containerizing model APIs with Docker, improving NLP pipelines, and collaborating with product and backend teams to move prototypes into reliable internal tools.",
+    "contact": {
+      "email": "bram.devries@example.com",
+      "phone": "+31 6 2481 7395",
+      "city": "Utrecht",
+      "country": "Netherlands"
+    },
+    "work_experience": [
+      {
+        "job_title": "Junior Machine Learning Engineer",
+        "company": "Canal Metrics Labs",
+        "location": "Utrecht, Netherlands",
+        "start_date": "2025-07",
+        "end_date": null,
+        "highlights": [
+          "Built and maintained NLP model services in Python for document triage and metadata extraction workflows.",
+          "Served a fine-tuned PyTorch transformer model through FastAPI, adding request validation, confidence scores, and structured JSON responses.",
+          "Containerized model inference APIs with Docker to support consistent local development and staging deployments.",
+          "Worked with data analysts to review misclassifications and improve preprocessing rules for Dutch and English documents."
+        ],
+        "technologies": [
+          "Python",
+          "PyTorch",
+          "Transformers",
+          "FastAPI",
+          "Docker",
+          "Pandas",
+          "Git"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Machine Learning Engineering Intern",
+        "company": "DeltaBridge Intelligence",
+        "location": "Amersfoort, Netherlands",
+        "start_date": "2024-07",
+        "end_date": "2025-06",
+        "highlights": [
+          "Developed Python experiments for text classification and entity extraction using PyTorch and transformer-based language models.",
+          "Created reproducible training notebooks and lightweight evaluation scripts to compare model checkpoints on labeled document datasets.",
+          "Packaged prototype inference code into simple FastAPI endpoints for review by backend engineers.",
+          "Documented dataset assumptions, model metrics, and deployment steps to support handover into production-oriented services."
+        ],
+        "technologies": [
+          "Python",
+          "PyTorch",
+          "Transformers",
+          "FastAPI",
+          "scikit-learn",
+          "NumPy",
+          "Docker"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Science",
+        "field_of_study": "Artificial Intelligence and Software Engineering",
+        "institution": "Utrecht Applied Technology College",
+        "location": "Utrecht, Netherlands",
+        "start_year": 2020,
+        "end_year": 2024
+      }
+    ],
+    "skills": [
+      {
+        "name": "Python",
+        "category": "programming_language",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "PyTorch",
+        "category": "data_ai",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "Transformers",
+        "category": "data_ai",
+        "years_of_experience": 1.5
+      },
+      {
+        "name": "FastAPI",
+        "category": "framework",
+        "years_of_experience": 1.5
+      },
+      {
+        "name": "Docker",
+        "category": "devops",
+        "years_of_experience": 1.0
+      },
+      {
+        "name": "scikit-learn",
+        "category": "data_ai",
+        "years_of_experience": 1.5
+      },
+      {
+        "name": "Pandas",
+        "category": "data_ai",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "NumPy",
+        "category": "data_ai",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "Git",
+        "category": "devops",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "Model Evaluation",
+        "category": "data_ai",
+        "years_of_experience": 1.5
+      }
+    ],
+    "languages": [
+      {
+        "name": "Dutch",
+        "proficiency": "native"
+      },
+      {
+        "name": "English",
+        "proficiency": "fluent"
+      },
+      {
+        "name": "French",
+        "proficiency": "intermediate"
+      }
+    ],
+    "certifications": [],
+    "projects": [
+      {
+        "name": "Document Classification Service",
+        "description": "Created a document-classification service that fine-tunes a PyTorch transformer model and exposes predictions through a FastAPI endpoint for uploaded text documents.",
+        "technologies": [
+          "Python",
+          "PyTorch",
+          "Transformers",
+          "FastAPI"
+        ],
+        "year": 2025
+      }
+    ]
+  },
+  {
+    "candidate_id": "candidate_023",
+    "full_name": "Camille Dubois",
+    "professional_title": "Machine Learning Engineer",
+    "profession": "machine_learning_engineering",
+    "seniority": "mid",
+    "years_of_experience": 6.0,
+    "summary": "Machine Learning Engineer with 6 years of experience building, evaluating, and deploying production ML systems. Specializes in Python and TensorFlow workflows, tracks experiments with MLflow, and deploys containerized models to Kubernetes on GCP for scalable inference.",
+    "contact": {
+      "email": "camille.dubois@example.com",
+      "phone": "+33 5 61 24 38 72",
+      "city": "Toulouse",
+      "country": "France"
+    },
+    "work_experience": [
+      {
+        "job_title": "Machine Learning Engineer",
+        "company": "Auralis Mobility Labs",
+        "location": "Toulouse, France",
+        "start_date": "2024-01",
+        "end_date": null,
+        "highlights": [
+          "Built TensorFlow models for route-demand forecasting and anomaly detection using Python feature pipelines.",
+          "Standardized experiment tracking with MLflow, improving reproducibility across model training and evaluation runs.",
+          "Deployed batch and real-time inference services as Docker containers on Kubernetes using GCP services including GKE, Cloud Storage, and Pub/Sub.",
+          "Partnered with data engineers to monitor model drift, latency, and prediction quality in production."
+        ],
+        "technologies": [
+          "Python",
+          "TensorFlow",
+          "MLflow",
+          "Kubernetes",
+          "GCP",
+          "GKE",
+          "Docker",
+          "Cloud Storage",
+          "Pub/Sub",
+          "Pandas"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Junior Machine Learning Engineer",
+        "company": "Nuvio Analytics",
+        "location": "Montpellier, France",
+        "start_date": "2020-08",
+        "end_date": "2023-12",
+        "highlights": [
+          "Developed supervised learning models in Python for customer segmentation, churn prediction, and operational forecasting.",
+          "Implemented TensorFlow training pipelines and reusable preprocessing components for structured and time-series datasets.",
+          "Introduced MLflow run logging for hyperparameters, metrics, artifacts, and model registry handoffs.",
+          "Packaged trained models for API-based serving and collaborated on cloud deployment practices."
+        ],
+        "technologies": [
+          "Python",
+          "TensorFlow",
+          "MLflow",
+          "Scikit-learn",
+          "SQL",
+          "Docker",
+          "FastAPI",
+          "Pandas",
+          "NumPy"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [
+      {
+        "degree": "Master of Science",
+        "field_of_study": "Machine Learning and Data Systems",
+        "institution": "Institut Supérieur d'Ingénierie Occitane",
+        "location": "Toulouse, France",
+        "start_year": 2018,
+        "end_year": 2020
+      },
+      {
+        "degree": "Bachelor of Science",
+        "field_of_study": "Computer Science",
+        "institution": "École Numérique de Garonne",
+        "location": "Toulouse, France",
+        "start_year": 2015,
+        "end_year": 2018
+      }
+    ],
+    "skills": [
+      {
+        "name": "Python",
+        "category": "programming_language",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "TensorFlow",
+        "category": "data_ai",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "MLflow",
+        "category": "data_ai",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "Kubernetes",
+        "category": "devops",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "GCP",
+        "category": "cloud",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "GKE",
+        "category": "cloud",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "Docker",
+        "category": "devops",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "Scikit-learn",
+        "category": "data_ai",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "Pandas",
+        "category": "data_ai",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "NumPy",
+        "category": "data_ai",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "SQL",
+        "category": "database",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "FastAPI",
+        "category": "framework",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "Model Monitoring",
+        "category": "data_ai",
+        "years_of_experience": 3.0
+      }
+    ],
+    "languages": [
+      {
+        "name": "French",
+        "proficiency": "native"
+      },
+      {
+        "name": "English",
+        "proficiency": "fluent"
+      },
+      {
+        "name": "Spanish",
+        "proficiency": "intermediate"
+      }
+    ],
+    "certifications": [],
+    "projects": []
+  },
+  {
+    "candidate_id": "candidate_024",
+    "full_name": "Elena Popescu",
+    "professional_title": "Senior NLP Engineer",
+    "profession": "machine_learning_engineering",
+    "seniority": "senior",
+    "years_of_experience": 9.9,
+    "summary": "Experienced NLP engineer specializing in production language models, semantic search, and retrieval-augmented applications. Strong hands-on background with Python, PyTorch, vector databases, Dockerized ML services, and model evaluation workflows for multilingual text systems.",
+    "contact": {
+      "email": "elena.popescu@example.com",
+      "phone": "+40 721 456 238",
+      "city": "Bucharest",
+      "country": "Romania"
+    },
+    "work_experience": [
+      {
+        "job_title": "Senior NLP Engineer",
+        "company": "LinguaVector Labs",
+        "location": "Bucharest, Romania",
+        "start_date": "2022-04",
+        "end_date": null,
+        "highlights": [
+          "Designed and deployed PyTorch-based NLP pipelines for document understanding, intent classification, and semantic retrieval across Romanian and English datasets.",
+          "Built vector database indexing and retrieval workflows to support low-latency semantic search and retrieval-augmented generation features.",
+          "Containerized training, evaluation, and inference services with Docker, improving reproducibility across development and production environments.",
+          "Partnered with data engineering and product teams to define model quality metrics, offline evaluation sets, and monitoring dashboards for NLP services."
+        ],
+        "technologies": [
+          "Python",
+          "PyTorch",
+          "NLP",
+          "Vector Databases",
+          "Docker",
+          "FastAPI",
+          "MLflow",
+          "PostgreSQL"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Machine Learning Engineer",
+        "company": "NovaText Solutions",
+        "location": "Cluj-Napoca, Romania",
+        "start_date": "2019-01",
+        "end_date": "2022-03",
+        "highlights": [
+          "Developed text classification, named-entity recognition, and embedding models using Python and PyTorch for customer support and compliance analytics products.",
+          "Implemented semantic similarity services backed by vector databases for duplicate detection and knowledge-base recommendation use cases.",
+          "Optimized model inference APIs and batch scoring jobs, reducing processing time for large text corpora while maintaining evaluation traceability."
+        ],
+        "technologies": [
+          "Python",
+          "PyTorch",
+          "spaCy",
+          "Transformers",
+          "Vector Databases",
+          "Docker",
+          "REST APIs"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Data Scientist",
+        "company": "Asteria Digital Systems",
+        "location": "Bucharest, Romania",
+        "start_date": "2016-09",
+        "end_date": "2018-12",
+        "highlights": [
+          "Built early NLP prototypes for sentiment analysis, keyword extraction, and customer feedback clustering using Python and statistical machine learning methods.",
+          "Created reusable preprocessing pipelines for multilingual text normalization, tokenization, and feature extraction.",
+          "Delivered analytical reports and model validation summaries for internal stakeholders and client-facing product teams."
+        ],
+        "technologies": [
+          "Python",
+          "scikit-learn",
+          "NLP",
+          "Pandas",
+          "NumPy",
+          "SQL",
+          "Jupyter"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [
+      {
+        "degree": "MSc",
+        "field_of_study": "Artificial Intelligence",
+        "institution": "Carpathian Technical University",
+        "location": "Bucharest, Romania",
+        "start_year": 2014,
+        "end_year": 2016
+      },
+      {
+        "degree": "BSc",
+        "field_of_study": "Computer Science",
+        "institution": "Danube Polytechnic College",
+        "location": "Bucharest, Romania",
+        "start_year": 2010,
+        "end_year": 2014
+      }
+    ],
+    "skills": [
+      {
+        "name": "Python",
+        "category": "programming_language",
+        "years_of_experience": 8.5
+      },
+      {
+        "name": "PyTorch",
+        "category": "data_ai",
+        "years_of_experience": 5.5
+      },
+      {
+        "name": "NLP",
+        "category": "data_ai",
+        "years_of_experience": 8.0
+      },
+      {
+        "name": "Vector Databases",
+        "category": "database",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "Docker",
+        "category": "devops",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "Transformers",
+        "category": "data_ai",
+        "years_of_experience": 4.5
+      },
+      {
+        "name": "Semantic Search",
+        "category": "data_ai",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "FastAPI",
+        "category": "framework",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "MLflow",
+        "category": "data_ai",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "PostgreSQL",
+        "category": "database",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "scikit-learn",
+        "category": "data_ai",
+        "years_of_experience": 7.0
+      },
+      {
+        "name": "Model Evaluation",
+        "category": "data_ai",
+        "years_of_experience": 6.0
+      }
+    ],
+    "languages": [
+      {
+        "name": "Romanian",
+        "proficiency": "native"
+      },
+      {
+        "name": "English",
+        "proficiency": "professional"
+      },
+      {
+        "name": "German",
+        "proficiency": "intermediate"
+      }
+    ],
+    "certifications": [
+      {
+        "name": "Production Machine Learning Professional",
+        "issuer": "Applied AI Institute",
+        "year": 2024
+      }
+    ],
+    "projects": []
+  },
+  {
+    "candidate_id": "candidate_025",
+    "full_name": "Ines Ferreira",
+    "professional_title": "DevOps and Cloud Engineer",
+    "profession": "devops_cloud_engineering",
+    "seniority": "mid",
+    "years_of_experience": 7.0,
+    "summary": "DevOps and Cloud Engineer with 7 years of cloud operations experience, focused on AWS infrastructure, Terraform automation, Kubernetes platforms, Docker-based delivery, and reliable Linux environments. Experienced in improving deployment repeatability, observability, and operational stability for SaaS and data-intensive systems.",
+    "contact": {
+      "email": "ines.ferreira@example.com",
+      "phone": "+351 912 458 763",
+      "city": "Lisbon",
+      "country": "Portugal"
+    },
+    "work_experience": [
+      {
+        "job_title": "DevOps and Cloud Engineer",
+        "company": "Lusora Cloud Systems",
+        "location": "Lisbon, Portugal",
+        "start_date": "2023-03",
+        "end_date": null,
+        "highlights": [
+          "Automated AWS infrastructure provisioning with Terraform modules for networking, IAM, compute, and managed database services.",
+          "Operated Kubernetes clusters for customer-facing services, improving rollout consistency with standardized Helm deployment patterns.",
+          "Built Docker image pipelines with vulnerability scanning and promotion gates for staging and production environments.",
+          "Maintained Linux-based observability and incident response runbooks, reducing recurring operational alerts."
+        ],
+        "technologies": [
+          "AWS",
+          "Terraform",
+          "Kubernetes",
+          "Docker",
+          "Linux",
+          "Helm",
+          "GitHub Actions",
+          "Prometheus",
+          "Grafana"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Cloud Operations Engineer",
+        "company": "Maralto Digital Platforms",
+        "location": "Porto, Portugal",
+        "start_date": "2020-02",
+        "end_date": "2023-02",
+        "highlights": [
+          "Managed AWS environments across development, staging, and production, supporting compute, storage, load balancing, and backup operations.",
+          "Introduced Terraform workflows that replaced manual infrastructure changes and improved auditability of cloud resources.",
+          "Containerized internal services with Docker and supported Kubernetes migration for selected backend workloads.",
+          "Created Linux automation scripts for patching, log rotation, and service health checks."
+        ],
+        "technologies": [
+          "AWS",
+          "Terraform",
+          "Docker",
+          "Kubernetes",
+          "Linux",
+          "Bash",
+          "CloudWatch",
+          "Nginx"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Junior Systems and DevOps Engineer",
+        "company": "TejoSoft Solutions",
+        "location": "Lisbon, Portugal",
+        "start_date": "2019-01",
+        "end_date": "2020-01",
+        "highlights": [
+          "Supported Linux server administration for web applications, including access control, package updates, and service troubleshooting.",
+          "Assisted with Docker-based local development environments to align developer workstations with deployment targets.",
+          "Maintained CI jobs for build validation and deployment packaging under guidance from senior engineers."
+        ],
+        "technologies": [
+          "Linux",
+          "Docker",
+          "Bash",
+          "GitLab CI",
+          "PostgreSQL"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Science",
+        "field_of_study": "Computer Engineering",
+        "institution": "Lisbon Institute of Applied Technology",
+        "location": "Lisbon, Portugal",
+        "start_year": 2014,
+        "end_year": 2018
+      }
+    ],
+    "skills": [
+      {
+        "name": "AWS",
+        "category": "cloud",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "Terraform",
+        "category": "devops",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "Kubernetes",
+        "category": "devops",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "Docker",
+        "category": "devops",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "Linux",
+        "category": "devops",
+        "years_of_experience": 7.0
+      },
+      {
+        "name": "Helm",
+        "category": "devops",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "GitHub Actions",
+        "category": "devops",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "GitLab CI",
+        "category": "devops",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "Bash",
+        "category": "programming_language",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "Prometheus",
+        "category": "devops",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "Grafana",
+        "category": "devops",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "CloudWatch",
+        "category": "cloud",
+        "years_of_experience": 4.0
+      }
+    ],
+    "languages": [
+      {
+        "name": "Portuguese",
+        "proficiency": "native"
+      },
+      {
+        "name": "English",
+        "proficiency": "fluent"
+      },
+      {
+        "name": "Spanish",
+        "proficiency": "professional"
+      }
+    ],
+    "certifications": [
+      {
+        "name": "Infrastructure Automation Professional",
+        "issuer": "Cloud Operations Council",
+        "year": 2023
+      }
+    ],
+    "projects": []
+  },
+  {
+    "candidate_id": "candidate_026",
+    "full_name": "Tomas Novak",
+    "professional_title": "Senior Platform Engineer",
+    "profession": "devops_cloud_engineering",
+    "seniority": "senior",
+    "years_of_experience": 10.0,
+    "summary": "Senior Platform Engineer with 10 years of experience designing Azure cloud platforms, Kubernetes environments, and automated delivery workflows. Strong background in building Azure infrastructure with Terraform, creating deployment automation with GitHub Actions, and using Python to improve operational reliability.",
+    "contact": {
+      "email": "tomas.novak@example.com",
+      "phone": "+420 731 482 609",
+      "city": "Prague",
+      "country": "Czechia"
+    },
+    "work_experience": [
+      {
+        "job_title": "Senior Platform Engineer",
+        "company": "Cloudbridge Systems",
+        "location": "Prague, Czechia",
+        "start_date": "2022-09",
+        "end_date": null,
+        "highlights": [
+          "Designed reusable Terraform modules for Azure networking, compute, identity, and monitoring services across multiple product teams.",
+          "Operated shared Kubernetes platform services, improving release consistency and reducing manual cluster maintenance.",
+          "Created GitHub Actions deployment workflows with environment approvals, reusable pipelines, and automated rollback steps.",
+          "Developed Python utilities for infrastructure validation, cost reporting, and platform health checks."
+        ],
+        "technologies": [
+          "Azure",
+          "Terraform",
+          "Kubernetes",
+          "GitHub Actions",
+          "Python",
+          "Helm",
+          "Azure Monitor"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Platform Engineer",
+        "company": "Novastra Digital",
+        "location": "Brno, Czechia",
+        "start_date": "2019-01",
+        "end_date": "2022-08",
+        "highlights": [
+          "Built Azure infrastructure foundations with Terraform for customer-facing applications and internal developer platforms.",
+          "Migrated container workloads to Kubernetes and standardized Helm-based application releases.",
+          "Implemented CI/CD pipelines in GitHub Actions for build, test, security scanning, and deployment automation.",
+          "Partnered with software teams to improve observability, incident response, and cloud resource governance."
+        ],
+        "technologies": [
+          "Azure",
+          "Terraform",
+          "Kubernetes",
+          "GitHub Actions",
+          "Python",
+          "Docker",
+          "Prometheus",
+          "Grafana"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "DevOps Engineer",
+        "company": "Railpoint Software",
+        "location": "Prague, Czechia",
+        "start_date": "2016-07",
+        "end_date": "2018-12",
+        "highlights": [
+          "Automated Linux server provisioning and application deployments using infrastructure-as-code practices.",
+          "Wrote Python scripts to streamline release preparation, log analysis, and environment checks.",
+          "Supported early container adoption and helped teams package services consistently with Docker.",
+          "Maintained CI workflows and improved deployment documentation for distributed engineering teams."
+        ],
+        "technologies": [
+          "Python",
+          "Docker",
+          "Linux",
+          "Bash",
+          "Jenkins",
+          "Ansible",
+          "Git"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Science",
+        "field_of_study": "Computer Systems Engineering",
+        "institution": "Prague College of Applied Computing",
+        "location": "Prague, Czechia",
+        "start_year": 2012,
+        "end_year": 2016
+      }
+    ],
+    "skills": [
+      {
+        "name": "Azure",
+        "category": "cloud",
+        "years_of_experience": 7.0
+      },
+      {
+        "name": "Terraform",
+        "category": "devops",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "Kubernetes",
+        "category": "devops",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "GitHub Actions",
+        "category": "devops",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "Python",
+        "category": "programming_language",
+        "years_of_experience": 8.0
+      },
+      {
+        "name": "Docker",
+        "category": "devops",
+        "years_of_experience": 7.0
+      },
+      {
+        "name": "Helm",
+        "category": "devops",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "Linux",
+        "category": "devops",
+        "years_of_experience": 10.0
+      },
+      {
+        "name": "Prometheus",
+        "category": "devops",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "Grafana",
+        "category": "devops",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "CI/CD",
+        "category": "devops",
+        "years_of_experience": 8.0
+      },
+      {
+        "name": "Bash",
+        "category": "programming_language",
+        "years_of_experience": 8.0
+      }
+    ],
+    "languages": [
+      {
+        "name": "Czech",
+        "proficiency": "native"
+      },
+      {
+        "name": "English",
+        "proficiency": "fluent"
+      },
+      {
+        "name": "German",
+        "proficiency": "professional"
+      }
+    ],
+    "certifications": [],
+    "projects": []
+  },
+  {
+    "candidate_id": "candidate_027",
+    "full_name": "Ciaran Doyle",
+    "professional_title": "Junior QA Automation Engineer",
+    "profession": "qa_automation",
+    "seniority": "junior",
+    "years_of_experience": 2.0,
+    "summary": "Junior QA Automation Engineer with 2 years of quality engineering experience building automated UI and API test coverage for web applications. Skilled in Python, Playwright, Pytest, API Testing, and CI/CD workflows, with hands-on experience creating regression suites, improving test reliability, and supporting release validation.",
+    "contact": {
+      "email": "ciaran.doyle@example.com",
+      "phone": "+353 21 555 0184",
+      "city": "Cork",
+      "country": "Ireland"
+    },
+    "work_experience": [
+      {
+        "job_title": "Junior QA Automation Engineer",
+        "company": "Harbourline Software",
+        "location": "Cork, Ireland",
+        "start_date": "2025-02",
+        "end_date": "2026-07",
+        "highlights": [
+          "Built and maintained Playwright end-to-end test suites for customer onboarding and account management journeys.",
+          "Developed Pytest-based API tests covering authentication, validation errors, and core service workflows.",
+          "Integrated automated test runs into CI/CD pipelines to provide faster feedback on pull requests and release candidates.",
+          "Documented reproducible defects and collaborated with developers to improve regression coverage and test stability."
+        ],
+        "technologies": [
+          "Python",
+          "Playwright",
+          "Pytest",
+          "API Testing",
+          "GitHub Actions",
+          "REST APIs",
+          "CI/CD"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "QA Automation Intern",
+        "company": "Riverbyte Digital",
+        "location": "Cork, Ireland",
+        "start_date": "2024-08",
+        "end_date": "2025-01",
+        "highlights": [
+          "Assisted in converting manual smoke checks into automated Playwright tests for a browser-based operations portal.",
+          "Created Python helper scripts to generate test data and reduce repetitive setup work for QA cycles.",
+          "Executed API Testing scenarios with Pytest and captured clear evidence for defects found during sprint validation."
+        ],
+        "technologies": [
+          "Python",
+          "Playwright",
+          "Pytest",
+          "Postman",
+          "REST APIs",
+          "Git",
+          "CI/CD"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [
+      {
+        "degree": "Higher Diploma",
+        "field_of_study": "Software Development",
+        "institution": "Munster Technology College",
+        "location": "Cork, Ireland",
+        "start_year": 2023,
+        "end_year": 2024
+      }
+    ],
+    "skills": [
+      {
+        "name": "Python",
+        "category": "programming_language",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "Playwright",
+        "category": "testing",
+        "years_of_experience": 1.5
+      },
+      {
+        "name": "Pytest",
+        "category": "testing",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "API Testing",
+        "category": "testing",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "CI/CD",
+        "category": "devops",
+        "years_of_experience": 1.0
+      },
+      {
+        "name": "REST APIs",
+        "category": "testing",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "Git",
+        "category": "devops",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "GitHub Actions",
+        "category": "devops",
+        "years_of_experience": 1.0
+      },
+      {
+        "name": "Postman",
+        "category": "testing",
+        "years_of_experience": 1.0
+      },
+      {
+        "name": "Defect Reporting",
+        "category": "testing",
+        "years_of_experience": 2.0
+      }
+    ],
+    "languages": [
+      {
+        "name": "English",
+        "proficiency": "native"
+      },
+      {
+        "name": "Irish",
+        "proficiency": "professional"
+      },
+      {
+        "name": "Spanish",
+        "proficiency": "intermediate"
+      }
+    ],
+    "certifications": [],
+    "projects": [
+      {
+        "name": "API Regression Toolkit",
+        "description": "Created a reusable regression toolkit for validating REST API endpoints, combining Pytest test cases with Playwright-supported setup flows and structured reporting for repeatable release checks.",
+        "technologies": [
+          "Python",
+          "Pytest",
+          "Playwright"
+        ],
+        "year": 2025
+      }
+    ]
+  },
+  {
+    "candidate_id": "candidate_028",
+    "full_name": "Linnea Berg",
+    "professional_title": "QA Automation Engineer",
+    "profession": "qa_automation",
+    "seniority": "mid",
+    "years_of_experience": 6.0,
+    "summary": "QA Automation Engineer with 6 years of quality engineering experience across web applications, CI pipelines, and release validation. Specializes in building TypeScript-based Cypress and Playwright automation, maintaining Jest test coverage, and integrating reliable regression suites into GitHub Actions.",
+    "contact": {
+      "email": "linnea.berg@example.com",
+      "phone": "+46 8 555 014 72",
+      "city": "Stockholm",
+      "country": "Sweden"
+    },
+    "work_experience": [
+      {
+        "job_title": "QA Automation Engineer",
+        "company": "Nordlane Commerce",
+        "location": "Stockholm, Sweden",
+        "start_date": "2023-08",
+        "end_date": null,
+        "highlights": [
+          "Built and maintained end-to-end automation suites in TypeScript using Cypress and Playwright for customer checkout, account, and order-management flows.",
+          "Integrated smoke and regression tests into GitHub Actions, reducing manual release verification time for weekly deployments.",
+          "Expanded Jest coverage for shared frontend utilities and collaborated with developers to improve testability of React components.",
+          "Created defect triage dashboards and quality reports that helped product teams prioritize recurring reliability issues."
+        ],
+        "technologies": [
+          "TypeScript",
+          "Cypress",
+          "Playwright",
+          "Jest",
+          "GitHub Actions",
+          "React",
+          "REST APIs",
+          "Postman"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Quality Engineer",
+        "company": "Fjordbyte Labs",
+        "location": "Stockholm, Sweden",
+        "start_date": "2020-08",
+        "end_date": "2023-07",
+        "highlights": [
+          "Developed Cypress automation for subscription, billing, and user-permission workflows across multiple browser configurations.",
+          "Introduced Playwright checks for cross-browser scenarios and stabilized flaky tests through better selectors, fixtures, and retry strategy.",
+          "Maintained CI quality gates in GitHub Actions and documented release-readiness criteria for engineering squads.",
+          "Partnered with backend engineers to validate REST API behavior and improve defect reproduction steps."
+        ],
+        "technologies": [
+          "TypeScript",
+          "Cypress",
+          "Playwright",
+          "GitHub Actions",
+          "Jest",
+          "REST APIs",
+          "SQL",
+          "Jira"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [
+      {
+        "degree": "Bachelor of Science",
+        "field_of_study": "Software Engineering",
+        "institution": "Stockholm Institute of Applied Technology",
+        "location": "Stockholm, Sweden",
+        "start_year": 2016,
+        "end_year": 2019
+      }
+    ],
+    "skills": [
+      {
+        "name": "TypeScript",
+        "category": "programming_language",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "Cypress",
+        "category": "testing",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "Playwright",
+        "category": "testing",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "Jest",
+        "category": "testing",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "GitHub Actions",
+        "category": "devops",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "Test automation strategy",
+        "category": "testing",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "End-to-end testing",
+        "category": "testing",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "Regression testing",
+        "category": "testing",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "REST API testing",
+        "category": "testing",
+        "years_of_experience": 4.0
+      },
+      {
+        "name": "Defect management",
+        "category": "testing",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "SQL",
+        "category": "database",
+        "years_of_experience": 3.0
+      },
+      {
+        "name": "Postman",
+        "category": "testing",
+        "years_of_experience": 4.0
+      }
+    ],
+    "languages": [
+      {
+        "name": "Swedish",
+        "proficiency": "native"
+      },
+      {
+        "name": "English",
+        "proficiency": "fluent"
+      },
+      {
+        "name": "Finnish",
+        "proficiency": "intermediate"
+      }
+    ],
+    "certifications": [
+      {
+        "name": "Advanced Test Automation Certificate",
+        "issuer": "Quality Engineering Institute",
+        "year": 2024
+      }
+    ],
+    "projects": []
+  },
+  {
+    "candidate_id": "candidate_029",
+    "full_name": "Freja Nielsen",
+    "professional_title": "Senior Technical Product Manager",
+    "profession": "product_management",
+    "seniority": "senior",
+    "years_of_experience": 11.0,
+    "summary": "Senior Technical Product Manager with 11 years of product experience across SaaS platforms, commerce, and data-driven customer experiences. Skilled in product strategy, roadmapping, analytics, SQL-based prioritization, and stakeholder management, with a track record of aligning engineering, design, commercial, and executive teams. Managed a cross-functional team of 9 people while leading platform initiatives from discovery through launch.",
+    "contact": {
+      "email": "freja.nielsen@example.com",
+      "phone": "+45 32 74 18 62",
+      "city": "Copenhagen",
+      "country": "Denmark"
+    },
+    "work_experience": [
+      {
+        "job_title": "Senior Technical Product Manager",
+        "company": "Harborline Commerce",
+        "location": "Copenhagen, Denmark",
+        "start_date": "2023-01",
+        "end_date": null,
+        "highlights": [
+          "Owns product strategy and quarterly roadmapping for a B2B commerce platform serving Nordic retail partners.",
+          "Uses SQL, funnel analytics, and cohort analysis to prioritize backlog items and validate product decisions with measurable impact.",
+          "Managed a cross-functional team of 9 people across engineering, UX, data, and go-to-market functions.",
+          "Led stakeholder management with executives, enterprise customers, and delivery teams to align platform investment with revenue goals."
+        ],
+        "technologies": [
+          "SQL",
+          "Looker",
+          "Amplitude",
+          "Jira",
+          "Confluence",
+          "REST APIs",
+          "Google BigQuery"
+        ],
+        "managed_team_size": 9
+      },
+      {
+        "job_title": "Product Manager, Data Products",
+        "company": "Northbay Mobility Labs",
+        "location": "Copenhagen, Denmark",
+        "start_date": "2020-03",
+        "end_date": "2022-12",
+        "highlights": [
+          "Defined roadmap for analytics products used by operations teams to monitor mobility availability and customer demand.",
+          "Partnered with data engineers to translate SQL analysis and dashboard insights into prioritised product improvements.",
+          "Introduced discovery rituals, opportunity scoring, and stakeholder review forums that improved roadmap transparency.",
+          "Launched self-service reporting features that reduced recurring analyst requests for partner success teams."
+        ],
+        "technologies": [
+          "SQL",
+          "Tableau",
+          "Snowflake",
+          "Python notebooks",
+          "Jira",
+          "Segment"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Technical Product Owner",
+        "company": "Fjordbyte Platforms",
+        "location": "Aarhus, Denmark",
+        "start_date": "2017-07",
+        "end_date": "2020-02",
+        "highlights": [
+          "Owned roadmap execution for API and identity services used by subscription-based digital products.",
+          "Worked with engineering leads to refine technical requirements, manage dependencies, and communicate trade-offs to stakeholders.",
+          "Used product analytics and support data to prioritise authentication, onboarding, and reliability improvements.",
+          "Coordinated release planning across backend, frontend, QA, and customer operations teams."
+        ],
+        "technologies": [
+          "REST APIs",
+          "OAuth 2.0",
+          "PostgreSQL",
+          "Google Analytics",
+          "Azure DevOps",
+          "Miro"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "Associate Product Manager",
+        "company": "LumaPay Systems",
+        "location": "Copenhagen, Denmark",
+        "start_date": "2015-09",
+        "end_date": "2017-06",
+        "highlights": [
+          "Supported discovery, requirements definition, and roadmap updates for payment workflow tools used by small businesses.",
+          "Analysed adoption metrics and customer feedback to identify onboarding improvements and reduce drop-off.",
+          "Prepared stakeholder updates, sprint goals, and release notes for engineering and commercial teams."
+        ],
+        "technologies": [
+          "SQL",
+          "Mixpanel",
+          "Excel",
+          "Trello",
+          "Balsamiq"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [
+      {
+        "degree": "MBA",
+        "field_of_study": "Digital Product Leadership",
+        "institution": "Nordic School of Management",
+        "location": "Copenhagen, Denmark",
+        "start_year": 2018,
+        "end_year": 2020
+      },
+      {
+        "degree": "Bachelor of Science",
+        "field_of_study": "Information Systems",
+        "institution": "Øresund Institute of Technology",
+        "location": "Copenhagen, Denmark",
+        "start_year": 2011,
+        "end_year": 2014
+      }
+    ],
+    "skills": [
+      {
+        "name": "Product Strategy",
+        "category": "product",
+        "years_of_experience": 9.0
+      },
+      {
+        "name": "Roadmapping",
+        "category": "product",
+        "years_of_experience": 10.0
+      },
+      {
+        "name": "Analytics",
+        "category": "data_ai",
+        "years_of_experience": 9.0
+      },
+      {
+        "name": "SQL",
+        "category": "programming_language",
+        "years_of_experience": 8.0
+      },
+      {
+        "name": "Stakeholder Management",
+        "category": "product",
+        "years_of_experience": 11.0
+      },
+      {
+        "name": "Product Discovery",
+        "category": "product",
+        "years_of_experience": 8.0
+      },
+      {
+        "name": "Agile Delivery",
+        "category": "product",
+        "years_of_experience": 10.0
+      },
+      {
+        "name": "API Product Management",
+        "category": "product",
+        "years_of_experience": 6.0
+      },
+      {
+        "name": "A/B Testing",
+        "category": "data_ai",
+        "years_of_experience": 5.0
+      },
+      {
+        "name": "Jira",
+        "category": "product",
+        "years_of_experience": 9.0
+      }
+    ],
+    "languages": [
+      {
+        "name": "Danish",
+        "proficiency": "native"
+      },
+      {
+        "name": "English",
+        "proficiency": "fluent"
+      },
+      {
+        "name": "German",
+        "proficiency": "professional"
+      }
+    ],
+    "certifications": [],
+    "projects": []
+  },
+  {
+    "candidate_id": "candidate_030",
+    "full_name": "Amelie Vermeulen",
+    "professional_title": "Junior UX/UI Designer",
+    "profession": "ux_ui_design",
+    "seniority": "junior",
+    "years_of_experience": 2.0,
+    "summary": "Junior UX/UI Designer with 2 years of product-design experience creating accessible web and mobile flows for fintech and civic-service products. Skilled in Figma, design systems, accessibility, user research, and interactive prototyping, with a BDes in Interaction Design and hands-on experience building reusable component libraries.",
+    "contact": {
+      "email": "amelie.vermeulen@example.com",
+      "phone": "+32 2 555 0147",
+      "city": "Brussels",
+      "country": "Belgium"
+    },
+    "work_experience": [
+      {
+        "job_title": "Junior UX/UI Designer",
+        "company": "CanalPay Digital",
+        "location": "Brussels, Belgium",
+        "start_date": "2025-08",
+        "end_date": null,
+        "highlights": [
+          "Designed responsive onboarding, account-overview, and transaction-review screens for a digital banking product.",
+          "Created accessible design-system components in Figma, including form fields, alerts, navigation patterns, and contrast-compliant states.",
+          "Built clickable prototypes for usability sessions and iterated flows based on customer-support insights and stakeholder feedback.",
+          "Documented component usage guidance to help engineers implement consistent interaction patterns."
+        ],
+        "technologies": [
+          "Figma",
+          "Design Systems",
+          "Accessibility",
+          "Prototyping",
+          "WCAG",
+          "FigJam"
+        ],
+        "managed_team_size": null
+      },
+      {
+        "job_title": "UX Design Intern",
+        "company": "Northstar Civic Apps",
+        "location": "Brussels, Belgium",
+        "start_date": "2024-08",
+        "end_date": "2025-07",
+        "highlights": [
+          "Supported user research for a public-service scheduling platform through interview notes, journey maps, and task-flow analysis.",
+          "Translated research findings into wireframes and mid-fidelity prototypes for multilingual Belgian audiences.",
+          "Improved form usability by refining labels, error messages, keyboard focus states, and mobile layouts.",
+          "Collaborated with product managers and frontend developers to prepare design handoff assets."
+        ],
+        "technologies": [
+          "Figma",
+          "User Research",
+          "Prototyping",
+          "Accessibility",
+          "Miro"
+        ],
+        "managed_team_size": null
+      }
+    ],
+    "education": [
+      {
+        "degree": "BDes",
+        "field_of_study": "Interaction Design",
+        "institution": "Benelux College of Design",
+        "location": "Brussels, Belgium",
+        "start_year": 2021,
+        "end_year": 2024
+      }
+    ],
+    "skills": [
+      {
+        "name": "Figma",
+        "category": "design",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "Design Systems",
+        "category": "design",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "Accessibility",
+        "category": "design",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "User Research",
+        "category": "design",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "Prototyping",
+        "category": "design",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "Wireframing",
+        "category": "design",
+        "years_of_experience": 2.0
+      },
+      {
+        "name": "Usability Testing",
+        "category": "design",
+        "years_of_experience": 1.5
+      },
+      {
+        "name": "Journey Mapping",
+        "category": "design",
+        "years_of_experience": 1.5
+      },
+      {
+        "name": "WCAG Guidelines",
+        "category": "design",
+        "years_of_experience": 1.5
+      },
+      {
+        "name": "Design Handoff",
+        "category": "design",
+        "years_of_experience": 2.0
+      }
+    ],
+    "languages": [
+      {
+        "name": "Dutch",
+        "proficiency": "native"
+      },
+      {
+        "name": "French",
+        "proficiency": "fluent"
+      },
+      {
+        "name": "English",
+        "proficiency": "professional"
+      }
+    ],
+    "certifications": [],
+    "projects": [
+      {
+        "name": "Accessible Banking Prototype",
+        "description": "Designed an inclusive mobile banking concept with reusable Figma components, accessible form patterns, clear error states, and a high-fidelity prototype for account setup and payment review flows.",
+        "technologies": [
+          "Figma",
+          "Design Systems",
+          "Prototyping"
+        ],
+        "year": 2025
+      }
+    ]
   }
 ]

@@ -88,3 +88,53 @@ def test_normalization_rejects_timeline_outside_locked_seniority(
         match="locked mid seniority requires between 2 and 10 years",
     ):
         normalize_profile_experience(profile, slot)
+
+
+def test_locked_experience_repairs_materially_overlong_work_history(
+    valid_candidate_001_payload: dict,
+) -> None:
+    """Locked totals should normalize dates instead of spending LLM retries."""
+
+    plan = load_candidate_dataset_plan(PLAN_PATH)
+    candidate_010_slot = plan.candidates[9]
+    profile = CandidateProfile.model_validate(valid_candidate_001_payload)
+    original_role_count = len(profile.work_experience)
+
+    normalized = normalize_profile_experience(
+        profile,
+        candidate_010_slot,
+    )
+
+    assert normalized.years_of_experience == 5
+    assert calculate_employment_years(normalized) == 5
+    assert len(normalized.work_experience) == original_role_count
+    assert normalized.work_experience[0].end_date is None
+    assert all(
+        skill.years_of_experience is None
+        or skill.years_of_experience <= 5
+        for skill in normalized.skills
+    )
+
+
+def test_locked_experience_preserves_dates_within_rounding_tolerance(
+    valid_candidate_001_payload: dict,
+) -> None:
+    """Small human rounding differences should not rewrite a plausible CV."""
+
+    plan = load_candidate_dataset_plan(PLAN_PATH)
+    candidate_001_slot = plan.candidates[0]
+    profile = CandidateProfile.model_validate(valid_candidate_001_payload)
+    original_dates = [
+        (role.start_date, role.end_date)
+        for role in profile.work_experience
+    ]
+
+    normalized = normalize_profile_experience(
+        profile,
+        candidate_001_slot,
+    )
+
+    assert [
+        (role.start_date, role.end_date)
+        for role in normalized.work_experience
+    ] == original_dates

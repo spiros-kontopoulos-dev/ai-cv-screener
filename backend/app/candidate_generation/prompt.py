@@ -100,10 +100,11 @@ def _build_experience_instruction(slot: CandidateGenerationSlot) -> str:
     if locked_years is not None:
         return (
             f"This slot locks total experience at {locked_years:g} years. Set "
-            "years_of_experience to that exact value and create employment "
-            "dates whose non-overlapping duration is approximately consistent "
-            "with it. Exact experience wording in the summary must use the "
-            "same value."
+            "years_of_experience to that exact value and create a plausible "
+            "ordered work history. Python will normalize the employment dates "
+            "deterministically if their calendar duration is materially "
+            "different. Exact experience wording in the summary must use the "
+            "same locked value."
         )
 
     return (

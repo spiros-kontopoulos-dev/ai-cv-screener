@@ -39,6 +39,7 @@ def test_locked_experience_prompt_preserves_the_controlled_total() -> None:
 
     assert "locks total experience at 8 years" in prompt
     assert "Set years_of_experience to that exact value" in prompt
+    assert "Python will normalize the employment dates" in prompt
 
 
 def test_unlocked_experience_prompt_delegates_arithmetic_to_python() -> None:

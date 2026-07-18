@@ -11,6 +11,7 @@ import re
 from app.schemas import CandidateProfile
 
 from .experience import (
+    EXPERIENCE_TOLERANCE_YEARS,
     LATEST_ALLOWED_YEAR,
     LATEST_ALLOWED_YEAR_MONTH,
     calculate_employment_years,
@@ -18,10 +19,6 @@ from .experience import (
 )
 from .models import CandidateGenerationSlot
 
-
-# Locked experience facts may be rounded in a CV. A one-year tolerance still
-# rejects clear contradictions while allowing ordinary human phrasing.
-EXPERIENCE_TOLERANCE_YEARS = 1.0
 
 # Unlocked profiles must not repeat the provisional LLM total in their summary
 # because Python derives the final value from employment dates after generation.
