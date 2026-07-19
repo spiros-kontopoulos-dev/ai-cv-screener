@@ -267,6 +267,40 @@ class Settings(BaseSettings):
         le=1.0,
     )
 
+    # WP7 uses the final WP6 context as the only factual input to a direct
+    # structured-output LLM call. These controls keep retries, latency, token
+    # usage, and accepted narrative size bounded independently of retrieval.
+    cv_grounded_answer_model: str = Field(
+        default="gpt-5.4-mini",
+        min_length=1,
+        max_length=100,
+    )
+    cv_grounded_answer_max_retries: int = Field(
+        default=1,
+        ge=0,
+        le=3,
+    )
+    cv_grounded_answer_timeout_seconds: float = Field(
+        default=120.0,
+        ge=10.0,
+        le=600.0,
+    )
+    cv_grounded_answer_max_completion_tokens: int = Field(
+        default=3000,
+        ge=500,
+        le=8000,
+    )
+    cv_grounded_answer_max_answer_characters: int = Field(
+        default=5000,
+        ge=100,
+        le=12000,
+    )
+    cv_grounded_answer_max_candidate_assessment_characters: int = Field(
+        default=1800,
+        ge=100,
+        le=4000,
+    )
+
     # HTML previews are developer-only inspection artifacts.  They make CSS
     # iteration faster but are not the source indexed by the future RAG system.
     cv_html_preview_directory: Path = Path("data/cv_html")
