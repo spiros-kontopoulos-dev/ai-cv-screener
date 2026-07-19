@@ -162,6 +162,25 @@ class Settings(BaseSettings):
         le=5000,
     )
 
+    # WP6 begins with broad semantic recall. These limits deliberately allow
+    # more raw chunks than the final LLM context will consume; later retrieval
+    # stages will deduplicate, group, balance, and budget this evidence.
+    cv_raw_retrieval_default_limit: int = Field(
+        default=50,
+        ge=1,
+        le=200,
+    )
+    cv_raw_retrieval_max_limit: int = Field(
+        default=200,
+        ge=1,
+        le=500,
+    )
+    cv_retrieval_max_question_characters: int = Field(
+        default=2000,
+        ge=1,
+        le=10000,
+    )
+
     # HTML previews are developer-only inspection artifacts.  They make CSS
     # iteration faster but are not the source indexed by the future RAG system.
     cv_html_preview_directory: Path = Path("data/cv_html")
