@@ -162,9 +162,9 @@ class Settings(BaseSettings):
         le=5000,
     )
 
-    # WP6 begins with broad semantic recall. These limits deliberately allow
-    # more raw chunks than the final LLM context will consume; later retrieval
-    # stages will deduplicate, group, balance, and budget this evidence.
+    # WP6 begins with broad semantic recall and bounded exact-text assistance.
+    # Candidate grouping, balancing, and final context budgeting remain later
+    # retrieval stages.
     cv_raw_retrieval_default_limit: int = Field(
         default=50,
         ge=1,
@@ -179,6 +179,11 @@ class Settings(BaseSettings):
         default=2000,
         ge=1,
         le=10000,
+    )
+    cv_assisted_retrieval_max_supplemental_hits: int = Field(
+        default=50,
+        ge=0,
+        le=500,
     )
 
     # HTML previews are developer-only inspection artifacts.  They make CSS

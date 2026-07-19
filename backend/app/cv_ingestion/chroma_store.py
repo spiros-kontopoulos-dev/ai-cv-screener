@@ -174,6 +174,15 @@ class RawVectorMatch:
     metadata: dict[str, Any]
 
 
+@dataclass(frozen=True, slots=True)
+class RawStoredChunk:
+    """One persisted chunk loaded without embeddings for exact text assistance."""
+
+    chunk_id: str
+    text: str
+    metadata: dict[str, Any]
+
+
 class CvChromaRepository:
     """Persist validated CV vectors with stable IDs and complete metadata."""
 
@@ -447,6 +456,33 @@ class CvChromaRepository:
             complete_document_count=complete_count,
             incomplete_document_count=len(documents) - complete_count,
             documents=documents,
+        )
+
+    def get_all_chunks(self) -> tuple[RawStoredChunk, ...]:
+        """Return every stored chunk without loading embeddings into memory."""
+
+        try:
+            result = self.collection.get(include=["documents", "metadatas"])
+        except Exception as error:  # pragma: no cover - provider-specific
+            raise CvVectorStoreError(
+                f"Unable to scan persisted CV chunks: {error}"
+            ) from error
+
+        ids = list(result.get("ids") or ())
+        documents = list(result.get("documents") or ())
+        metadatas = list(result.get("metadatas") or ())
+        return tuple(
+            RawStoredChunk(
+                chunk_id=str(chunk_id),
+                text=str(document or ""),
+                metadata=dict(metadata or {}),
+            )
+            for chunk_id, document, metadata in zip(
+                ids,
+                documents,
+                metadatas,
+                strict=True,
+            )
         )
 
     def query_nearest(

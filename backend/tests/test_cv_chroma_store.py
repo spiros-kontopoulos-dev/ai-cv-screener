@@ -119,12 +119,15 @@ def test_document_completeness_and_raw_query_are_exposed(tmp_path: Path) -> None
     )
 
     complete = repository.get_document_summaries()[0]
+    all_chunks = repository.get_all_chunks()
     matches = repository.query_nearest((0.5, 0.5, 0.5, 0.5), n_results=1)
     repository.collection.delete(ids=["chunk_2"])
     incomplete = repository.get_document_summaries()[0]
 
     assert complete.complete is True
     assert complete.expected_chunk_count == 2
+    assert {chunk.chunk_id for chunk in all_chunks} == {"chunk_1", "chunk_2"}
+    assert {chunk.text for chunk in all_chunks} == {"Evidence 0", "Evidence 1"}
     assert matches[0].chunk_id in {"chunk_1", "chunk_2"}
     assert matches[0].metadata["candidate_id"] == "candidate_001"
     assert incomplete.complete is False

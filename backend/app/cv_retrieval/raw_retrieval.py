@@ -146,7 +146,11 @@ class RawCvRetriever:
         )
 
 
-def build_raw_cv_retriever(settings: Settings) -> RawCvRetriever:
+def build_raw_cv_retriever(
+    settings: Settings,
+    *,
+    vector_repository: RawVectorRepository | None = None,
+) -> RawCvRetriever:
     """Build retrieval dependencies while reusing the cached WP5 model provider."""
 
     embedding_provider = get_embedding_provider(
@@ -157,7 +161,7 @@ def build_raw_cv_retriever(settings: Settings) -> RawCvRetriever:
         settings.cv_embedding_device,
         settings.cv_embedding_cache_directory,
     )
-    vector_repository = CvChromaRepository(
+    active_repository = vector_repository or CvChromaRepository(
         CvVectorStoreConfig(
             persist_directory=settings.cv_vector_store_directory,
             collection_name=settings.cv_vector_collection_name,
@@ -178,7 +182,7 @@ def build_raw_cv_retriever(settings: Settings) -> RawCvRetriever:
             ),
         ),
         embedding_provider=embedding_provider,
-        vector_repository=vector_repository,
+        vector_repository=active_repository,
     )
 
 
