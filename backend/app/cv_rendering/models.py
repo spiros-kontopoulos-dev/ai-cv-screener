@@ -32,7 +32,12 @@ class CvProfileMetrics:
 
 @dataclass(frozen=True, slots=True)
 class CvRenderJob:
-    """All deterministic paths and source data for rendering one CV."""
+    """All deterministic paths and source data for rendering one CV.
+
+    Candidate IDs remain the internal identity key for portraits, previews,
+    ingestion metadata, and retrieval. The public PDF path is intentionally
+    human-readable presentation metadata.
+    """
 
     profile: CandidateProfile
     portrait_path: Path
@@ -43,7 +48,7 @@ class CvRenderJob:
 
     @property
     def candidate_id(self) -> str:
-        """Expose the stable identifier used by every generated artifact."""
+        """Expose the stable identifier carried through every pipeline stage."""
 
         return self.profile.candidate_id
 

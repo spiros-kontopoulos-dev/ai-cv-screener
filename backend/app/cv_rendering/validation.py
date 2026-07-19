@@ -15,6 +15,7 @@ import re
 import pymupdf
 
 from app.candidate_generation.models import CandidateDatasetPlan, SearchScenario
+from app.cv_ingestion.naming import build_readable_cv_filename_from_metadata
 from app.schemas import CandidateProfile
 
 from .formatting import (
@@ -34,6 +35,8 @@ from .formatting import (
 _UNSUPPORTED_SCENARIO_PHRASES: dict[str, tuple[str, ...]] = {
     "unsupported_security_clearance": ("security clearance",),
 }
+
+_CANDIDATE_ID_PATTERN = re.compile(r"\bcandidate_\d{3}\b", re.IGNORECASE)
 
 
 class CvPdfValidationError(RuntimeError):
@@ -106,8 +109,17 @@ class CvPdfCollectionValidationReport:
         return not self.issues
 
 
-def extract_cv_pdf(path: Path, *, candidate_id: str) -> ExtractedCvDocument:
-    """Open one PDF and extract page-sorted text with PyMuPDF."""
+def extract_cv_pdf(
+    path: Path,
+    *,
+    candidate_id: str | None = None,
+) -> ExtractedCvDocument:
+    """Open one PDF and extract page-sorted text with PyMuPDF.
+
+    The controlled CV template renders the stable candidate ID as visible text.
+    When callers do not already know the ID, it is recovered from that text so
+    human-readable source filenames remain presentation metadata only.
+    """
 
     if not path.is_file():
         raise CvPdfValidationError(f"CV PDF does not exist: {path}")
@@ -124,8 +136,10 @@ def extract_cv_pdf(path: Path, *, candidate_id: str) -> ExtractedCvDocument:
             f"CV PDF could not be opened or read: {path}"
         ) from error
 
+    resolved_candidate_id = candidate_id or _detect_candidate_id(text, path)
+
     return ExtractedCvDocument(
-        candidate_id=candidate_id,
+        candidate_id=resolved_candidate_id,
         path=path,
         page_count=page_count,
         text=text,
@@ -349,7 +363,19 @@ def validate_cv_pdf_collection(
 
     issues: list[str] = []
     expected_ids = [profile.candidate_id for profile in profiles]
-    expected_names = {f"{candidate_id}.pdf" for candidate_id in expected_ids}
+    expected_filename_by_id = {
+        profile.candidate_id: build_readable_cv_filename_from_metadata(
+            candidate_name=profile.full_name,
+            professional_title=profile.professional_title,
+            source_label=profile.candidate_id,
+        )
+        for profile in profiles
+    }
+    expected_names = set(expected_filename_by_id.values())
+    if len(expected_names) != len(expected_filename_by_id):
+        issues.append(
+            "Candidate profiles must produce unique readable CV filenames."
+        )
 
     actual_paths = sorted(pdf_directory.glob("*.pdf")) if pdf_directory.exists() else []
     actual_names = {path.name for path in actual_paths}
@@ -376,21 +402,38 @@ def validate_cv_pdf_collection(
             f"Unexpected CV PDFs: {', '.join(unexpected_names)}."
         )
 
+    expected_id_set = set(expected_ids)
     extracted_by_id: dict[str, ExtractedCvDocument] = {}
     candidate_results: list[CandidateCvValidation] = []
 
-    for profile in profiles:
-        path = pdf_directory / f"{profile.candidate_id}.pdf"
-        if not path.is_file():
-            continue
-
+    for path in actual_paths:
         try:
-            document = extract_cv_pdf(path, candidate_id=profile.candidate_id)
+            document = extract_cv_pdf(path)
         except CvPdfValidationError as error:
-            issues.append(f"{profile.candidate_id}: {error}")
+            issues.append(str(error))
             continue
 
-        extracted_by_id[profile.candidate_id] = document
+        if document.candidate_id not in expected_id_set:
+            issues.append(
+                f"Unexpected candidate ID {document.candidate_id!r} in "
+                f"{path.name}."
+            )
+            continue
+        if document.candidate_id in extracted_by_id:
+            existing_path = extracted_by_id[document.candidate_id].path
+            issues.append(
+                f"Duplicate CV PDFs for {document.candidate_id}: "
+                f"{existing_path.name}, {path.name}."
+            )
+            continue
+
+        extracted_by_id[document.candidate_id] = document
+
+    for profile in profiles:
+        document = extracted_by_id.get(profile.candidate_id)
+        if document is None:
+            continue
+
         result = validate_profile_against_pdf_text(
             profile,
             document,
@@ -406,6 +449,7 @@ def validate_cv_pdf_collection(
     validated_scenario_count, scenario_issues = _validate_pdf_search_scenarios(
         plan.search_scenarios,
         extracted_by_id,
+        expected_filename_by_id=expected_filename_by_id,
     )
     issues.extend(scenario_issues)
 
@@ -418,7 +462,7 @@ def validate_cv_pdf_collection(
     )
 
     return CvPdfCollectionValidationReport(
-        expected_pdf_count=len(expected_names),
+        expected_pdf_count=len(profiles),
         actual_pdf_count=len(actual_paths),
         validated_pdf_count=sum(result.is_valid for result in candidate_results),
         expected_fact_count=expected_fact_count,
@@ -435,6 +479,8 @@ def validate_cv_pdf_collection(
 def _validate_pdf_search_scenarios(
     scenarios: Sequence[SearchScenario],
     documents_by_id: Mapping[str, ExtractedCvDocument],
+    *,
+    expected_filename_by_id: Mapping[str, str],
 ) -> tuple[int, list[str]]:
     """Confirm curated demo evidence exists in extracted PDF text only."""
 
@@ -461,8 +507,12 @@ def _validate_pdf_search_scenarios(
             for candidate_id in scenario.expected_candidate_ids:
                 document = documents_by_id.get(candidate_id)
                 if document is None:
+                    expected_filename = expected_filename_by_id.get(
+                        candidate_id,
+                        candidate_id,
+                    )
                     scenario_problems.append(
-                        f"expected source PDF {candidate_id}.pdf is unavailable."
+                        f"expected source PDF {expected_filename} is unavailable."
                     )
                     continue
 
@@ -473,7 +523,7 @@ def _validate_pdf_search_scenarios(
                         evidence,
                     ):
                         scenario_problems.append(
-                            f"{candidate_id}.pdf does not contain required "
+                            f"{document.path.name} does not contain required "
                             f"evidence {evidence!r}."
                         )
 
@@ -486,6 +536,26 @@ def _validate_pdf_search_scenarios(
             validated_count += 1
 
     return validated_count, issues
+
+
+def _detect_candidate_id(text: str, path: Path) -> str:
+    """Return the single visible controlled candidate ID from PDF text."""
+
+    candidate_ids = {
+        match.casefold()
+        for match in _CANDIDATE_ID_PATTERN.findall(text)
+    }
+    if not candidate_ids:
+        raise CvPdfValidationError(
+            f"CV PDF does not contain a visible candidate ID: {path}"
+        )
+    if len(candidate_ids) > 1:
+        raise CvPdfValidationError(
+            "CV PDF contains multiple candidate IDs: "
+            f"{path} ({', '.join(sorted(candidate_ids))})"
+        )
+
+    return next(iter(candidate_ids))
 
 
 def _contains_scenario_evidence(

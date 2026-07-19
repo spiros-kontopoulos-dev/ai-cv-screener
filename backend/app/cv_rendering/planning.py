@@ -9,6 +9,10 @@ from collections.abc import Collection, Sequence
 from pathlib import Path
 from typing import Any
 
+from app.cv_ingestion.naming import (
+    CvDocumentNamingError,
+    build_readable_cv_filename_from_metadata,
+)
 from app.cv_rendering.models import CvProfileMetrics, CvRenderJob
 from app.schemas import CandidateProfile
 
@@ -85,22 +89,35 @@ def build_cv_render_jobs(
             f"{', '.join(sorted(unknown_planned_ids))}."
         )
 
-    return [
-        CvRenderJob(
-            profile=profile,
-            portrait_path=(
-                images_directory
-                / f"{profile.candidate_id}{NORMALIZED_PORTRAIT_EXTENSION}"
-            ),
-            portrait_planned=profile.candidate_id in planned_ids,
-            pdf_path=pdf_directory / f"{profile.candidate_id}.pdf",
-            html_preview_path=(
-                html_preview_directory / f"{profile.candidate_id}.html"
-            ),
-            metrics=measure_candidate_profile(profile),
+    jobs: list[CvRenderJob] = []
+    for profile in ordered_profiles:
+        try:
+            pdf_filename = build_readable_cv_filename_from_metadata(
+                candidate_name=profile.full_name,
+                professional_title=profile.professional_title,
+                source_label=profile.candidate_id,
+            )
+        except CvDocumentNamingError as error:
+            raise CvRenderingPlanError(str(error)) from error
+
+        jobs.append(
+            CvRenderJob(
+                profile=profile,
+                portrait_path=(
+                    images_directory
+                    / f"{profile.candidate_id}{NORMALIZED_PORTRAIT_EXTENSION}"
+                ),
+                portrait_planned=profile.candidate_id in planned_ids,
+                pdf_path=pdf_directory / pdf_filename,
+                html_preview_path=(
+                    html_preview_directory / f"{profile.candidate_id}.html"
+                ),
+                metrics=measure_candidate_profile(profile),
+            )
         )
-        for profile in ordered_profiles
-    ]
+
+    _validate_unique_pdf_paths(jobs)
+    return jobs
 
 
 def select_cv_render_jobs(
@@ -216,3 +233,19 @@ def _count_text_characters(value: Any) -> int:
         return sum(_count_text_characters(item) for item in value)
 
     return 0
+
+
+def _validate_unique_pdf_paths(jobs: Sequence[CvRenderJob]) -> None:
+    """Reject profiles that collapse to the same readable PDF filename."""
+
+    jobs_by_path: dict[str, CvRenderJob] = {}
+    for job in jobs:
+        normalized_path = job.pdf_path.as_posix().casefold()
+        existing_job = jobs_by_path.get(normalized_path)
+        if existing_job is not None:
+            raise CvRenderingPlanError(
+                "Readable CV filenames must be unique. "
+                f"{existing_job.candidate_id} and {job.candidate_id} both map "
+                f"to {job.pdf_path.name}."
+            )
+        jobs_by_path[normalized_path] = job

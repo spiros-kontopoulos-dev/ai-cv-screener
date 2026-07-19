@@ -9,6 +9,7 @@ from app.candidate_generation import (
     load_candidate_dataset_plan,
     load_candidate_profiles,
 )
+from app.cv_ingestion import build_readable_cv_filename_from_metadata
 from app.cv_rendering import (
     ExtractedCvDocument,
     build_cv_render_jobs,
@@ -125,7 +126,13 @@ def test_collection_reports_missing_and_unexpected_pdf_names(
     )
 
     assert not report.is_valid
-    assert report.missing_pdf_names == ("candidate_001.pdf",)
+    assert report.missing_pdf_names == (
+        build_readable_cv_filename_from_metadata(
+            candidate_name=profile.full_name,
+            professional_title=profile.professional_title,
+            source_label=profile.candidate_id,
+        ),
+    )
     assert report.unexpected_pdf_names == ("candidate_999.pdf",)
 
 

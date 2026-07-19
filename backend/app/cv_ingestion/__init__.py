@@ -65,6 +65,7 @@ from app.cv_ingestion.naming import (
     CvDocumentNamingError,
     apply_cv_document_renames,
     build_readable_cv_filename,
+    build_readable_cv_filename_from_metadata,
     plan_cv_document_renames,
 )
 from app.cv_ingestion.selection import (
@@ -117,6 +118,7 @@ __all__ = [
     "VectorUpsertSummary",
     "apply_cv_document_renames",
     "build_readable_cv_filename",
+    "build_readable_cv_filename_from_metadata",
     "calculate_pdf_sha256",
     "chunk_cv_document",
     "chunk_cv_documents",

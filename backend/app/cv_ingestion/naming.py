@@ -20,18 +20,36 @@ class CvDocumentNamingError(ValueError):
 def build_readable_cv_filename(document: ExtractedCvDocument) -> str:
     """Return ``name-role-cv.pdf`` for a document with detected metadata."""
 
-    candidate_name = document.source.candidate_name
-    professional_title = document.source.professional_title
+    return build_readable_cv_filename_from_metadata(
+        candidate_name=document.source.candidate_name,
+        professional_title=document.source.professional_title,
+        source_label=document.source.source_filename,
+    )
+
+
+def build_readable_cv_filename_from_metadata(
+    *,
+    candidate_name: str | None,
+    professional_title: str | None,
+    source_label: str = "candidate profile",
+) -> str:
+    """Return the canonical readable PDF filename from display metadata.
+
+    Both PDF ingestion and deterministic PDF rendering use this helper so a
+    rerender cannot silently recreate the legacy ``candidate_XXX.pdf`` names.
+    ``source_label`` is used only to make validation errors actionable.
+    """
+
     if not candidate_name or not professional_title:
         raise CvDocumentNamingError(
             "Readable CV naming requires both candidate name and "
-            f"professional title: {document.source.source_filename}."
+            f"professional title: {source_label}."
         )
 
     stem = _slugify(f"{candidate_name}-{professional_title}-cv")
     if not stem:
         raise CvDocumentNamingError(
-            f"Readable CV filename is empty for {document.source.source_filename}."
+            f"Readable CV filename is empty for {source_label}."
         )
 
     return f"{stem}.pdf"

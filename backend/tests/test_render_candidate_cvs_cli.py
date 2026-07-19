@@ -4,6 +4,7 @@ from pathlib import Path
 
 from app.candidate_generation.persistence import save_candidate_profiles
 from app.core.config import Settings
+from app.cv_ingestion import build_readable_cv_filename_from_metadata
 from app.schemas import CandidateProfile
 from app.scripts.render_candidate_cvs import run_cli
 
@@ -46,6 +47,11 @@ def test_dry_run_prints_boundary_and_artifact_information(
     )
 
     captured = capsys.readouterr()
+    expected_pdf_name = build_readable_cv_filename_from_metadata(
+        candidate_name=profile.full_name,
+        professional_title=profile.professional_title,
+        source_label=profile.candidate_id,
+    )
 
     assert status == 0
     assert "CV RENDERING DRY RUN" in captured.out
@@ -53,7 +59,7 @@ def test_dry_run_prints_boundary_and_artifact_information(
     assert "Planned portraits: 1" in captured.out
     assert "Portraits available: 0/1" in captured.out
     assert "portrait=planned-missing" in captured.out
-    assert "candidate_001.pdf" in captured.out
+    assert expected_pdf_name in captured.out
     assert not (tmp_path / "pdfs").exists()
 
 
@@ -95,6 +101,11 @@ def test_render_command_writes_photo_free_pdf_and_html_preview(
     )
 
     captured = capsys.readouterr()
+    expected_pdf_name = build_readable_cv_filename_from_metadata(
+        candidate_name=profile.full_name,
+        professional_title=profile.professional_title,
+        source_label=profile.candidate_id,
+    )
 
     assert status == 0
     assert "CV RENDERING COMPLETE" in captured.out
@@ -103,7 +114,7 @@ def test_render_command_writes_photo_free_pdf_and_html_preview(
     assert "Placeholder portraits: 0" in captured.out
     assert "portrait=photo-free" in captured.out
     assert "Result: PASS" in captured.out
-    assert (tmp_path / "pdfs" / "candidate_001.pdf").is_file()
+    assert (tmp_path / "pdfs" / expected_pdf_name).is_file()
     html_path = tmp_path / "html" / "candidate_001.html"
     assert html_path.is_file()
     assert '<div class="portrait-frame"' not in html_path.read_text(encoding="utf-8")

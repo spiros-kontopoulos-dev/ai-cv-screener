@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from app.cv_ingestion import build_readable_cv_filename_from_metadata
 from app.cv_rendering import (
     CvRenderingPlanError,
     build_cv_render_jobs,
@@ -38,11 +39,11 @@ def _candidate_with_id(
     return CandidateProfile.model_validate(copied_payload)
 
 
-def test_build_jobs_uses_stable_candidate_paths_and_order(
+def test_build_jobs_uses_readable_pdf_names_and_stable_identity_paths(
     tmp_path: Path,
     valid_candidate_payload: dict,
 ) -> None:
-    """Candidate IDs link profiles, portraits, previews, and PDFs."""
+    """PDF names are readable while internal artifacts retain stable IDs."""
 
     candidate_002 = _candidate_with_id(
         valid_candidate_payload,
@@ -67,8 +68,40 @@ def test_build_jobs_uses_stable_candidate_paths_and_order(
         "candidate_002",
     ]
     assert jobs[0].portrait_path.name == "candidate_001.webp"
-    assert jobs[0].pdf_path.name == "candidate_001.pdf"
+    assert jobs[0].pdf_path.name == build_readable_cv_filename_from_metadata(
+        candidate_name=jobs[0].profile.full_name,
+        professional_title=jobs[0].profile.professional_title,
+        source_label=jobs[0].candidate_id,
+    )
     assert jobs[0].html_preview_path.name == "candidate_001.html"
+
+
+def test_build_jobs_rejects_colliding_readable_pdf_names(
+    tmp_path: Path,
+    valid_candidate_payload: dict,
+) -> None:
+    """Two profiles cannot silently overwrite one readable PDF path."""
+
+    profiles = [
+        _candidate_with_id(
+            valid_candidate_payload,
+            candidate_id="candidate_001",
+            full_name="Alex Morgan",
+        ),
+        _candidate_with_id(
+            valid_candidate_payload,
+            candidate_id="candidate_002",
+            full_name="Alex Morgan",
+        ),
+    ]
+
+    with pytest.raises(CvRenderingPlanError, match="must be unique"):
+        build_cv_render_jobs(
+            profiles,
+            images_directory=tmp_path / "images",
+            pdf_directory=tmp_path / "pdfs",
+            html_preview_directory=tmp_path / "html",
+        )
 
 
 def test_profile_metrics_capture_rendering_density(

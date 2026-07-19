@@ -7,6 +7,7 @@ import pymupdf
 from app.cv_ingestion import (
     apply_cv_document_renames,
     build_readable_cv_filename,
+    build_readable_cv_filename_from_metadata,
     load_cv_document,
     plan_cv_document_renames,
 )
@@ -27,6 +28,16 @@ def test_readable_filename_uses_detected_name_and_role(tmp_path: Path) -> None:
     assert build_readable_cv_filename(document) == (
         "lucia-navarro-junior-python-api-engineer-cv.pdf"
     )
+
+
+def test_readable_filename_can_be_built_before_pdf_rendering() -> None:
+    """Validated profile metadata uses the same canonical naming rule."""
+
+    assert build_readable_cv_filename_from_metadata(
+        candidate_name="Lucía Navarro",
+        professional_title="Junior Python API Engineer",
+        source_label="candidate_003",
+    ) == "lucia-navarro-junior-python-api-engineer-cv.pdf"
 
 
 def test_rename_plan_adds_hash_suffix_for_colliding_names(tmp_path: Path) -> None:
