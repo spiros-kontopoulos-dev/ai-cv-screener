@@ -84,6 +84,11 @@ class Settings(BaseSettings):
     candidate_images_directory: Path = Path("data/candidate_images")
     cv_pdfs_output_directory: Path = Path("data/cv_pdfs")
 
+    # WP5 accepts arbitrary PDF paths, but --all needs one explicit default
+    # directory. Keeping this separate from the WP4 output setting makes the
+    # ingestion service reusable for future upload or administrator folders.
+    cv_ingestion_default_directory: Path = Path("data/cv_pdfs")
+
     # HTML previews are developer-only inspection artifacts.  They make CSS
     # iteration faster but are not the source indexed by the future RAG system.
     cv_html_preview_directory: Path = Path("data/cv_html")
