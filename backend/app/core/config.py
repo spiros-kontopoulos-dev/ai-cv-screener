@@ -89,6 +89,31 @@ class Settings(BaseSettings):
     # ingestion service reusable for future upload or administrator folders.
     cv_ingestion_default_directory: Path = Path("data/cv_pdfs")
 
+    # WP5 section-aware chunking remains configurable without coupling the
+    # algorithm to the committed synthetic CV layout. The version is stored
+    # with every future vector record so an incompatible strategy change can
+    # trigger an explicit rebuild rather than silently mixing chunk formats.
+    cv_chunking_version: str = Field(
+        default="cv-sections-v1",
+        min_length=1,
+        max_length=100,
+    )
+    cv_chunk_max_characters: int = Field(
+        default=1200,
+        ge=200,
+        le=5000,
+    )
+    cv_chunk_min_characters: int = Field(
+        default=80,
+        ge=1,
+        le=2000,
+    )
+    cv_chunk_overlap_characters: int = Field(
+        default=120,
+        ge=0,
+        le=1000,
+    )
+
     # HTML previews are developer-only inspection artifacts.  They make CSS
     # iteration faster but are not the source indexed by the future RAG system.
     cv_html_preview_directory: Path = Path("data/cv_html")

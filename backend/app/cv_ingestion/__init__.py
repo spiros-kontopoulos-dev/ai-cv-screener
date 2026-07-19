@@ -1,5 +1,25 @@
-"""Public contracts for generic CV PDF loading and source identity."""
+"""Public contracts for generic CV PDF ingestion and source identity."""
 
+from app.cv_ingestion.chunking import (
+    DEFAULT_CHUNKING_VERSION,
+    DEFAULT_MAX_CHARACTERS,
+    DEFAULT_MIN_CHARACTERS,
+    DEFAULT_OVERLAP_CHARACTERS,
+    SECTION_CERTIFICATIONS,
+    SECTION_DOCUMENT,
+    SECTION_EDUCATION,
+    SECTION_EXPERIENCE,
+    SECTION_IDENTITY,
+    SECTION_LANGUAGES,
+    SECTION_PROFESSIONAL_SUMMARY,
+    SECTION_PROJECTS,
+    SECTION_SKILLS,
+    SECTION_SKILLS_AND_LANGUAGES,
+    CvChunkingConfig,
+    CvChunkingError,
+    chunk_cv_document,
+    chunk_cv_documents,
+)
 from app.cv_ingestion.extraction import (
     CvDocumentExtractionError,
     calculate_pdf_sha256,
@@ -10,6 +30,7 @@ from app.cv_ingestion.extraction import (
     normalize_extracted_page_text,
 )
 from app.cv_ingestion.models import (
+    CvChunk,
     CvRenamePlan,
     CvSourceMetadata,
     ExtractedCvDocument,
@@ -27,6 +48,23 @@ from app.cv_ingestion.selection import (
 )
 
 __all__ = [
+    "DEFAULT_CHUNKING_VERSION",
+    "DEFAULT_MAX_CHARACTERS",
+    "DEFAULT_MIN_CHARACTERS",
+    "DEFAULT_OVERLAP_CHARACTERS",
+    "SECTION_CERTIFICATIONS",
+    "SECTION_DOCUMENT",
+    "SECTION_EDUCATION",
+    "SECTION_EXPERIENCE",
+    "SECTION_IDENTITY",
+    "SECTION_LANGUAGES",
+    "SECTION_PROFESSIONAL_SUMMARY",
+    "SECTION_PROJECTS",
+    "SECTION_SKILLS",
+    "SECTION_SKILLS_AND_LANGUAGES",
+    "CvChunk",
+    "CvChunkingConfig",
+    "CvChunkingError",
     "CvDocumentExtractionError",
     "CvDocumentNamingError",
     "CvDocumentSelectionError",
@@ -37,6 +75,8 @@ __all__ = [
     "apply_cv_document_renames",
     "build_readable_cv_filename",
     "calculate_pdf_sha256",
+    "chunk_cv_document",
+    "chunk_cv_documents",
     "detect_candidate_header",
     "detect_candidate_id",
     "load_cv_document",

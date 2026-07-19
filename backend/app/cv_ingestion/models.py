@@ -1,8 +1,8 @@
 """Immutable contracts for PDF extraction and future RAG ingestion.
 
 These models deliberately describe documents independently from the synthetic
-candidate generator.  A PDF may come from the committed demo dataset, a file
-copied into an administrator folder, or a future upload endpoint.  Every later
+candidate generator. A PDF may come from the committed demo dataset, a file
+copied into an administrator folder, or a future upload endpoint. Every later
 chunk and vector can inherit the same stable source metadata.
 """
 
@@ -63,6 +63,50 @@ class ExtractedCvDocument:
         """Return the total number of non-whitespace characters."""
 
         return sum(page.text_character_count for page in self.pages)
+
+
+@dataclass(frozen=True, slots=True)
+class CvChunk:
+    """One stable, candidate-safe unit prepared for later embedding.
+
+    ``text`` contains only content extracted from the source PDF. Candidate and
+    source identity remain structured metadata, so later retrieval can group
+    evidence without injecting generator JSON into the knowledge content.
+    """
+
+    chunk_id: str
+    source: CvSourceMetadata
+    section_name: str
+    page_numbers: tuple[int, ...]
+    chunk_index: int
+    chunking_version: str
+    text: str
+
+    @property
+    def text_character_count(self) -> int:
+        """Return the number of non-whitespace characters in this chunk."""
+
+        return len("".join(self.text.split()))
+
+    @property
+    def page_number_start(self) -> int:
+        """Return the first source page represented by this chunk."""
+
+        return self.page_numbers[0]
+
+    @property
+    def page_number_end(self) -> int:
+        """Return the last source page represented by this chunk."""
+
+        return self.page_numbers[-1]
+
+    @property
+    def page_label(self) -> str:
+        """Return a concise one-page or page-range display label."""
+
+        if self.page_number_start == self.page_number_end:
+            return str(self.page_number_start)
+        return f"{self.page_number_start}-{self.page_number_end}"
 
 
 @dataclass(frozen=True, slots=True)
