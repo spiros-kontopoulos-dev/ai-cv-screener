@@ -1,19 +1,15 @@
+"""Public contracts for generic CV PDF ingestion and source identity."""
+
 from app.cv_ingestion.chroma_store import (
     CvChromaRepository,
     CvVectorStoreConfig,
     CvVectorStoreError,
+    IndexedDocumentSummary,
+    RawVectorMatch,
     VectorCollectionInfo,
+    VectorIndexCoverage,
     VectorUpsertSummary,
 )
-from app.cv_ingestion.embeddings import (
-    CvEmbeddingConfig,
-    CvEmbeddingError,
-    EmbeddedCvChunk,
-    SentenceTransformerEmbeddingProvider,
-    get_embedding_provider,
-)
-"""Public contracts for generic CV PDF ingestion and source identity."""
-
 from app.cv_ingestion.chunking import (
     DEFAULT_CHUNKING_VERSION,
     DEFAULT_MAX_CHARACTERS,
@@ -34,6 +30,13 @@ from app.cv_ingestion.chunking import (
     chunk_cv_document,
     chunk_cv_documents,
 )
+from app.cv_ingestion.embeddings import (
+    CvEmbeddingConfig,
+    CvEmbeddingError,
+    EmbeddedCvChunk,
+    SentenceTransformerEmbeddingProvider,
+    get_embedding_provider,
+)
 from app.cv_ingestion.extraction import (
     CvDocumentExtractionError,
     calculate_pdf_sha256,
@@ -42,6 +45,14 @@ from app.cv_ingestion.extraction import (
     load_cv_document,
     load_cv_documents,
     normalize_extracted_page_text,
+)
+from app.cv_ingestion.ingestion import (
+    CvIngestionDocumentResult,
+    CvIngestionError,
+    CvIngestionFailure,
+    CvIngestionService,
+    CvIngestionSummary,
+    CvMetadataOverrides,
 )
 from app.cv_ingestion.models import (
     CvChunk,
@@ -62,16 +73,6 @@ from app.cv_ingestion.selection import (
 )
 
 __all__ = [
-    "CvChromaRepository",
-    "CvEmbeddingConfig",
-    "CvEmbeddingError",
-    "CvVectorStoreConfig",
-    "CvVectorStoreError",
-    "EmbeddedCvChunk",
-    "SentenceTransformerEmbeddingProvider",
-    "VectorCollectionInfo",
-    "VectorUpsertSummary",
-    "get_embedding_provider",
     "DEFAULT_CHUNKING_VERSION",
     "DEFAULT_MAX_CHARACTERS",
     "DEFAULT_MIN_CHARACTERS",
@@ -86,16 +87,34 @@ __all__ = [
     "SECTION_PROJECTS",
     "SECTION_SKILLS",
     "SECTION_SKILLS_AND_LANGUAGES",
+    "CvChromaRepository",
     "CvChunk",
     "CvChunkingConfig",
     "CvChunkingError",
     "CvDocumentExtractionError",
     "CvDocumentNamingError",
     "CvDocumentSelectionError",
+    "CvEmbeddingConfig",
+    "CvEmbeddingError",
+    "CvIngestionDocumentResult",
+    "CvIngestionError",
+    "CvIngestionFailure",
+    "CvIngestionService",
+    "CvIngestionSummary",
+    "CvMetadataOverrides",
     "CvRenamePlan",
     "CvSourceMetadata",
+    "CvVectorStoreConfig",
+    "CvVectorStoreError",
+    "EmbeddedCvChunk",
     "ExtractedCvDocument",
     "ExtractedCvPage",
+    "IndexedDocumentSummary",
+    "RawVectorMatch",
+    "SentenceTransformerEmbeddingProvider",
+    "VectorCollectionInfo",
+    "VectorIndexCoverage",
+    "VectorUpsertSummary",
     "apply_cv_document_renames",
     "build_readable_cv_filename",
     "calculate_pdf_sha256",
@@ -103,6 +122,7 @@ __all__ = [
     "chunk_cv_documents",
     "detect_candidate_header",
     "detect_candidate_id",
+    "get_embedding_provider",
     "load_cv_document",
     "load_cv_documents",
     "normalize_extracted_page_text",

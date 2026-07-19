@@ -33,6 +33,7 @@ def test_repository_upserts_documents_vectors_and_complete_metadata(tmp_path: Pa
     assert stored["metadatas"][0]["candidate_id"] == "candidate_001"
     assert stored["metadatas"][0]["page_numbers"] == "1"
     assert stored["metadatas"][0]["embedding_model"] == "test-model"
+    assert stored["metadatas"][0]["document_chunk_count"] == 2
     assert len(stored["embeddings"][0]) == 4
 
 
@@ -107,6 +108,28 @@ def test_reset_collection_removes_persistent_records(tmp_path: Path) -> None:
     repository.reset_collection()
 
     assert repository.get_collection_info().record_count == 0
+
+
+def test_document_completeness_and_raw_query_are_exposed(tmp_path: Path) -> None:
+    """The repository detects partial documents and returns traceable raw matches."""
+
+    repository = _repository(tmp_path)
+    repository.upsert_embeddings(
+        (_embedded("chunk_1", 0), _embedded("chunk_2", 1))
+    )
+
+    complete = repository.get_document_summaries()[0]
+    matches = repository.query_nearest((0.5, 0.5, 0.5, 0.5), n_results=1)
+    repository.collection.delete(ids=["chunk_2"])
+    incomplete = repository.get_document_summaries()[0]
+
+    assert complete.complete is True
+    assert complete.expected_chunk_count == 2
+    assert matches[0].chunk_id in {"chunk_1", "chunk_2"}
+    assert matches[0].metadata["candidate_id"] == "candidate_001"
+    assert incomplete.complete is False
+    assert incomplete.stored_chunk_count == 1
+    assert incomplete.expected_chunk_count == 2
 
 
 def _repository(

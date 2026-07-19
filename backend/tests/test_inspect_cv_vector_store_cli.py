@@ -1,6 +1,6 @@
 """CLI tests for persistent Chroma collection inspection."""
 
-from app.cv_ingestion import VectorCollectionInfo
+from app.cv_ingestion import VectorCollectionInfo, VectorIndexCoverage
 from app.scripts.inspect_cv_vector_store import run_cli
 
 
@@ -20,6 +20,17 @@ class FakeRepository:
             },
             distance_metric="cosine",
         )
+    def get_index_coverage(self) -> VectorIndexCoverage:
+        return VectorIndexCoverage(
+            record_count=184,
+            document_count=30,
+            candidate_count=30,
+            source_count=30,
+            complete_document_count=30,
+            incomplete_document_count=0,
+            documents=(),
+        )
+
 
 
 def test_cli_prints_collection_count_and_compatibility_metadata(capsys) -> None:
@@ -34,6 +45,8 @@ def test_cli_prints_collection_count_and_compatibility_metadata(capsys) -> None:
     assert "Records: 184" in output
     assert "Distance metric: cosine" in output
     assert "embedding_model: test-model" in output
+    assert "documents: 30" in output
+    assert "complete_documents: 30" in output
 
 
 def test_cli_rejects_unexpected_arguments(capsys) -> None:

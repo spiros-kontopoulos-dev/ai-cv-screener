@@ -37,6 +37,7 @@ def run_cli(
     )
     try:
         info = active_repository.get_collection_info()
+        coverage = active_repository.get_index_coverage()
     except CvVectorStoreError as error:
         print(f"ERROR: {error}", file=sys.stderr)
         return 2
@@ -48,6 +49,12 @@ def run_cli(
     print("  Metadata:")
     for key, value in sorted(info.metadata.items()):
         print(f"    {key}: {value}")
+    print("  Coverage:")
+    print(f"    documents: {coverage.document_count}")
+    print(f"    complete_documents: {coverage.complete_document_count}")
+    print(f"    incomplete_documents: {coverage.incomplete_document_count}")
+    print(f"    candidates: {coverage.candidate_count}")
+    print(f"    source_files: {coverage.source_count}")
     return 0
 
 

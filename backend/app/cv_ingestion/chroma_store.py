@@ -7,6 +7,7 @@ settings so incompatible models or chunking strategies are never mixed.
 
 from __future__ import annotations
 
+from collections import Counter
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -34,6 +35,23 @@ class ChromaCollection(Protocol):
         documents: list[str],
     ) -> None:
         """Create or update vector records by stable chunk ID."""
+
+    def update(
+        self,
+        *,
+        ids: list[str],
+        metadatas: list[dict[str, Any]],
+    ) -> None:
+        """Update metadata for existing records without regenerating vectors."""
+
+    def get(self, **kwargs: Any) -> dict[str, Any]:
+        """Read records and metadata from the collection."""
+
+    def query(self, **kwargs: Any) -> dict[str, Any]:
+        """Return nearest records for an explicit query vector."""
+
+    def delete(self, **kwargs: Any) -> None:
+        """Delete records by IDs or metadata filter."""
 
     def count(self) -> int:
         """Return the number of records in the collection."""
@@ -118,6 +136,44 @@ class VectorCollectionInfo:
     distance_metric: str
 
 
+@dataclass(frozen=True, slots=True)
+class IndexedDocumentSummary:
+    """Document-level completeness inferred from persisted chunk metadata."""
+
+    document_hash: str
+    document_id: str
+    candidate_id: str
+    candidate_name: str
+    source_filename: str
+    source_path: str
+    stored_chunk_count: int
+    expected_chunk_count: int | None
+    complete: bool
+
+
+@dataclass(frozen=True, slots=True)
+class VectorIndexCoverage:
+    """Collection coverage used by ingestion validation and diagnostics."""
+
+    record_count: int
+    document_count: int
+    candidate_count: int
+    source_count: int
+    complete_document_count: int
+    incomplete_document_count: int
+    documents: tuple[IndexedDocumentSummary, ...]
+
+
+@dataclass(frozen=True, slots=True)
+class RawVectorMatch:
+    """One ungrouped nearest-neighbour result for semantic smoke testing."""
+
+    chunk_id: str
+    distance: float
+    text: str
+    metadata: dict[str, Any]
+
+
 class CvChromaRepository:
     """Persist validated CV vectors with stable IDs and complete metadata."""
 
@@ -197,6 +253,9 @@ class CvChromaRepository:
         for item in embedded_chunks:
             self._validate_embedded_chunk(item)
 
+        chunk_counts_by_document = Counter(
+            item.chunk.source.document_hash for item in embedded_chunks
+        )
         batches_written = 0
         for start in range(0, len(embedded_chunks), self._config.upsert_batch_size):
             batch = embedded_chunks[
@@ -206,7 +265,15 @@ class CvChromaRepository:
                 self.collection.upsert(
                     ids=[item.chunk.chunk_id for item in batch],
                     embeddings=[list(item.embedding) for item in batch],
-                    metadatas=[_serialize_chunk_metadata(item) for item in batch],
+                    metadatas=[
+                        _serialize_chunk_metadata(
+                            item,
+                            document_chunk_count=chunk_counts_by_document[
+                                item.chunk.source.document_hash
+                            ],
+                        )
+                        for item in batch
+                    ],
                     documents=[item.chunk.text for item in batch],
                 )
             except Exception as error:  # pragma: no cover - provider-specific
@@ -238,8 +305,199 @@ class CvChromaRepository:
             ),
         )
 
+    def get_document_summaries(
+        self,
+        document_hashes: Sequence[str] | None = None,
+    ) -> tuple[IndexedDocumentSummary, ...]:
+        """Group persisted records by PDF content hash and validate completeness."""
+
+        selected_hashes = set(document_hashes or ())
+        result = self.collection.get(include=["metadatas"])
+        record_ids = list(result.get("ids") or ())
+        metadatas = list(result.get("metadatas") or ())
+
+        grouped: dict[str, list[tuple[str, dict[str, Any]]]] = {}
+        for record_id, metadata in zip(record_ids, metadatas, strict=True):
+            metadata = dict(metadata or {})
+            document_hash = str(metadata.get("document_hash", ""))
+            if not document_hash:
+                continue
+            if selected_hashes and document_hash not in selected_hashes:
+                continue
+            grouped.setdefault(document_hash, []).append((record_id, metadata))
+
+        summaries = [
+            _build_document_summary(document_hash, records)
+            for document_hash, records in grouped.items()
+        ]
+        return tuple(
+            sorted(
+                summaries,
+                key=lambda item: (
+                    item.source_filename.casefold(),
+                    item.document_hash,
+                ),
+            )
+        )
+
+    def get_document_summary(
+        self,
+        document_hash: str,
+    ) -> IndexedDocumentSummary | None:
+        """Return one indexed-document summary when the hash exists."""
+
+        summaries = self.get_document_summaries((document_hash,))
+        return summaries[0] if summaries else None
+
+    def delete_document_records(self, document_hash: str) -> int:
+        """Delete all chunks for one exact PDF revision and return their count."""
+
+        summary = self.get_document_summary(document_hash)
+        if summary is None:
+            return 0
+        try:
+            self.collection.delete(where={"document_hash": document_hash})
+        except Exception as error:  # pragma: no cover - provider-specific
+            raise CvVectorStoreError(
+                f"Unable to delete vector records for document {document_hash}: "
+                f"{error}"
+            ) from error
+        return summary.stored_chunk_count
+
+    def delete_replaced_document_records(
+        self,
+        *,
+        source_path: Path,
+        candidate_id: str,
+        current_document_hash: str,
+    ) -> int:
+        """Delete older revisions sharing source path or candidate identity."""
+
+        result = self.collection.get(include=["metadatas"])
+        record_ids = list(result.get("ids") or ())
+        metadatas = list(result.get("metadatas") or ())
+        resolved_source_path = source_path.resolve().as_posix()
+        delete_ids = [
+            record_id
+            for record_id, metadata in zip(record_ids, metadatas, strict=True)
+            if str((metadata or {}).get("document_hash", ""))
+            != current_document_hash
+            and (
+                str((metadata or {}).get("source_path", ""))
+                == resolved_source_path
+                or str((metadata or {}).get("candidate_id", ""))
+                == candidate_id
+            )
+        ]
+        if not delete_ids:
+            return 0
+        try:
+            self.collection.delete(ids=delete_ids)
+        except Exception as error:  # pragma: no cover - provider-specific
+            raise CvVectorStoreError(
+                f"Unable to delete replaced CV revisions: {error}"
+            ) from error
+        return len(delete_ids)
+
+    def refresh_document_source_metadata(
+        self,
+        *,
+        document_hash: str,
+        source_filename: str,
+        source_path: Path,
+    ) -> int:
+        """Refresh path metadata for a byte-identical PDF after rename or move."""
+
+        result = self.collection.get(
+            where={"document_hash": document_hash},
+            include=["metadatas"],
+        )
+        record_ids = list(result.get("ids") or ())
+        metadatas = [dict(item or {}) for item in result.get("metadatas") or ()]
+        if not record_ids:
+            return 0
+        resolved_path = source_path.resolve().as_posix()
+        updated_metadatas = []
+        for metadata in metadatas:
+            metadata["source_filename"] = source_filename
+            metadata["source_path"] = resolved_path
+            updated_metadatas.append(metadata)
+        try:
+            self.collection.update(ids=record_ids, metadatas=updated_metadatas)
+        except Exception as error:  # pragma: no cover - provider-specific
+            raise CvVectorStoreError(
+                f"Unable to refresh CV source metadata: {error}"
+            ) from error
+        return len(record_ids)
+
+    def get_index_coverage(self) -> VectorIndexCoverage:
+        """Return document, candidate, source, and completeness coverage."""
+
+        documents = self.get_document_summaries()
+        complete_count = sum(document.complete for document in documents)
+        return VectorIndexCoverage(
+            record_count=self.collection.count(),
+            document_count=len(documents),
+            candidate_count=len(
+                {document.candidate_id for document in documents}
+            ),
+            source_count=len(
+                {document.source_filename for document in documents}
+            ),
+            complete_document_count=complete_count,
+            incomplete_document_count=len(documents) - complete_count,
+            documents=documents,
+        )
+
+    def query_nearest(
+        self,
+        query_embedding: Sequence[float],
+        *,
+        n_results: int = 5,
+    ) -> tuple[RawVectorMatch, ...]:
+        """Return raw nearest chunks for smoke testing, without candidate ranking."""
+
+        if n_results < 1:
+            raise CvVectorStoreError("Query result count must be positive.")
+        if len(query_embedding) != self._config.embedding_dimension:
+            raise CvVectorStoreError(
+                "Query embedding dimension does not match the collection."
+            )
+        if self.collection.count() == 0:
+            return ()
+        try:
+            result = self.collection.query(
+                query_embeddings=[list(query_embedding)],
+                n_results=min(n_results, self.collection.count()),
+                include=["documents", "metadatas", "distances"],
+            )
+        except Exception as error:  # pragma: no cover - provider-specific
+            raise CvVectorStoreError(
+                f"Chroma semantic query failed: {error}"
+            ) from error
+
+        ids = (result.get("ids") or [[]])[0]
+        documents = (result.get("documents") or [[]])[0]
+        metadatas = (result.get("metadatas") or [[]])[0]
+        distances = (result.get("distances") or [[]])[0]
+        return tuple(
+            RawVectorMatch(
+                chunk_id=str(chunk_id),
+                distance=float(distance),
+                text=str(document or ""),
+                metadata=dict(metadata or {}),
+            )
+            for chunk_id, distance, document, metadata in zip(
+                ids,
+                distances,
+                documents,
+                metadatas,
+                strict=True,
+            )
+        )
+
     def reset_collection(self) -> None:
-        """Delete the configured collection; Patch 4 will expose this explicitly."""
+        """Delete the configured collection and recreate it lazily on next use."""
 
         try:
             self.client.delete_collection(self._config.collection_name)
@@ -303,7 +561,44 @@ class CvChromaRepository:
             )
 
 
-def _serialize_chunk_metadata(item: EmbeddedCvChunk) -> dict[str, Any]:
+def _build_document_summary(
+    document_hash: str,
+    records: Sequence[tuple[str, dict[str, Any]]],
+) -> IndexedDocumentSummary:
+    """Build one deterministic completeness summary from chunk metadata."""
+
+    first_metadata = records[0][1]
+    expected_values = {
+        int(metadata["document_chunk_count"])
+        for _, metadata in records
+        if metadata.get("document_chunk_count") is not None
+    }
+    expected_chunk_count = (
+        next(iter(expected_values)) if len(expected_values) == 1 else None
+    )
+    stored_chunk_count = len(records)
+    return IndexedDocumentSummary(
+        document_hash=document_hash,
+        document_id=str(first_metadata.get("document_id", "")),
+        candidate_id=str(first_metadata.get("candidate_id", "")),
+        candidate_name=str(first_metadata.get("candidate_name", "")),
+        source_filename=str(first_metadata.get("source_filename", "")),
+        source_path=str(first_metadata.get("source_path", "")),
+        stored_chunk_count=stored_chunk_count,
+        expected_chunk_count=expected_chunk_count,
+        complete=(
+            expected_chunk_count is not None
+            and expected_chunk_count > 0
+            and stored_chunk_count == expected_chunk_count
+        ),
+    )
+
+
+def _serialize_chunk_metadata(
+    item: EmbeddedCvChunk,
+    *,
+    document_chunk_count: int,
+) -> dict[str, Any]:
     """Convert source and chunk identity into Chroma-compatible scalar values."""
 
     chunk = item.chunk
@@ -311,6 +606,7 @@ def _serialize_chunk_metadata(item: EmbeddedCvChunk) -> dict[str, Any]:
     return {
         "document_id": source.document_id,
         "document_hash": source.document_hash,
+        "document_chunk_count": document_chunk_count,
         "candidate_id": source.candidate_id,
         "candidate_name": source.candidate_name or "",
         "professional_title": source.professional_title or "",
