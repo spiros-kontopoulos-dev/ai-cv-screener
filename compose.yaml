@@ -33,6 +33,11 @@ services:
     build:
       context: ./frontend
 
+    # Vite variables are public browser configuration. Never place provider
+    # keys or other secrets in a VITE_ variable.
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000}
+
     # Expose Vite on the evaluator's local machine.
     ports:
       - "5173:5173"
