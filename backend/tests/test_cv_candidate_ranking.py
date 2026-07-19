@@ -32,6 +32,71 @@ def test_conditions_collapse_language_and_role_relationships() -> None:
     ]
 
 
+def test_candidate_modifier_becomes_source_aware_role_condition() -> None:
+    features = analyze_recruiter_question(
+        "Which frontend candidates have accessibility experience?"
+    )
+
+    conditions = build_candidate_conditions(features)
+
+    assert [(condition.kind, condition.label) for condition in conditions] == [
+        ("role", "frontend"),
+        ("term", "accessibility"),
+    ]
+
+
+def test_standalone_role_condition_rejects_collaboration_mentions() -> None:
+    result = _assisted_result(
+        "Which frontend candidates have accessibility experience?",
+        (
+            _hit(
+                rank=1,
+                candidate_id="candidate_frontend",
+                candidate_name="Frontend Candidate",
+                professional_title="Junior Frontend Engineer",
+                section_name="professional_summary",
+                text=(
+                    "Junior Frontend Engineer building accessible React "
+                    "components and keyboard-friendly interfaces."
+                ),
+                semantic=0.70,
+                lexical=1.0,
+                matched_terms=("frontend", "accessibility"),
+            ),
+            _hit(
+                rank=2,
+                candidate_id="candidate_designer",
+                candidate_name="Design Candidate",
+                professional_title="Junior UX/UI Designer",
+                section_name="experience",
+                text=(
+                    "Junior UX/UI Designer creating accessible flows and "
+                    "collaborating with frontend developers on handoff."
+                ),
+                semantic=0.80,
+                lexical=1.0,
+                matched_terms=("frontend", "accessibility"),
+            ),
+        ),
+    )
+
+    ranked = rank_candidates(result, candidate_limit=10, evidence_limit=2)
+    frontend = next(
+        candidate
+        for candidate in ranked.candidates
+        if candidate.candidate_id == "candidate_frontend"
+    )
+    designer = next(
+        candidate
+        for candidate in ranked.candidates
+        if candidate.candidate_id == "candidate_designer"
+    )
+
+    assert frontend.complete_condition_coverage is True
+    assert designer.matched_condition_count == 1
+    assert ranked.candidates[0].candidate_id == "candidate_frontend"
+
+
 def test_compound_candidate_evidence_across_chunks_beats_partial_match() -> None:
     result = _assisted_result(
         "Find a native German backend engineer.",

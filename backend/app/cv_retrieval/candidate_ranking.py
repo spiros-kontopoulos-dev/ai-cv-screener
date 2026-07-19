@@ -30,7 +30,9 @@ from app.cv_retrieval.evidence_analysis import (
 )
 
 
-ConditionKind = Literal["identity", "relation", "numeric", "phrase", "term"]
+ConditionKind = Literal[
+    "identity", "relation", "numeric", "phrase", "role", "term"
+]
 
 _LOW_SIGNAL_TERMS = {
     "background",
@@ -98,7 +100,9 @@ class CandidateQueryCondition:
     def __post_init__(self) -> None:
         if not self.key.strip() or not self.label.strip():
             raise ValueError("Candidate condition identity and label are required.")
-        if self.kind not in {"identity", "relation", "numeric", "phrase", "term"}:
+        if self.kind not in {
+            "identity", "relation", "numeric", "phrase", "role", "term"
+        }:
             raise ValueError(f"Unsupported candidate condition kind: {self.kind}.")
         if not math.isfinite(self.weight) or self.weight <= 0.0:
             raise ValueError("Candidate condition weight must be positive and finite.")
@@ -106,7 +110,7 @@ class CandidateQueryCondition:
             raise ValueError("Identity conditions require candidate-name alternatives.")
         if self.kind in {"relation", "phrase"} and len(self.terms) < 2:
             raise ValueError(f"{self.kind.title()} conditions require multiple terms.")
-        if self.kind == "term" and len(self.terms) != 1:
+        if self.kind in {"role", "term"} and len(self.terms) != 1:
             raise ValueError("Term conditions require exactly one term.")
         if self.kind == "numeric" and self.numeric_value is None:
             raise ValueError("Numeric conditions require a display value.")
@@ -305,6 +309,26 @@ def build_candidate_conditions(
         if term not in consumed_terms and term not in _LOW_SIGNAL_TERMS
     ]
 
+    # A domain directly modifying ``candidate`` describes the candidate's own
+    # profession rather than a loose keyword anywhere in the CV. For example,
+    # ``frontend candidates`` must not match a UX designer merely because the
+    # CV says they collaborated with frontend developers.
+    explicit_role_terms = _candidate_role_terms(features, remaining_terms)
+    for term in explicit_role_terms:
+        conditions.append(
+            CandidateQueryCondition(
+                key=f"role:{term}",
+                label=term,
+                kind="role",
+                weight=1.25,
+                terms=(term,),
+            )
+        )
+        consumed_terms.add(term)
+    remaining_terms = [
+        term for term in remaining_terms if term not in explicit_role_terms
+    ]
+
     # Role phrases are one semantic condition rather than two independently
     # countable words. This prevents "backend" and "engineer" from doubling a
     # single concept while still allowing the phrase to be supported by one CV
@@ -341,6 +365,30 @@ def build_candidate_conditions(
         )
 
     return tuple(conditions)
+
+
+def _candidate_role_terms(
+    features: CvQueryEvidenceFeatures,
+    remaining_terms: list[str],
+) -> tuple[str, ...]:
+    """Return domains that directly modify ``candidate`` in the query.
+
+    This is intentionally syntax-driven rather than a static profession list.
+    It supports queries such as ``frontend candidates`` and ``product
+    candidate`` while ignoring generic constructions such as ``which
+    candidate`` or ``compare candidates``.
+    """
+
+    lexical = set(remaining_terms)
+    tokens = tuple(features.normalized_text.split())
+    role_terms: list[str] = []
+    for index, token in enumerate(tokens):
+        if canonicalize_lexical_term(token) != "candidate" or index == 0:
+            continue
+        preceding = canonicalize_lexical_term(tokens[index - 1])
+        if preceding in lexical and preceding not in role_terms:
+            role_terms.append(preceding)
+    return tuple(role_terms)
 
 
 def rank_candidates(
@@ -533,12 +581,14 @@ def _condition_evidence_score(
         )
     if condition.kind == "phrase":
         if _is_role_phrase(condition):
-            return _role_phrase_evidence_score(condition, hit)
+            return _role_evidence_score(condition.terms, hit)
         return (
             _lexical_evidence_strength(hit)
             if _contains_canonical_phrase(hit.text, condition.terms)
             else 0.0
         )
+    if condition.kind == "role":
+        return _role_evidence_score(condition.terms, hit)
     if condition.kind == "term":
         return (
             _lexical_evidence_strength(hit)
@@ -558,8 +608,8 @@ def _is_role_phrase(condition: CandidateQueryCondition) -> bool:
     )
 
 
-def _role_phrase_evidence_score(
-    condition: CandidateQueryCondition,
+def _role_evidence_score(
+    terms: tuple[str, ...],
     hit: ScoredCvEvidenceHit,
 ) -> float:
     """Score role evidence only when it describes the candidate themselves.
@@ -571,7 +621,7 @@ def _role_phrase_evidence_score(
     identity, professional-summary, or experience section.
     """
 
-    role_terms = tuple(_canonical_role_token(term) for term in condition.terms)
+    role_terms = tuple(_canonical_role_token(term) for term in terms)
     title_tokens = _canonical_role_tokens(hit.source.professional_title or "")
     if _contains_token_sequence(title_tokens, role_terms):
         return _lexical_evidence_strength(hit)

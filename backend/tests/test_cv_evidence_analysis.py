@@ -163,6 +163,24 @@ def test_language_proficiency_requires_local_real_text() -> None:
     assert "german+native=german native" in language.matched_term_evidence
 
 
+def test_language_proficiency_normalizes_adverb_forms() -> None:
+    """Natural recruiter wording such as ``speaks German natively`` is typed."""
+
+    features = analyze_recruiter_question(
+        "Find a backend engineer who speaks German natively."
+    )
+    score = score_evidence_text(
+        "PROGRAMMING LANGUAGES German Native Python 6.5y",
+        features,
+    )
+
+    assert len(features.text_relations) == 1
+    assert features.text_relations[0].terms == ("german", "native")
+    assert "natively" not in features.lexical_terms
+    assert set(score.matched_terms) >= {"german", "native"}
+    assert "german+native=german native" in score.matched_term_evidence
+
+
 def test_aliases_report_actual_evidence_tokens() -> None:
     """Transparent aliases show the text that genuinely supported the match."""
 

@@ -145,6 +145,12 @@ _DURATION_UNITS = {
     "y",
 }
 _PROFICIENCY_TERMS = {"native", "fluent", "professional", "intermediate"}
+_PROFICIENCY_ALIASES = {
+    "natively": "native",
+    "fluently": "fluent",
+    "professionally": "professional",
+    "intermediately": "intermediate",
+}
 _LANGUAGE_FILLER_TERMS = {"language", "languages", "speaker", "speaking"}
 _COMPARISON_FILLER_TERMS = {"at", "least", "most", "more", "less", "than", "over", "under", "minimum", "maximum", "exact", "exactly", "precisely", "up"}
 
@@ -502,6 +508,8 @@ def canonicalize_lexical_term(term: str) -> str:
     """Apply small transparent normalizations rather than opaque stemming."""
 
     normalized = term.casefold().strip(".-")
+    if normalized in _PROFICIENCY_ALIASES:
+        return _PROFICIENCY_ALIASES[normalized]
     if normalized in _MANAGEMENT_TERMS:
         return "manage"
     if normalized.endswith("ies") and len(normalized) > 4:
@@ -535,8 +543,8 @@ def _extract_text_relations(
 
     relations: list[TextRelationConstraint] = []
     for index, token in enumerate(tokens):
-        lowered = token.casefold()
-        if lowered not in _PROFICIENCY_TERMS:
+        proficiency = canonicalize_lexical_term(token)
+        if proficiency not in _PROFICIENCY_TERMS:
             continue
         candidates: list[tuple[int, str]] = []
         for position in range(max(0, index - 3), min(len(tokens), index + 4)):
@@ -557,7 +565,7 @@ def _extract_text_relations(
         _, language_term = min(candidates, key=lambda item: item[0])
         relation = TextRelationConstraint(
             relation="language_proficiency",
-            terms=(language_term, lowered),
+            terms=(language_term, proficiency),
         )
         if relation not in relations:
             relations.append(relation)

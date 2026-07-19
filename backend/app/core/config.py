@@ -162,11 +162,11 @@ class Settings(BaseSettings):
         le=5000,
     )
 
-    # WP6 begins with broad semantic recall and bounded exact-text assistance.
-    # Candidate-aware ranking then groups chunks by stable candidate identity,
-    # rewards condition coverage, and caps evidence so verbose CVs cannot
-    # dominate merely by producing more chunks. Final prompt budgeting remains
-    # a later retrieval stage.
+    # WP6 combines broad semantic recall, deterministic exact-text assistance,
+    # candidate-aware condition coverage, and a final source-traceable context
+    # budget. The final thresholds prevent zero-coverage diagnostic rows from
+    # leaking into later answer generation while retaining explicit partial
+    # results when no complete candidate exists.
     cv_raw_retrieval_default_limit: int = Field(
         default=50,
         ge=1,
@@ -206,6 +206,65 @@ class Settings(BaseSettings):
         default=8,
         ge=1,
         le=20,
+    )
+
+    # Final WP6 output controls. The candidate pool stays larger than the final
+    # result so support thresholds can filter diagnostic rows before strict
+    # candidate, evidence, and character budgets construct prompt-ready context.
+    cv_final_retrieval_default_candidate_limit: int = Field(
+        default=5,
+        ge=1,
+        le=10,
+    )
+    cv_final_retrieval_max_candidate_limit: int = Field(
+        default=10,
+        ge=1,
+        le=30,
+    )
+    cv_final_retrieval_candidate_pool_limit: int = Field(
+        default=15,
+        ge=1,
+        le=30,
+    )
+    cv_final_retrieval_candidate_evidence_pool_limit: int = Field(
+        default=4,
+        ge=1,
+        le=8,
+    )
+    cv_final_retrieval_evidence_per_candidate_limit: int = Field(
+        default=3,
+        ge=1,
+        le=8,
+    )
+    cv_final_retrieval_max_evidence_chunks: int = Field(
+        default=12,
+        ge=1,
+        le=50,
+    )
+    cv_final_retrieval_max_context_characters: int = Field(
+        default=7000,
+        ge=500,
+        le=50000,
+    )
+    cv_final_retrieval_max_evidence_characters: int = Field(
+        default=900,
+        ge=100,
+        le=5000,
+    )
+    cv_final_retrieval_complete_min_score: float = Field(
+        default=0.45,
+        ge=0.0,
+        le=1.0,
+    )
+    cv_final_retrieval_partial_min_score: float = Field(
+        default=0.30,
+        ge=0.0,
+        le=1.0,
+    )
+    cv_final_retrieval_partial_min_coverage: float = Field(
+        default=0.65,
+        ge=0.0,
+        le=1.0,
     )
 
     # HTML previews are developer-only inspection artifacts.  They make CSS
