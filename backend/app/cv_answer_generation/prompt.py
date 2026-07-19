@@ -5,13 +5,15 @@ import json
 
 from app.cv_retrieval import FinalCvRetrievalResult
 
+from .sources import build_grounded_answer_sources
+
 
 GROUNDED_ANSWER_INSTRUCTIONS = """
 You are the answer-generation layer of a CV screening system.
 
 The application has already retrieved, verified, ranked, filtered, and budgeted
-all evidence. Use only the supplied RETRIEVAL CONTEXT. Do not use outside knowledge,
-assumptions, or facts remembered from training.
+all evidence. Use only the supplied RETRIEVAL CONTEXT and SOURCE REGISTRY. Do not
+Do not use outside knowledge, assumptions, or facts remembered from training.
 
 Required behavior:
 - Preserve the retrieval outcome exactly: supported, partial, or unsupported.
@@ -23,13 +25,17 @@ Required behavior:
   labels exactly as supplied.
 - Explain why each candidate matches using only the provided evidence.
 - Do not infer missing years, seniority, proficiency, achievements, or skills.
+- Cite only source_id values from the SOURCE REGISTRY.
+- Each candidate assessment must cite source IDs belonging to that candidate.
+- Candidate citations must collectively support every matched requirement.
+- The overall answer must cite at least one source for every returned candidate.
 - For a partial result, clearly state that no candidate has complete coverage
   and describe only the supported subset of requirements.
-- For an unsupported result, return no candidates and say that the indexed CVs
-  do not contain sufficiently supported evidence.
+- For an unsupported result, return no candidates, no citations, and say that
+  the indexed CVs do not contain sufficiently supported evidence.
 - Keep the overall answer concise and recruiter-friendly.
-- Do not produce Markdown tables, source citations, filenames, page numbers, or
-  chunk IDs in this patch. Citation formatting is handled by the next layer.
+- Do not produce Markdown tables or invent citation formatting. Return source
+  IDs in the schema fields; the application formats readable sources later.
 - Return only data conforming to the GroundedAnswerDraft schema.
 """.strip()
 
@@ -55,6 +61,10 @@ def build_grounded_answer_prompt(
         }
         for candidate in retrieval_result.candidates
     ]
+    source_registry = [
+        source.model_dump(exclude={"evidence_excerpt"})
+        for source in build_grounded_answer_sources(retrieval_result)
+    ]
 
     sections = [
         "ORIGINAL RECRUITER QUESTION:",
@@ -65,11 +75,14 @@ def build_grounded_answer_prompt(
         retrieval_result.support_message,
         "CANDIDATE REGISTRY (immutable):",
         json.dumps(candidate_registry, indent=2, ensure_ascii=False),
+        "SOURCE REGISTRY (immutable citation IDs):",
+        json.dumps(source_registry, indent=2, ensure_ascii=False),
         "RETRIEVAL CONTEXT:",
         retrieval_result.context_text,
         (
-            "Generate the final recruiter-facing explanation. The candidate "
-            "registry is the authoritative identity and ordering contract."
+            "Generate the final recruiter-facing explanation. Candidate and "
+            "source registries are the authoritative identity, ordering, and "
+            "citation contracts."
         ),
     ]
 

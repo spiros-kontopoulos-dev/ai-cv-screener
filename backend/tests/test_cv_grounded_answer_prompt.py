@@ -33,6 +33,7 @@ def test_prompt_contains_question_registry_and_bounded_context() -> None:
     assert '"candidate_id": "candidate_001"' in prompt
     assert '"candidate_name": "Eleni Markou"' in prompt
     assert '"matched_requirements": [' in prompt
+    assert '"source_id": "candidate_001-source-1"' in prompt
     assert result.context_text in prompt
 
 
@@ -52,3 +53,4 @@ def test_shared_instructions_define_the_grounding_boundary() -> None:
         GROUNDED_ANSWER_INSTRUCTIONS
     )
     assert "Do not use outside knowledge" in GROUNDED_ANSWER_INSTRUCTIONS
+    assert "Cite only source_id values" in GROUNDED_ANSWER_INSTRUCTIONS

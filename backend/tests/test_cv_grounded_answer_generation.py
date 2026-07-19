@@ -106,6 +106,10 @@ def _draft_for(result, *, limitations=None) -> GroundedAnswerDraft:
     return GroundedAnswerDraft(
         outcome=result.outcome,
         answer="The retrieved candidates are explained using the supplied evidence.",
+        answer_citation_ids=[
+            f"{candidate.candidate_id}-source-1"
+            for candidate in result.candidates
+        ],
         candidates=[
             GroundedCandidateAnswer(
                 candidate_id=candidate.candidate_id,
@@ -115,6 +119,7 @@ def _draft_for(result, *, limitations=None) -> GroundedAnswerDraft:
                 ),
                 assessment="The supplied evidence supports the matched requirements.",
                 matched_requirements=list(candidate.matched_condition_labels),
+                citation_ids=[f"{candidate.candidate_id}-source-1"],
             )
             for candidate in result.candidates
         ],
@@ -262,13 +267,50 @@ def test_non_retryable_provider_failure_stops_immediately() -> None:
     assert "provider rejected request" in str(raised.value)
 
 
-def test_supported_evidence_requires_a_configured_provider() -> None:
+
+
+def test_single_candidate_deterministic_answer_uses_singular_grammar() -> None:
+    retrieval = finalize_for_test(
+        build_candidate_result(
+            (
+                CandidateSpec(
+                    "candidate_002",
+                    "Jonas Keller",
+                    "Python Backend Engineer",
+                    matched_count=2,
+                    candidate_score=0.9,
+                    coverage_score=1.0,
+                ),
+            ),
+            condition_labels=("german native", "backend engineer"),
+        )
+    )
+
+    result = GroundedCvAnswerGenerator(
+        GroundedAnswerGenerationConfig(),
+        retriever=FakeFinalRetriever(retrieval),
+        provider=None,
+        model_name="deterministic-template-v1",
+        provider_name="deterministic",
+    ).generate(FinalCvRetrievalQuery("Find a native German backend engineer"))
+
+    assert "Jonas Keller as a candidate with complete coverage" in result.draft.answer
+    assert "as candidates with" not in result.draft.answer
+
+def test_supported_evidence_uses_deterministic_fallback_without_provider() -> None:
     retrieval = _supported_result()
 
-    with pytest.raises(GroundedAnswerGenerationFailed) as raised:
-        _generator(retrieval, None).generate(
-            FinalCvRetrievalQuery("Python and PostgreSQL")
-        )
+    result = GroundedCvAnswerGenerator(
+        GroundedAnswerGenerationConfig(),
+        retriever=FakeFinalRetriever(retrieval),
+        provider=None,
+        model_name="deterministic-template-v1",
+        provider_name="deterministic",
+    ).generate(FinalCvRetrievalQuery("Python and PostgreSQL"))
 
-    assert raised.value.attempts == 0
-    assert "OPENAI_API_KEY" in str(raised.value)
+    assert result.provider_called is False
+    assert result.attempts == 0
+    assert result.provider_name == "deterministic"
+    assert result.draft.candidates[0].citation_ids == [
+        "candidate_001-source-1"
+    ]

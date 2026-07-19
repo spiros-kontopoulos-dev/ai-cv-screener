@@ -66,6 +66,10 @@ class Settings(BaseSettings):
     # The key remains optional so health checks and dry-run plan inspection can
     # work before OpenAI is configured. Real generation validates it explicitly.
     openai_api_key: SecretStr | None = None
+    # Google accepts either variable name. When both are present, the official
+    # SDK gives GOOGLE_API_KEY precedence, so provider selection mirrors it.
+    gemini_api_key: SecretStr | None = None
+    google_api_key: SecretStr | None = None
 
     # WP3 candidate-generation configuration.
     candidate_dataset_plan_path: Path = DEFAULT_CANDIDATE_DATASET_PLAN_PATH
@@ -267,11 +271,22 @@ class Settings(BaseSettings):
         le=1.0,
     )
 
-    # WP7 uses the final WP6 context as the only factual input to a direct
-    # structured-output LLM call. These controls keep retries, latency, token
-    # usage, and accepted narrative size bounded independently of retrieval.
+    # WP7 uses the final WP6 context as the only factual input to either a
+    # hosted structured-output model or the no-key deterministic fallback.
+    # "auto" prefers Gemini, then OpenAI, then deterministic output.
+    cv_grounded_answer_provider: Literal[
+        "auto",
+        "openai",
+        "gemini",
+        "deterministic",
+    ] = "auto"
     cv_grounded_answer_model: str = Field(
         default="gpt-5.4-mini",
+        min_length=1,
+        max_length=100,
+    )
+    cv_grounded_answer_gemini_model: str = Field(
+        default="gemini-3.1-flash-lite",
         min_length=1,
         max_length=100,
     )

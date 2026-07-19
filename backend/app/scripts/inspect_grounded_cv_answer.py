@@ -1,4 +1,4 @@
-"""Inspect grounded recruiter answers generated from final WP6 evidence."""
+"""Inspect grounded recruiter answers, citations, and provider selection."""
 
 import argparse
 from collections.abc import Sequence
@@ -6,6 +6,7 @@ import sys
 
 from app.core.config import Settings, get_settings
 from app.cv_answer_generation import (
+    GroundedAnswerConfigurationError,
     GroundedAnswerGenerationFailed,
     GroundedCvAnswerGenerator,
     build_grounded_cv_answer_generator,
@@ -19,7 +20,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description=(
             "Retrieve source-grounded CV evidence and inspect the structured "
-            "recruiter answer generated from that evidence."
+            "recruiter answer, validated citations, and active provider."
         )
     )
     parser.add_argument(
@@ -56,12 +57,16 @@ def run_cli(
 
     arguments = build_parser().parse_args(argv)
     active_settings = settings or get_settings()
-    active_generator = generator or build_grounded_cv_answer_generator(
-        active_settings
-    )
+    try:
+        active_generator = generator or build_grounded_cv_answer_generator(
+            active_settings
+        )
+    except GroundedAnswerConfigurationError as error:
+        print(f"ERROR: {error}", file=sys.stderr)
+        return 2
 
     print("GROUNDED CV ANSWER INSPECTION")
-    print(f"  Model: {active_settings.cv_grounded_answer_model}")
+    print(f"  Configured provider: {active_settings.cv_grounded_answer_provider}")
 
     for question_text in arguments.query:
         try:
@@ -80,22 +85,29 @@ def run_cli(
             return 2
 
         retrieval = result.retrieval_result
-        draft = result.draft
+        response = result.response
         print(f"\nQUERY: {retrieval.query.text}")
         print(f"  Retrieval outcome: {retrieval.outcome}")
-        print(f"  Answer outcome: {draft.outcome}")
-        print(f"  Provider called: {result.provider_called}")
-        print(f"  Provider attempts: {result.attempts}")
+        print(f"  Answer outcome: {response.outcome}")
+        print(f"  Active provider: {response.provider}")
+        print(f"  Model: {response.model}")
+        print(f"  Provider called: {response.provider_called}")
+        print(f"  Provider attempts: {response.provider_attempts}")
         print(
-            f"  Candidates: {len(draft.candidates)}/"
+            f"  Candidates: {len(response.candidates)}/"
             f"{retrieval.requested_candidate_limit}"
         )
+        print(f"  Validated sources: {len(response.sources)}")
         print("\nANSWER")
-        print(draft.answer)
+        print(response.answer)
+        if response.answer_citation_ids:
+            print(
+                "  citations=" + ", ".join(response.answer_citation_ids)
+            )
 
-        if draft.candidates:
+        if response.candidates:
             print("\nCANDIDATE ASSESSMENTS")
-            for index, candidate in enumerate(draft.candidates, start=1):
+            for index, candidate in enumerate(response.candidates, start=1):
                 print(
                     f"  {index}. {candidate.candidate_name} | "
                     f"{candidate.professional_title} | "
@@ -105,12 +117,28 @@ def run_cli(
                     "     matched_requirements="
                     + ", ".join(candidate.matched_requirements)
                 )
+                print(
+                    "     citations=" + ", ".join(candidate.citation_ids)
+                )
                 print(f"     {candidate.assessment}")
 
-        if draft.limitations:
-            print("\nLIMITATIONS")
-            for limitation in draft.limitations:
-                print(f"  - {limitation}")
+        if response.sources:
+            print("\nSOURCES")
+            for source in response.sources:
+                supports = ", ".join(source.supports) or "support-only"
+                print(
+                    f"  [{source.source_id}] {source.source_filename} | "
+                    f"page {source.page_label} | {source.section_name} | "
+                    f"{source.chunk_id}"
+                )
+                print(
+                    f"     candidate={source.candidate_id} | supports={supports}"
+                )
+
+        if response.warnings:
+            print("\nWARNINGS")
+            for warning in response.warnings:
+                print(f"  - {warning}")
 
         if arguments.show_context:
             print("\n--- RETRIEVAL CONTEXT SUPPLIED TO MODEL ---")

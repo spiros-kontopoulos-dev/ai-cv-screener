@@ -36,6 +36,7 @@ def _result():
     draft = GroundedAnswerDraft(
         outcome="supported",
         answer="Eleni is a complete evidence-backed match.",
+        answer_citation_ids=["candidate_001-source-1"],
         candidates=[
             GroundedCandidateAnswer(
                 candidate_id="candidate_001",
@@ -43,6 +44,7 @@ def _result():
                 professional_title="Senior Python Backend Engineer",
                 assessment="Her CV supports the requested requirements.",
                 matched_requirements=["python", "postgresql"],
+                citation_ids=["candidate_001-source-1"],
             )
         ],
         limitations=[],
@@ -53,6 +55,7 @@ def _result():
         attempts=1,
         provider_called=True,
         model_name="gpt-test",
+        provider_name="openai",
     )
 
 
@@ -69,6 +72,9 @@ def test_cli_prints_answer_candidates_and_optional_context(capsys) -> None:
     assert "Answer outcome: supported" in output
     assert "Eleni is a complete evidence-backed match" in output
     assert "candidate_001" in output
+    assert "Active provider: openai" in output
+    assert "candidate_001-source-1" in output
+    assert "SOURCES" in output
     assert "RETRIEVAL CONTEXT SUPPLIED TO MODEL" in output
 
 

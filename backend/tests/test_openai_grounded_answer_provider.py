@@ -37,6 +37,7 @@ def _draft() -> GroundedAnswerDraft:
     return GroundedAnswerDraft(
         outcome="supported",
         answer="Eleni is a complete source-backed match.",
+        answer_citation_ids=["candidate_001-source-1"],
         candidates=[
             GroundedCandidateAnswer(
                 candidate_id="candidate_001",
@@ -44,6 +45,7 @@ def _draft() -> GroundedAnswerDraft:
                 professional_title="Senior Python Backend Engineer",
                 assessment="Her evidence supports both requested requirements.",
                 matched_requirements=["python", "postgresql"],
+                citation_ids=["candidate_001-source-1"],
             )
         ],
         limitations=[],
