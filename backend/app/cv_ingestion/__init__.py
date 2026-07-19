@@ -1,3 +1,17 @@
+from app.cv_ingestion.chroma_store import (
+    CvChromaRepository,
+    CvVectorStoreConfig,
+    CvVectorStoreError,
+    VectorCollectionInfo,
+    VectorUpsertSummary,
+)
+from app.cv_ingestion.embeddings import (
+    CvEmbeddingConfig,
+    CvEmbeddingError,
+    EmbeddedCvChunk,
+    SentenceTransformerEmbeddingProvider,
+    get_embedding_provider,
+)
 """Public contracts for generic CV PDF ingestion and source identity."""
 
 from app.cv_ingestion.chunking import (
@@ -48,6 +62,16 @@ from app.cv_ingestion.selection import (
 )
 
 __all__ = [
+    "CvChromaRepository",
+    "CvEmbeddingConfig",
+    "CvEmbeddingError",
+    "CvVectorStoreConfig",
+    "CvVectorStoreError",
+    "EmbeddedCvChunk",
+    "SentenceTransformerEmbeddingProvider",
+    "VectorCollectionInfo",
+    "VectorUpsertSummary",
+    "get_embedding_provider",
     "DEFAULT_CHUNKING_VERSION",
     "DEFAULT_MAX_CHARACTERS",
     "DEFAULT_MIN_CHARACTERS",

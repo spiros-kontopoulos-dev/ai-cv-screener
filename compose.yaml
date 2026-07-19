@@ -17,6 +17,11 @@ services:
 
       # Persist generated profiles and later CV assets on the host.
       - ./data:/app/data
+
+      # Persist Hugging Face model downloads and the local ChromaDB index.
+      # The application still receives explicit PDF embeddings rather than
+      # delegating embedding generation to Chroma.
+      - ./storage:/app/storage
     command: >
       uvicorn app.main:app
       --host 0.0.0.0

@@ -10,3 +10,7 @@ weasyprint>=69.0,<70.0
 PyMuPDF>=1.28.0,<2.0
 # WP4 portrait normalization and image validation.
 Pillow>=11.0,<13.0
+# WP5 local semantic embeddings and persistent vector storage.
+numpy>=1.26,<3.0
+sentence-transformers>=5.1,<6.0
+chromadb>=1.1,<2.0

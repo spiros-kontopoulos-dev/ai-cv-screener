@@ -114,6 +114,54 @@ class Settings(BaseSettings):
         le=1000,
     )
 
+    # WP5 uses one local Sentence Transformer for both document chunks and
+    # later user questions. The selected MiniLM model is compact enough for a
+    # CPU-only evaluator while producing 384-dimensional semantic vectors.
+    cv_embedding_model_name: str = Field(
+        default="sentence-transformers/all-MiniLM-L6-v2",
+        min_length=1,
+        max_length=200,
+    )
+    cv_embedding_expected_dimension: int = Field(
+        default=384,
+        ge=1,
+        le=8192,
+    )
+    cv_embedding_batch_size: int = Field(
+        default=32,
+        ge=1,
+        le=512,
+    )
+    cv_embedding_normalize: bool = True
+    cv_embedding_device: str = Field(
+        default="cpu",
+        min_length=1,
+        max_length=50,
+    )
+    cv_embedding_cache_directory: Path = Path("storage/models")
+
+    # Chroma stores vectors supplied by our own embedding provider. Collection
+    # metadata records every compatibility boundary so a changed model, vector
+    # dimension, chunking strategy, or index version cannot be mixed silently.
+    cv_vector_store_directory: Path = Path("storage/chroma")
+    cv_vector_collection_name: str = Field(
+        default="cv_chunks",
+        min_length=3,
+        max_length=128,
+        pattern=r"^[A-Za-z0-9][A-Za-z0-9._-]*$",
+    )
+    cv_vector_index_version: str = Field(
+        default="cv-index-v1",
+        min_length=1,
+        max_length=100,
+    )
+    cv_vector_distance_metric: Literal["cosine", "l2", "ip"] = "cosine"
+    cv_vector_upsert_batch_size: int = Field(
+        default=100,
+        ge=1,
+        le=5000,
+    )
+
     # HTML previews are developer-only inspection artifacts.  They make CSS
     # iteration faster but are not the source indexed by the future RAG system.
     cv_html_preview_directory: Path = Path("data/cv_html")

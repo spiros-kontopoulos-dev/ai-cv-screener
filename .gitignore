@@ -31,7 +31,9 @@ data/candidate_profiles/.*.tmp
 data/cv_html/*
 !data/cv_html/.gitkeep
 
-# ChromaDB local persistence
+# Local model cache and ChromaDB persistence
+storage/models/*
+!storage/models/.gitkeep
 storage/chroma/*
 !storage/chroma/.gitkeep
 
