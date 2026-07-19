@@ -163,8 +163,10 @@ class Settings(BaseSettings):
     )
 
     # WP6 begins with broad semantic recall and bounded exact-text assistance.
-    # Candidate grouping, balancing, and final context budgeting remain later
-    # retrieval stages.
+    # Candidate-aware ranking then groups chunks by stable candidate identity,
+    # rewards condition coverage, and caps evidence so verbose CVs cannot
+    # dominate merely by producing more chunks. Final prompt budgeting remains
+    # a later retrieval stage.
     cv_raw_retrieval_default_limit: int = Field(
         default=50,
         ge=1,
@@ -184,6 +186,26 @@ class Settings(BaseSettings):
         default=50,
         ge=0,
         le=500,
+    )
+    cv_candidate_retrieval_default_limit: int = Field(
+        default=10,
+        ge=1,
+        le=30,
+    )
+    cv_candidate_retrieval_max_limit: int = Field(
+        default=30,
+        ge=1,
+        le=100,
+    )
+    cv_candidate_retrieval_evidence_limit: int = Field(
+        default=4,
+        ge=1,
+        le=8,
+    )
+    cv_candidate_retrieval_max_evidence_limit: int = Field(
+        default=8,
+        ge=1,
+        le=20,
     )
 
     # HTML previews are developer-only inspection artifacts.  They make CSS
