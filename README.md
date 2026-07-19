@@ -35,3 +35,37 @@ The committed `.env.example` contains placeholders and safe defaults.
 The synthetic CV-generation utilities still require OpenAI when a developer
 chooses to regenerate the dataset. Normal question answering over the committed
 CV collection does not require dataset regeneration.
+
+## WP8 application API
+
+FastAPI is available at `http://localhost:8000`. Interactive OpenAPI
+documentation is available at `http://localhost:8000/docs`.
+
+The frozen Patch 1 contract is:
+
+```text
+GET  /api/health
+GET  /api/candidates
+POST /api/chat
+GET  /api/candidates/{candidate_id}/cv
+```
+
+A deterministic no-key request can be reviewed from PowerShell after Docker
+Compose is running:
+
+```powershell
+$body = @{
+    question = "Which candidates have experience with Python, FastAPI, and PostgreSQL?"
+    candidate_limit = 5
+} | ConvertTo-Json
+
+Invoke-RestMethod `
+    -Method Post `
+    -Uri http://localhost:8000/api/chat `
+    -ContentType "application/json" `
+    -Body $body | ConvertTo-Json -Depth 8
+```
+
+Unsupported questions are successful grounded responses with
+`outcome: "unsupported"`; they are not server errors. Provider keys remain
+server-side and are never accepted from or returned to the browser.
