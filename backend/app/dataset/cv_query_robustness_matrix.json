@@ -1,0 +1,395 @@
+{
+  "matrix_version": 1,
+  "description": "Controlled-dataset diagnostic matrix for paraphrase equivalence, parser transparency, candidate ownership, and unsupported behavior. This file is an evaluation oracle only; PDF evidence remains the application truth boundary.",
+  "default_semantic_result_limit": 100,
+  "default_candidate_limit": 10,
+  "families": [
+    {
+      "family_id": "python_fastapi_postgresql",
+      "description": "Equivalent ways to request candidates with all three backend technologies.",
+      "expected_outcome": "supported",
+      "candidate_policy": "exact",
+      "expected_candidate_ids": [
+        "candidate_001",
+        "candidate_011",
+        "candidate_024"
+      ],
+      "minimum_returned_candidates": 3,
+      "questions": [
+        {
+          "scenario_id": "stack_canonical",
+          "question": "Which candidates have experience with Python, FastAPI, and PostgreSQL?"
+        },
+        {
+          "scenario_id": "stack_knows",
+          "question": "Who knows Python, FastAPI, and PostgreSQL?"
+        },
+        {
+          "scenario_id": "stack_skilled",
+          "question": "Find people skilled in Python, FastAPI, and PostgreSQL."
+        },
+        {
+          "scenario_id": "stack_background",
+          "question": "Show candidates with a background in Python, FastAPI, and PostgreSQL."
+        }
+      ]
+    },
+    {
+      "family_id": "bsc_software_engineering",
+      "description": "Bachelor of Science aliases must preserve the degree-level and field relation.",
+      "expected_outcome": "supported",
+      "candidate_policy": "exact",
+      "expected_candidate_ids": [
+        "candidate_011",
+        "candidate_013",
+        "candidate_014",
+        "candidate_022",
+        "candidate_028"
+      ],
+      "minimum_returned_candidates": 5,
+      "questions": [
+        {
+          "scenario_id": "bsc_full_phrase",
+          "question": "Who has a Bachelor of Science in Software Engineering?"
+        },
+        {
+          "scenario_id": "bsc_abbreviation",
+          "question": "Who holds a BSc in Software Engineering?"
+        },
+        {
+          "scenario_id": "bsc_bs_alias",
+          "question": "Which candidates earned a BS in Software Engineering?"
+        },
+        {
+          "scenario_id": "bsc_focused",
+          "question": "Which CVs show a Bachelor of Science focused on Software Engineering?"
+        }
+      ]
+    },
+    {
+      "family_id": "engineering_background",
+      "description": "Conversational relationship wording must not become separate hard evidence requirements.",
+      "expected_outcome": "supported",
+      "candidate_policy": "subset",
+      "expected_candidate_ids": [
+        "candidate_001",
+        "candidate_002",
+        "candidate_003",
+        "candidate_004",
+        "candidate_005",
+        "candidate_006",
+        "candidate_007",
+        "candidate_008",
+        "candidate_009",
+        "candidate_010",
+        "candidate_011",
+        "candidate_012",
+        "candidate_013",
+        "candidate_014",
+        "candidate_015",
+        "candidate_016",
+        "candidate_017",
+        "candidate_018",
+        "candidate_022",
+        "candidate_023",
+        "candidate_024",
+        "candidate_025",
+        "candidate_026",
+        "candidate_027",
+        "candidate_028"
+      ],
+      "minimum_returned_candidates": 1,
+      "questions": [
+        {
+          "scenario_id": "engineering_knows",
+          "question": "Who knows engineering?"
+        },
+        {
+          "scenario_id": "engineering_related",
+          "question": "Who is related to engineering?"
+        },
+        {
+          "scenario_id": "engineering_background",
+          "question": "Which candidates have an engineering background?"
+        },
+        {
+          "scenario_id": "engineering_work",
+          "question": "Find people who work in engineering."
+        }
+      ]
+    },
+    {
+      "family_id": "experience_over_five_years",
+      "description": "Numeric duration paraphrases must preserve the professional-experience relation and comparison operator.",
+      "expected_outcome": "supported",
+      "candidate_policy": "subset",
+      "expected_candidate_ids": [
+        "candidate_001",
+        "candidate_002",
+        "candidate_004",
+        "candidate_005",
+        "candidate_006",
+        "candidate_009",
+        "candidate_012",
+        "candidate_013",
+        "candidate_014",
+        "candidate_015",
+        "candidate_016",
+        "candidate_018",
+        "candidate_020",
+        "candidate_021",
+        "candidate_023",
+        "candidate_024",
+        "candidate_025",
+        "candidate_026",
+        "candidate_028",
+        "candidate_029"
+      ],
+      "minimum_returned_candidates": 3,
+      "questions": [
+        {
+          "scenario_id": "experience_more_than",
+          "question": "Who has more than 5 years of working experience?"
+        },
+        {
+          "scenario_id": "experience_over",
+          "question": "Who has over five years of professional experience?"
+        },
+        {
+          "scenario_id": "experience_at_least_six",
+          "question": "Find candidates with at least 6 years of experience."
+        },
+        {
+          "scenario_id": "experience_six_plus",
+          "question": "Which candidates have 6+ years in their career?"
+        }
+      ]
+    },
+    {
+      "family_id": "native_german_backend",
+      "description": "Backend role and native-language proficiency must remain attached to the same candidate.",
+      "expected_outcome": "supported",
+      "candidate_policy": "exact",
+      "expected_candidate_ids": [
+        "candidate_002"
+      ],
+      "minimum_returned_candidates": 1,
+      "questions": [
+        {
+          "scenario_id": "german_backend_canonical",
+          "question": "Find a backend engineer who speaks German natively."
+        },
+        {
+          "scenario_id": "german_backend_native",
+          "question": "Which backend engineer is a native German speaker?"
+        },
+        {
+          "scenario_id": "german_backend_first_language",
+          "question": "Who works in backend engineering and has German as a native language?"
+        },
+        {
+          "scenario_id": "german_backend_mother_tongue",
+          "question": "Show a backend developer whose mother tongue is German."
+        }
+      ]
+    },
+    {
+      "family_id": "qa_playwright",
+      "description": "Playwright evidence must be combined with the candidate's own QA profession.",
+      "expected_outcome": "supported",
+      "candidate_policy": "exact",
+      "expected_candidate_ids": [
+        "candidate_027",
+        "candidate_028"
+      ],
+      "minimum_returned_candidates": 2,
+      "questions": [
+        {
+          "scenario_id": "qa_playwright_canonical",
+          "question": "Which QA candidates have Playwright experience?"
+        },
+        {
+          "scenario_id": "qa_playwright_knows",
+          "question": "Find QA engineers who know Playwright."
+        },
+        {
+          "scenario_id": "qa_playwright_automation",
+          "question": "Who works in QA automation and uses Playwright?"
+        },
+        {
+          "scenario_id": "qa_playwright_compare",
+          "question": "Compare the Playwright QA candidates."
+        }
+      ]
+    },
+    {
+      "family_id": "aino_lukas_cloud_data",
+      "description": "Named-candidate comparison paraphrases must preserve both identities and the target role.",
+      "expected_outcome": "supported",
+      "candidate_policy": "exact",
+      "expected_candidate_ids": [
+        "candidate_015",
+        "candidate_018"
+      ],
+      "minimum_returned_candidates": 2,
+      "questions": [
+        {
+          "scenario_id": "cloud_data_compare_canonical",
+          "question": "Compare Aino Korhonen and Lukas Gruber for a cloud data engineering role."
+        },
+        {
+          "scenario_id": "cloud_data_compare_how",
+          "question": "How do Aino Korhonen and Lukas Gruber compare for cloud data engineering?"
+        },
+        {
+          "scenario_id": "cloud_data_compare_versus",
+          "question": "Evaluate Aino Korhonen versus Lukas Gruber for a cloud data engineer position."
+        },
+        {
+          "scenario_id": "cloud_data_compare_between",
+          "question": "Between Aino Korhonen and Lukas Gruber, who fits cloud data engineering?"
+        }
+      ]
+    },
+    {
+      "family_id": "team_size_eight",
+      "description": "Team-size wording and number forms must preserve the management relation.",
+      "expected_outcome": "supported",
+      "candidate_policy": "exact",
+      "expected_candidate_ids": [
+        "candidate_006"
+      ],
+      "minimum_returned_candidates": 1,
+      "questions": [
+        {
+          "scenario_id": "team_eight_exact",
+          "question": "Which candidate managed a team of exactly 8 engineers?"
+        },
+        {
+          "scenario_id": "team_eight_word",
+          "question": "Who led a team of eight engineers?"
+        },
+        {
+          "scenario_id": "team_eight_people",
+          "question": "Find someone who managed an eight-person engineering team."
+        },
+        {
+          "scenario_id": "team_eight_supervised",
+          "question": "Which candidate supervised a team of 8 people?"
+        }
+      ]
+    },
+    {
+      "family_id": "frontend_accessibility",
+      "description": "Accessibility evidence must be attached to frontend candidates rather than incidental collaborators.",
+      "expected_outcome": "supported",
+      "candidate_policy": "exact",
+      "expected_candidate_ids": [
+        "candidate_007",
+        "candidate_008",
+        "candidate_009"
+      ],
+      "minimum_returned_candidates": 3,
+      "questions": [
+        {
+          "scenario_id": "accessibility_frontend_canonical",
+          "question": "Which frontend candidates have accessibility experience?"
+        },
+        {
+          "scenario_id": "accessibility_frontend_knows",
+          "question": "Who knows accessibility in frontend development?"
+        },
+        {
+          "scenario_id": "accessibility_frontend_accessible_web",
+          "question": "Find frontend engineers with accessible web experience."
+        },
+        {
+          "scenario_id": "accessibility_frontend_related",
+          "question": "Who has a frontend background related to accessibility?"
+        }
+      ]
+    },
+    {
+      "family_id": "pytorch_nlp_vector",
+      "description": "Compound machine-learning requirements must be covered by the same candidate.",
+      "expected_outcome": "supported",
+      "candidate_policy": "exact",
+      "expected_candidate_ids": [
+        "candidate_024"
+      ],
+      "minimum_returned_candidates": 1,
+      "questions": [
+        {
+          "scenario_id": "nlp_vector_canonical",
+          "question": "Which candidate combines PyTorch, NLP, and vector-database experience?"
+        },
+        {
+          "scenario_id": "nlp_vector_knows",
+          "question": "Who knows PyTorch, NLP, and vector databases?"
+        },
+        {
+          "scenario_id": "nlp_vector_background",
+          "question": "Find someone with a background in PyTorch NLP and vector search."
+        },
+        {
+          "scenario_id": "nlp_vector_worked",
+          "question": "Which candidate has worked with PyTorch for NLP and semantic vector retrieval?"
+        }
+      ]
+    },
+    {
+      "family_id": "spanish_spark_data_engineer",
+      "description": "Native Spanish, Spark, and data-engineering role evidence must stay candidate-owned.",
+      "expected_outcome": "supported",
+      "candidate_policy": "exact",
+      "expected_candidate_ids": [
+        "candidate_016"
+      ],
+      "minimum_returned_candidates": 1,
+      "questions": [
+        {
+          "scenario_id": "spanish_spark_canonical",
+          "question": "Find a data engineer who speaks Spanish natively and has Spark experience."
+        },
+        {
+          "scenario_id": "spanish_spark_native",
+          "question": "Which Spark data engineer is a native Spanish speaker?"
+        },
+        {
+          "scenario_id": "spanish_spark_language",
+          "question": "Who works in data engineering with Spark and has Spanish as a native language?"
+        },
+        {
+          "scenario_id": "spanish_spark_mother_tongue",
+          "question": "Show a data engineer using Spark whose mother tongue is Spanish."
+        }
+      ]
+    },
+    {
+      "family_id": "unsupported_security_clearance",
+      "description": "Unsupported paraphrases must remain empty and must never trigger a hosted answer provider.",
+      "expected_outcome": "unsupported",
+      "candidate_policy": "none",
+      "expected_candidate_ids": [],
+      "minimum_returned_candidates": 0,
+      "questions": [
+        {
+          "scenario_id": "clearance_canonical",
+          "question": "Which candidates hold government security clearance?"
+        },
+        {
+          "scenario_id": "clearance_active",
+          "question": "Who has an active government security clearance?"
+        },
+        {
+          "scenario_id": "clearance_vetted",
+          "question": "Find candidates vetted for classified government work."
+        },
+        {
+          "scenario_id": "clearance_authorized",
+          "question": "Which CV proves authorization to access classified information?"
+        }
+      ]
+    }
+  ]
+}

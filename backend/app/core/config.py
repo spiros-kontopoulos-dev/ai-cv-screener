@@ -37,6 +37,11 @@ DEFAULT_CANDIDATE_PORTRAIT_PLAN_PATH = (
     / "dataset"
     / "candidate_portrait_plan.json"
 )
+DEFAULT_CV_QUERY_ROBUSTNESS_MATRIX_PATH = (
+    Path(__file__).resolve().parents[1]
+    / "dataset"
+    / "cv_query_robustness_matrix.json"
+)
 
 
 class Settings(BaseSettings):
@@ -74,6 +79,9 @@ class Settings(BaseSettings):
     # WP3 candidate-generation configuration.
     candidate_dataset_plan_path: Path = DEFAULT_CANDIDATE_DATASET_PLAN_PATH
     candidate_portrait_plan_path: Path = DEFAULT_CANDIDATE_PORTRAIT_PLAN_PATH
+    cv_query_robustness_matrix_path: Path = (
+        DEFAULT_CV_QUERY_ROBUSTNESS_MATRIX_PATH
+    )
 
     # The generated profile collection is preparation data for WP4 PDF
     # rendering. A relative path resolves from /app inside the backend

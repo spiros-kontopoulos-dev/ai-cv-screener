@@ -91,3 +91,44 @@ docker compose run --rm frontend npm run build
 The synthetic CV-generation utilities still require OpenAI when a developer
 chooses to regenerate the dataset. Normal question answering over the committed
 CV collection does not require dataset regeneration.
+
+## Query robustness diagnostic
+
+The controlled corpus includes a separate 48-question diagnostic matrix across
+12 paraphrase families. It is intentionally provider-free: the command runs the
+existing retrieval pipeline, records whether a hosted answer provider would have
+been called, and never sends a request to OpenAI or Gemini.
+
+Run the complete baseline matrix:
+
+```powershell
+docker compose exec backend python -m app.scripts.evaluate_cv_query_robustness `
+    --json-output data/cv_query_robustness_baseline.json
+```
+
+Inspect only failures with full parser and candidate-coverage details:
+
+```powershell
+docker compose exec backend python -m app.scripts.evaluate_cv_query_robustness `
+    --failed-only `
+    --verbose
+```
+
+Use `--strict` when the matrix should act as a regression gate. Without that
+flag, baseline mismatches are reported but the command exits successfully so a
+known failing baseline can be captured before a query-understanding refactor.
+
+The report exposes:
+
+- normalized lexical terms, phrases, relations, and numeric constraints;
+- the hard candidate-level conditions created from the question;
+- lexical terms discarded or left without a condition;
+- pre-threshold candidate scores and condition coverage;
+- final supported, partial, or unsupported behavior;
+- expected and returned candidate IDs under exact, subset, or empty policies;
+- paraphrase-family outcome and candidate-set consistency;
+- whether the hosted answer provider would be called.
+
+The matrix is an evaluation oracle for the committed synthetic corpus only. It
+does not become an answer source; user-visible evidence continues to come from
+the rendered and indexed CV PDFs.
