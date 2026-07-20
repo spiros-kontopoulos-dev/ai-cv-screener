@@ -282,6 +282,17 @@ def portrait_plan_factory(tmp_path):
                         "test while keeping the plan deterministic."
                     ),
                     "portrait_candidate_ids": sorted(candidate_ids),
+                    "portrait_appearances": [
+                        {
+                            "candidate_id": candidate_id,
+                            "presentation": "androgynous-presenting",
+                            "visual_description": (
+                                "short dark-brown hair, an oval face, and "
+                                "no visible eyewear"
+                            ),
+                        }
+                        for candidate_id in sorted(candidate_ids)
+                    ],
                 }
             ),
             encoding="utf-8",

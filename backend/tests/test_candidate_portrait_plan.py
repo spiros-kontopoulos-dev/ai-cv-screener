@@ -65,7 +65,23 @@ def test_committed_portrait_plan_is_balanced_and_complete() -> None:
     ]
 
     assert len(profiles) == 30
+    assert plan.plan_version == 2
     assert plan.portrait_count == 15
+    assert set(plan.appearance_by_candidate_id) == set(
+        plan.portrait_candidate_ids
+    )
+    assert (
+        plan.appearance_by_candidate_id["candidate_004"].presentation
+        == "masculine-presenting"
+    )
+    assert (
+        plan.appearance_by_candidate_id["candidate_012"].presentation
+        == "feminine-presenting"
+    )
+    assert (
+        plan.appearance_by_candidate_id["candidate_024"].presentation
+        == "feminine-presenting"
+    )
     assert len(profiles) - plan.portrait_count == 15
     assert {
         "candidate_003",

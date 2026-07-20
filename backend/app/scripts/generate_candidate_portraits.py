@@ -160,6 +160,9 @@ def run_cli(
             portrait_candidate_ids=(
                 coverage_plan.portrait_candidate_id_set
             ),
+            appearance_by_candidate_id=(
+                coverage_plan.appearance_by_candidate_id
+            ),
         )
         selected_jobs = select_portrait_generation_jobs(
             all_jobs,

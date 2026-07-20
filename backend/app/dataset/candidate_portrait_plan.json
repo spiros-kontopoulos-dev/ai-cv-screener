@@ -1,8 +1,8 @@
 {
-  "plan_version": 1,
+  "plan_version": 2,
   "portrait_count": 15,
-  "purpose": "Use AI-generated portraits for a balanced subset of candidates while preserving realistic photo-free CV variation across the remaining profiles.",
-  "selection_strategy": "Select exactly half of the 30 candidates, cover every profession category, and preserve the dataset seniority distribution with 4 junior, 6 mid-level, and 5 senior portrait candidates.",
+  "purpose": "Use AI-generated portraits for a balanced subset of candidates while preserving realistic photo-free CV variation across the remaining profiles. Each portrait candidate also has an explicit fictional appearance contract so the generated image remains aligned with the intended dossier identity.",
+  "selection_strategy": "Select exactly half of the 30 candidates, cover every profession category, preserve the dataset seniority distribution with 4 junior, 6 mid-level, and 5 senior portrait candidates, and assign one explicit presentation and distinct visual descriptor to every selected candidate.",
   "portrait_candidate_ids": [
     "candidate_002",
     "candidate_003",
@@ -19,5 +19,82 @@
     "candidate_027",
     "candidate_029",
     "candidate_030"
+  ],
+  "portrait_appearances": [
+    {
+      "candidate_id": "candidate_002",
+      "presentation": "masculine-presenting",
+      "visual_description": "short dark-brown hair, a clean-shaven oval face, and no visible eyewear"
+    },
+    {
+      "candidate_id": "candidate_003",
+      "presentation": "feminine-presenting",
+      "visual_description": "shoulder-length black hair, a softly angular face, and no visible eyewear"
+    },
+    {
+      "candidate_id": "candidate_004",
+      "presentation": "masculine-presenting",
+      "visual_description": "short light-brown hair, a clean-shaven angular face, and no visible eyewear"
+    },
+    {
+      "candidate_id": "candidate_007",
+      "presentation": "feminine-presenting",
+      "visual_description": "long dark-brown hair, a heart-shaped face, and no visible eyewear"
+    },
+    {
+      "candidate_id": "candidate_010",
+      "presentation": "masculine-presenting",
+      "visual_description": "short black hair, light stubble, a square face, and no visible eyewear"
+    },
+    {
+      "candidate_id": "candidate_012",
+      "presentation": "feminine-presenting",
+      "visual_description": "shoulder-length auburn hair, an oval face, and no visible eyewear"
+    },
+    {
+      "candidate_id": "candidate_014",
+      "presentation": "masculine-presenting",
+      "visual_description": "short dark-blond hair, a clean-shaven long face, and subtle rectangular glasses"
+    },
+    {
+      "candidate_id": "candidate_015",
+      "presentation": "feminine-presenting",
+      "visual_description": "chin-length light-brown hair, a rounded face, and no visible eyewear"
+    },
+    {
+      "candidate_id": "candidate_018",
+      "presentation": "masculine-presenting",
+      "visual_description": "short dark-blond hair, a neatly trimmed beard, a square face, and no visible eyewear"
+    },
+    {
+      "candidate_id": "candidate_020",
+      "presentation": "masculine-presenting",
+      "visual_description": "very short dark hair, a close-trimmed beard, an oval face, and no visible eyewear"
+    },
+    {
+      "candidate_id": "candidate_024",
+      "presentation": "feminine-presenting",
+      "visual_description": "shoulder-length chestnut-brown hair, an oval face, and subtle round glasses"
+    },
+    {
+      "candidate_id": "candidate_026",
+      "presentation": "masculine-presenting",
+      "visual_description": "short salt-and-pepper hair, a clean-shaven rectangular face, and no visible eyewear"
+    },
+    {
+      "candidate_id": "candidate_027",
+      "presentation": "masculine-presenting",
+      "visual_description": "short medium-brown hair, a clean-shaven rounded face, and no visible eyewear"
+    },
+    {
+      "candidate_id": "candidate_029",
+      "presentation": "feminine-presenting",
+      "visual_description": "shoulder-length dark-blond hair, an angular face, and subtle rectangular glasses"
+    },
+    {
+      "candidate_id": "candidate_030",
+      "presentation": "feminine-presenting",
+      "visual_description": "long warm-brown hair, a heart-shaped face, and no visible eyewear"
+    }
   ]
 }

@@ -2,6 +2,7 @@
 
 from .client import OpenAIPortraitGenerator, PortraitProviderError
 from .coverage import (
+    PortraitAppearance,
     PortraitCoveragePlan,
     PortraitCoveragePlanError,
     load_portrait_coverage_plan,
@@ -35,6 +36,7 @@ from .validation import validate_portrait_collection
 __all__ = [
     "NORMALIZED_PORTRAIT_EXTENSION",
     "OpenAIPortraitGenerator",
+    "PortraitAppearance",
     "PortraitCoveragePlan",
     "PortraitCoveragePlanError",
     "PortraitCollectionValidation",

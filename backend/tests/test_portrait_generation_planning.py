@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from app.portrait_generation import (
+    PortraitAppearance,
     PortraitGenerationPlanError,
     build_portrait_generation_jobs,
     build_portrait_prompt,
@@ -13,21 +14,41 @@ from app.portrait_generation import (
 from app.schemas import CandidateProfile
 
 
+def _appearance(
+    candidate_id: str,
+    *,
+    presentation: str = "androgynous-presenting",
+) -> PortraitAppearance:
+    return PortraitAppearance(
+        candidate_id=candidate_id,
+        presentation=presentation,
+        visual_description=(
+            "short dark-brown hair, an oval face, and no visible eyewear"
+        ),
+    )
+
+
 def test_portrait_prompt_is_fictional_professional_and_avoids_caption_layouts(
     valid_candidate_payload: dict,
 ) -> None:
-    """The prompt excludes identity text and rejects document-style overlays."""
+    """The prompt excludes identity text but includes planned appearance."""
 
     profile = CandidateProfile.model_validate(valid_candidate_payload)
+    appearance = _appearance(
+        profile.candidate_id,
+        presentation="masculine-presenting",
+    )
 
-    prompt = build_portrait_prompt(profile)
+    prompt = build_portrait_prompt(profile, appearance=appearance)
 
-    # Identity values are intentionally kept out of the image prompt because
-    # image models may render them as nameplates or lower-third captions.
+    # Identity values remain out of the provider prompt because image models
+    # may render them as nameplates or lower-third captions.
     assert "Alex Morgan" not in prompt
     assert "Senior Python Backend Engineer" not in prompt
     assert "Athens, Greece" not in prompt
 
+    assert "clearly masculine-presenting" in prompt
+    assert appearance.visual_description in prompt
     assert "completely fictional adult professional" in prompt
     assert "Output only the portrait photograph itself" in prompt
     assert "photograph must fill the entire canvas from edge to edge" in prompt
@@ -57,10 +78,15 @@ def test_portrait_jobs_use_stable_webp_paths_and_ordering(
         CandidateProfile.model_validate(second_payload),
         CandidateProfile.model_validate(valid_candidate_payload),
     ]
+    appearances = {
+        "candidate_001": _appearance("candidate_001"),
+        "candidate_002": _appearance("candidate_002"),
+    }
 
     jobs = build_portrait_generation_jobs(
         profiles,
         images_directory=tmp_path / "images",
+        appearance_by_candidate_id=appearances,
     )
 
     assert [job.candidate_id for job in jobs] == [
@@ -69,6 +95,23 @@ def test_portrait_jobs_use_stable_webp_paths_and_ordering(
     ]
     assert jobs[0].output_path.name == "candidate_001.webp"
     assert jobs[1].output_path.name == "candidate_002.webp"
+
+
+def test_portrait_jobs_reject_incomplete_appearance_mapping(
+    tmp_path: Path,
+    valid_candidate_payload: dict,
+) -> None:
+    """Every selected production portrait needs one explicit appearance."""
+
+    profile = CandidateProfile.model_validate(valid_candidate_payload)
+
+    with pytest.raises(PortraitGenerationPlanError, match="missing"):
+        build_portrait_generation_jobs(
+            [profile],
+            images_directory=tmp_path / "images",
+            portrait_candidate_ids={"candidate_001"},
+            appearance_by_candidate_id={},
+        )
 
 
 def test_portrait_job_selection_supports_resume_batches(
@@ -155,6 +198,9 @@ def test_portrait_jobs_include_only_coverage_plan_candidates(
         profiles,
         images_directory=tmp_path / "images",
         portrait_candidate_ids={"candidate_002"},
+        appearance_by_candidate_id={
+            "candidate_002": _appearance("candidate_002")
+        },
     )
 
     assert [job.candidate_id for job in jobs] == ["candidate_002"]

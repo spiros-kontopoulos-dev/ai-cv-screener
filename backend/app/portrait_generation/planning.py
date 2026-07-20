@@ -1,10 +1,11 @@
 """Build and select deterministic candidate portrait-generation jobs."""
 
-from collections.abc import Collection, Sequence
+from collections.abc import Collection, Mapping, Sequence
 from pathlib import Path
 
 from app.schemas import CandidateProfile
 
+from .coverage import PortraitAppearance
 from .models import PortraitGenerationJob
 from .prompting import build_portrait_prompt
 
@@ -21,8 +22,14 @@ def build_portrait_generation_jobs(
     *,
     images_directory: Path,
     portrait_candidate_ids: Collection[str] | None = None,
+    appearance_by_candidate_id: Mapping[str, PortraitAppearance] | None = None,
 ) -> list[PortraitGenerationJob]:
-    """Map validated profiles to prompts and stable WebP output paths."""
+    """Map validated profiles to prompts and stable WebP output paths.
+
+    Production callers pass the committed appearance mapping so every selected
+    portrait receives an explicit fictional presentation. The optional mapping
+    keeps isolated unit tests and generic callers backwards-compatible.
+    """
 
     ordered_profiles = sorted(
         profiles,
@@ -47,6 +54,25 @@ def build_portrait_generation_jobs(
             f"{', '.join(sorted(unknown_ids))}."
         )
 
+    if appearance_by_candidate_id is not None:
+        appearance_ids = set(appearance_by_candidate_id)
+        missing_appearances = planned_ids.difference(appearance_ids)
+        unexpected_appearances = appearance_ids.difference(planned_ids)
+        if missing_appearances or unexpected_appearances:
+            details: list[str] = []
+            if missing_appearances:
+                details.append(
+                    "missing: " + ", ".join(sorted(missing_appearances))
+                )
+            if unexpected_appearances:
+                details.append(
+                    "unexpected: " + ", ".join(sorted(unexpected_appearances))
+                )
+            raise PortraitGenerationPlanError(
+                "Portrait appearance mapping does not match selected candidates "
+                f"({'; '.join(details)})."
+            )
+
     return [
         PortraitGenerationJob(
             profile=profile,
@@ -54,7 +80,14 @@ def build_portrait_generation_jobs(
                 images_directory
                 / f"{profile.candidate_id}{NORMALIZED_PORTRAIT_EXTENSION}"
             ),
-            prompt=build_portrait_prompt(profile),
+            prompt=build_portrait_prompt(
+                profile,
+                appearance=(
+                    appearance_by_candidate_id[profile.candidate_id]
+                    if appearance_by_candidate_id is not None
+                    else None
+                ),
+            ),
         )
         for profile in ordered_profiles
         if profile.candidate_id in planned_ids

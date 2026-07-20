@@ -2,6 +2,8 @@
 
 from app.schemas import CandidateProfile, SeniorityLevel
 
+from .coverage import PortraitAppearance
+
 
 _BACKGROUNDS = (
     "a softly blurred neutral grey studio background",
@@ -42,19 +44,35 @@ _POSES = (
     "a subtle three-quarter pose with the face clearly visible",
 )
 
+_DEFAULT_APPEARANCE = PortraitAppearance(
+    candidate_id="candidate_001",
+    presentation="androgynous-presenting",
+    visual_description=(
+        "short dark-brown hair, an oval face, and no visible eyewear"
+    ),
+)
 
-def build_portrait_prompt(profile: CandidateProfile) -> str:
+
+def build_portrait_prompt(
+    profile: CandidateProfile,
+    *,
+    appearance: PortraitAppearance | None = None,
+) -> str:
     """Create one controlled prompt for a clean fictional portrait.
 
     Candidate names, job titles, and locations are intentionally excluded from
     the provider prompt. Those values do not determine a person's appearance,
     and image models may incorrectly turn identity text into captions,
-    nameplates, or profile-card layouts. The stable candidate ID is used only
-    inside Python to choose deterministic visual variation.
+    nameplates, or profile-card layouts. Instead, the committed portrait plan
+    provides an explicit fictional presentation and visual descriptor for each
+    selected candidate.
     """
 
     variation_index = _candidate_number(profile.candidate_id) - 1
     age_description = _age_description(profile)
+    active_appearance = appearance or _DEFAULT_APPEARANCE.model_copy(
+        update={"candidate_id": profile.candidate_id}
+    )
 
     return (
         "Generate only one clean, borderless, square photographic portrait. "
@@ -62,7 +80,9 @@ def build_portrait_prompt(profile: CandidateProfile) -> str:
         "only the portrait photograph itself, with no surrounding document or "
         "graphic layout. Create one photorealistic head-and-shoulders portrait "
         "of a completely fictional adult professional in the "
-        f"{age_description}. Use "
+        f"{age_description}. The subject must be clearly "
+        f"{active_appearance.presentation}. Give the fictional subject "
+        f"{active_appearance.visual_description}. Use "
         f"{_WARDROBES[variation_index % len(_WARDROBES)]}, "
         f"{_BACKGROUNDS[variation_index % len(_BACKGROUNDS)]}, "
         f"{_LIGHTING[variation_index % len(_LIGHTING)]}, and "
@@ -72,17 +92,19 @@ def build_portrait_prompt(profile: CandidateProfile) -> str:
         "comfortable space above the hair, and the eyes near the upper third. "
         "Use realistic skin texture, natural facial asymmetry, restrained "
         "professional retouching, and a plausible diverse European workforce "
-        "appearance without stereotyping nationality. Produce exactly one "
-        "person. Do not depict or imitate any real person, celebrity, or public "
-        "figure. Do not create a CV, resume, profile card, ID card, business "
-        "card, poster, social-media profile, composite, badge, nameplate, lower "
-        "third, caption strip, banner, footer, border, frame, or white text "
-        "panel. Do not include any text, letters, words, captions, names, job "
-        "titles, numbers, symbols, logos, watermarks, signatures, labels, or "
-        "typography anywhere in the image, background, clothing, or accessories. "
-        "No dramatic props, hands near the face, full-body framing, illustration, "
-        "painting, or cartoon style. Return only the uninterrupted photograph, "
-        "with photographic content extending to every edge of the square canvas."
+        "appearance without stereotyping nationality. The face must be newly "
+        "generated and visually distinct from generic repeated stock-photo "
+        "faces. Produce exactly one person. Do not depict or imitate any real "
+        "person, celebrity, or public figure. Do not create a CV, resume, "
+        "profile card, ID card, business card, poster, social-media profile, "
+        "composite, badge, nameplate, lower third, caption strip, banner, footer, "
+        "border, frame, or white text panel. Do not include any text, letters, "
+        "words, captions, names, job titles, numbers, symbols, logos, watermarks, "
+        "signatures, labels, or typography anywhere in the image, background, "
+        "clothing, or accessories. No dramatic props, hands near the face, "
+        "full-body framing, illustration, painting, or cartoon style. Return "
+        "only the uninterrupted photograph, with photographic content extending "
+        "to every edge of the square canvas."
     )
 
 
