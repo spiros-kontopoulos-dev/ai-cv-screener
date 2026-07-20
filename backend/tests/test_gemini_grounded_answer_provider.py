@@ -61,7 +61,7 @@ def _provider(client) -> GeminiGroundedAnswerProvider:
     )
 
 
-def test_provider_uses_pydantic_structured_output() -> None:
+def test_provider_uses_raw_json_schema_structured_output() -> None:
     client = MagicMock()
     client.models.generate_content.return_value = SimpleNamespace(
         parsed=_draft(),
@@ -74,9 +74,32 @@ def test_provider_uses_pydantic_structured_output() -> None:
     call = client.models.generate_content.call_args.kwargs
     assert call["model"] == "gemini-test"
     assert "candidate_001-source-1" in call["contents"]
-    assert call["config"].response_schema is GroundedAnswerDraft
+    expected_schema = GroundedAnswerDraft.model_json_schema()
+    assert call["config"].response_json_schema == expected_schema
+    assert call["config"].response_schema is None
+    assert expected_schema["additionalProperties"] is False
+    assert (
+        expected_schema["$defs"]["GroundedCandidateAnswer"][
+            "additionalProperties"
+        ]
+        is False
+    )
     assert call["config"].response_mime_type == "application/json"
     assert call["config"].max_output_tokens == 2000
+
+
+def test_provider_validates_parsed_mapping_with_pydantic() -> None:
+    """Raw JSON schema responses remain subject to the strict app contract."""
+
+    client = MagicMock()
+    client.models.generate_content.return_value = SimpleNamespace(
+        parsed=_draft().model_dump(mode="json"),
+        text=_draft().model_dump_json(),
+    )
+
+    result = _provider(client).generate(_retrieval_result())
+
+    assert result == _draft()
 
 
 def test_provider_passes_correction_feedback() -> None:

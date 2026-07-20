@@ -55,7 +55,15 @@ class GeminiGroundedAnswerProvider:
                 config=types.GenerateContentConfig(
                     system_instruction=GROUNDED_ANSWER_INSTRUCTIONS,
                     response_mime_type="application/json",
-                    response_schema=GroundedAnswerDraft,
+                    # ``response_schema`` converts the Pydantic model through
+                    # Gemini's legacy Schema message. That path rejects valid
+                    # JSON Schema keywords emitted by ``extra="forbid"``,
+                    # including ``additionalProperties``. Send the model's raw
+                    # JSON Schema instead, then keep Pydantic as the strict
+                    # application-side validation boundary below.
+                    response_json_schema=(
+                        GroundedAnswerDraft.model_json_schema()
+                    ),
                     max_output_tokens=self._max_completion_tokens,
                     temperature=0.1,
                 ),
