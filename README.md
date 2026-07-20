@@ -227,3 +227,7 @@ docker compose exec backend python -m app.scripts.evaluate_cv_query_robustness `
 ```
 
 The expected result is 50/50 scenarios passing with zero hosted-provider calls.
+## Documentation
+
+- [Technical highlight: grounded hybrid retrieval with relation-aware candidate evidence](docs/technical-highlight.md)
+- [Known limitation and future enhancement: hybrid natural-language query planning](docs/known-limitations-and-future-enhancements.md)
