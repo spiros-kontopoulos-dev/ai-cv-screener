@@ -1,0 +1,4 @@
+# Keep cross-platform shell scripts readable by Unix interpreters even when the
+# repository is checked out or edited from Windows.
+*.sh text eol=lf
+*.ps1 text eol=crlf

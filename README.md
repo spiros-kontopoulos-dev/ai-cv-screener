@@ -6,18 +6,34 @@ a deterministic no-key fallback.
 
 ## Quick local setup
 
-1. Install Docker Desktop.
-2. Clone this repository and open PowerShell in the project directory.
-3. Run the interactive configuration assistant:
+1. Install Docker Desktop (Windows/macOS) or Docker Engine with the Compose
+   plugin (Linux).
+2. Clone this repository and open a terminal in the project directory.
+3. Run the interactive configuration assistant for your platform.
+
+   **Windows PowerShell**
 
    ```powershell
    .\setup.ps1
    ```
 
+   **Linux or macOS**
+
+   ```bash
+   bash ./setup.sh
+   ```
+
+   The Bash script can also be made directly executable:
+
+   ```bash
+   chmod +x setup.sh
+   ./setup.sh
+   ```
+
 4. Choose Gemini, OpenAI, or deterministic no-key mode.
 5. Start the complete product:
 
-   ```powershell
+   ```bash
    docker compose up --build
    ```
 
@@ -27,7 +43,9 @@ a deterministic no-key fallback.
    - FastAPI documentation: `http://localhost:8000/docs`
    - API health: `http://localhost:8000/api/health`
 
-No Python or TypeScript source file needs to be edited for local setup.
+Both setup assistants preserve unrelated `.env` settings, clear unused provider
+keys, and never print the entered secret. No Python or TypeScript source file
+needs to be edited for local setup.
 
 ## Product flow
 

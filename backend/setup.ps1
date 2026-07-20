@@ -69,10 +69,13 @@ Write-Host "  1. Gemini (free-tier option; requires a Google AI Studio key)"
 Write-Host "  2. OpenAI (requires an OpenAI API key and available credits)"
 Write-Host "  3. Deterministic no-key mode"
 
+function Clear-ProviderKeys {
+    Set-EnvironmentValue -Name "GEMINI_API_KEY" -Value ""
+    Set-EnvironmentValue -Name "GOOGLE_API_KEY" -Value ""
+    Set-EnvironmentValue -Name "OPENAI_API_KEY" -Value ""
+}
+
 $choice = Read-Host "Enter 1, 2, or 3"
-Set-EnvironmentValue -Name "GEMINI_API_KEY" -Value ""
-Set-EnvironmentValue -Name "GOOGLE_API_KEY" -Value ""
-Set-EnvironmentValue -Name "OPENAI_API_KEY" -Value ""
 
 switch ($choice) {
     "1" {
@@ -80,6 +83,7 @@ switch ($choice) {
         if ([string]::IsNullOrWhiteSpace($key)) {
             throw "A Gemini API key is required for option 1."
         }
+        Clear-ProviderKeys
         Set-EnvironmentValue -Name "CV_GROUNDED_ANSWER_PROVIDER" -Value "gemini"
         Set-EnvironmentValue -Name "GEMINI_API_KEY" -Value $key.Trim()
         $mode = "Gemini"
@@ -89,11 +93,13 @@ switch ($choice) {
         if ([string]::IsNullOrWhiteSpace($key)) {
             throw "An OpenAI API key is required for option 2."
         }
+        Clear-ProviderKeys
         Set-EnvironmentValue -Name "CV_GROUNDED_ANSWER_PROVIDER" -Value "openai"
         Set-EnvironmentValue -Name "OPENAI_API_KEY" -Value $key.Trim()
         $mode = "OpenAI"
     }
     "3" {
+        Clear-ProviderKeys
         Set-EnvironmentValue -Name "CV_GROUNDED_ANSWER_PROVIDER" -Value "deterministic"
         $mode = "deterministic no-key"
     }

@@ -30,8 +30,10 @@ COPY pytest.ini ./pytest.ini
 
 # The local setup implementation is also inspected by an automated safety
 # test.  Copy it into /app while keeping the repository-root setup.ps1 as the
-# stable command that users run on Windows.
+# stable commands that users run from the repository root on Windows,
+# Linux, or macOS.
 COPY setup.ps1 ./setup.ps1
+COPY setup.sh ./setup.sh
 
 EXPOSE 8000
 
