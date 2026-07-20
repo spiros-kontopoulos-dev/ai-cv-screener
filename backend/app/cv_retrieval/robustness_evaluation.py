@@ -255,6 +255,7 @@ class CvQueryParserDiagnostic:
     lexical_terms: tuple[str, ...]
     lexical_phrases: tuple[str, ...]
     text_relations: tuple[str, ...]
+    education_constraints: tuple[str, ...]
     numeric_constraints: tuple[str, ...]
     hard_conditions: tuple[CvQueryConditionDiagnostic, ...]
     unconditioned_lexical_terms: tuple[str, ...]
@@ -755,6 +756,10 @@ def _build_parser_diagnostic(
         text_relations=tuple(
             f"{relation.relation}:{'+'.join(relation.terms)}"
             for relation in features.text_relations
+        ),
+        education_constraints=tuple(
+            constraint.display_label
+            for constraint in features.education_constraints
         ),
         numeric_constraints=tuple(
             (

@@ -146,8 +146,8 @@ def test_committed_matrix_covers_twelve_families_and_forty_eight_questions(
     )
     matrix = load_query_robustness_matrix(matrix_path)
 
-    assert len(matrix.families) == 12
-    assert matrix.scenario_count == 48
+    assert len(matrix.families) == 13
+    assert matrix.scenario_count == 50
     scenario_ids = {
         question.scenario_id
         for family in matrix.families
@@ -206,7 +206,8 @@ def test_evaluator_records_parser_candidate_and_provider_diagnostics(
     supported = report.family_evaluations[0].evaluations[1]
     assert supported.hosted_provider_would_be_called is True
     assert supported.parser is not None
-    assert "know" in supported.parser.lexical_terms
+    assert supported.parser.lexical_terms == ("python",)
+    assert "knows" in supported.parser.discarded_tokens
     assert supported.parser.hard_conditions
     assert supported.candidate_diagnostics[0].selected_for_final_context is True
     unsupported = report.family_evaluations[1].evaluations[0]

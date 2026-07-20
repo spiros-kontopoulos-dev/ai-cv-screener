@@ -366,6 +366,24 @@
       ]
     },
     {
+      "family_id": "unsupported_exact_three_experience",
+      "description": "An exact experience duration with no matching CV must remain unsupported.",
+      "expected_outcome": "unsupported",
+      "candidate_policy": "none",
+      "expected_candidate_ids": [],
+      "minimum_returned_candidates": 0,
+      "questions": [
+        {
+          "scenario_id": "experience_exact_three_digits",
+          "question": "Who has exactly 3 years of professional experience?"
+        },
+        {
+          "scenario_id": "experience_exact_three_words",
+          "question": "Find candidates with three years of work experience."
+        }
+      ]
+    },
+    {
       "family_id": "unsupported_security_clearance",
       "description": "Unsupported paraphrases must remain empty and must never trigger a hosted answer provider.",
       "expected_outcome": "unsupported",

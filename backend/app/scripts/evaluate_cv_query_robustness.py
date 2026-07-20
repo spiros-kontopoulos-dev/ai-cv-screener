@@ -215,6 +215,10 @@ def _print_scenario(evaluation, *, verbose: bool) -> None:
         + (", ".join(parser.text_relations) or "none")
     )
     print(
+        "        parser.education_constraints="
+        + (", ".join(parser.education_constraints) or "none")
+    )
+    print(
         "        parser.numeric_constraints="
         + (", ".join(parser.numeric_constraints) or "none")
     )

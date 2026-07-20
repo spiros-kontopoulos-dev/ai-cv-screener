@@ -23,6 +23,7 @@ from typing import Literal
 from app.cv_retrieval.evidence_analysis import (
     AssistedCvRetrievalResult,
     CvQueryEvidenceFeatures,
+    EducationQueryConstraint,
     NumericQueryConstraint,
     ScoredCvEvidenceHit,
     canonicalize_lexical_term,
@@ -31,21 +32,41 @@ from app.cv_retrieval.evidence_analysis import (
 
 
 ConditionKind = Literal[
-    "identity", "relation", "numeric", "phrase", "role", "term"
+    "education", "identity", "relation", "numeric", "phrase", "role", "term"
 ]
 
 _LOW_SIGNAL_TERMS = {
     "background",
+    "between",
     "candidate",
+    "career",
+    "combine",
     "compare",
+    "cv",
+    "evaluate",
     "experience",
     "experienced",
+    "fits",
+    "focused",
+    "how",
+    "know",
     "knowledge",
+    "language",
+    "people",
+    "person",
+    "position",
+    "professional",
+    "related",
     "role",
     "skill",
+    "skilled",
+    "someone",
     "speak",
     "speaker",
+    "use",
+    "versu",
     "work",
+    "worked",
     "working",
 }
 _ROLE_HEAD_TERMS = {
@@ -53,6 +74,8 @@ _ROLE_HEAD_TERMS = {
     "architect",
     "developer",
     "designer",
+    "developer",
+    "development",
     "engineer",
     "engineering",
     "manager",
@@ -101,11 +124,16 @@ class CandidateQueryCondition:
         if not self.key.strip() or not self.label.strip():
             raise ValueError("Candidate condition identity and label are required.")
         if self.kind not in {
-            "identity", "relation", "numeric", "phrase", "role", "term"
+            "education", "identity", "relation", "numeric", "phrase", "role", "term"
         }:
             raise ValueError(f"Unsupported candidate condition kind: {self.kind}.")
         if not math.isfinite(self.weight) or self.weight <= 0.0:
             raise ValueError("Candidate condition weight must be positive and finite.")
+        if self.kind == "education":
+            if not self.alternatives or not self.terms:
+                raise ValueError(
+                    "Education conditions require degree aliases and field terms."
+                )
         if self.kind == "identity" and not self.alternatives:
             raise ValueError("Identity conditions require candidate-name alternatives.")
         if self.kind in {"relation", "phrase"} and len(self.terms) < 2:
@@ -275,6 +303,18 @@ def build_candidate_conditions(
         )
         consumed_terms.update(explicit_name_tokens)
 
+    for education in features.education_constraints:
+        conditions.append(_education_condition(education))
+        degree_terms = {
+            "bachelor", "bsc", "bs", "master", "msc", "ms", "science"
+        }
+        consumed_terms.update(
+            term
+            for term in features.lexical_terms
+            if term in degree_terms
+            or _canonical_role_token(term) in education.field_terms
+        )
+
     for relation in features.text_relations:
         key = f"relation:{relation.relation}:{'+'.join(relation.terms)}"
         conditions.append(
@@ -313,7 +353,14 @@ def build_candidate_conditions(
     # profession rather than a loose keyword anywhere in the CV. For example,
     # ``frontend candidates`` must not match a UX designer merely because the
     # CV says they collaborated with frontend developers.
-    explicit_role_terms = _candidate_role_terms(features, remaining_terms)
+    explicit_role_terms = tuple(
+        dict.fromkeys(
+            (
+                *_candidate_role_terms(features, remaining_terms),
+                *_query_role_domain_terms(features, remaining_terms),
+            )
+        )
+    )
     for term in explicit_role_terms:
         conditions.append(
             CandidateQueryCondition(
@@ -351,8 +398,28 @@ def build_candidate_conditions(
         )
         phrase_consumed.update((left, right))
 
+    # A role head left on its own still describes the candidate profession.
+    # Terms already consumed by a phrase (for example ``backend engineer``)
+    # must not become duplicate role conditions.
+    standalone_role_terms = {
+        term
+        for term in remaining_terms
+        if term not in phrase_consumed
+        and term in {"engineer", "engineering"}
+    }
+    for term in standalone_role_terms:
+        conditions.append(
+            CandidateQueryCondition(
+                key=f"role:{term}",
+                label=term,
+                kind="role",
+                weight=1.25,
+                terms=(term,),
+            )
+        )
+
     for term in remaining_terms:
-        if term in phrase_consumed:
+        if term in phrase_consumed or term in standalone_role_terms:
             continue
         conditions.append(
             CandidateQueryCondition(
@@ -365,6 +432,52 @@ def build_candidate_conditions(
         )
 
     return tuple(conditions)
+
+
+def _education_condition(
+    constraint: EducationQueryConstraint,
+) -> CandidateQueryCondition:
+    return CandidateQueryCondition(
+        key=(
+            f"education:{constraint.degree_level}:"
+            f"{'+'.join(constraint.field_terms)}"
+        ),
+        label=constraint.display_label,
+        kind="education",
+        weight=1.75,
+        terms=constraint.field_terms,
+        alternatives=constraint.degree_aliases,
+    )
+
+
+def _query_role_domain_terms(
+    features: CvQueryEvidenceFeatures,
+    remaining_terms: list[str],
+) -> tuple[str, ...]:
+    """Identify role domains attached to profession/background wording."""
+
+    lexical = set(remaining_terms)
+    tokens = tuple(
+        canonicalize_lexical_term(token)
+        for token in features.normalized_text.split()
+    )
+    role_terms: list[str] = []
+    for index, token in enumerate(tokens):
+        neighbors = set(tokens[max(0, index - 1) : index + 3])
+        if (
+            token == "qa"
+            and token in lexical
+            and neighbors.intersection({"automation", "engineer", "engineering"})
+        ):
+            role_terms.append(token)
+        if (
+            token in {"backend", "data", "frontend", "qa"}
+            and token in lexical
+            and index + 1 < len(tokens)
+            and tokens[index + 1] in {"background", "profession", "role"}
+        ):
+            role_terms.append(token)
+    return tuple(dict.fromkeys(role_terms))
 
 
 def _candidate_role_terms(
@@ -563,6 +676,8 @@ def _condition_evidence_score(
     candidate_id: str,
     hit: ScoredCvEvidenceHit,
 ) -> float:
+    if condition.kind == "education":
+        return _education_evidence_score(condition, hit)
     if condition.kind == "identity":
         candidate_name = normalize_search_text(hit.source.candidate_name or "")
         return 1.0 if candidate_name in condition.alternatives else 0.0
@@ -590,13 +705,122 @@ def _condition_evidence_score(
     if condition.kind == "role":
         return _role_evidence_score(condition.terms, hit)
     if condition.kind == "term":
-        return (
-            _lexical_evidence_strength(hit)
-            if condition.terms[0] in hit.score.matched_terms
-            else 0.0
-        )
+        return _term_evidence_score(condition.terms[0], hit)
     raise ValueError(f"Unsupported candidate condition kind: {condition.kind}.")
 
+
+
+def _education_evidence_score(
+    condition: CandidateQueryCondition,
+    hit: ScoredCvEvidenceHit,
+) -> float:
+    """Bind a degree level to its field inside one education record."""
+
+    if hit.source.section_name not in {
+        "education", "skills", "skills_and_languages"
+    }:
+        return 0.0
+    normalized_tokens = tuple(normalize_search_text(hit.text).split())
+
+    for alias in condition.alternatives:
+        alias_tokens = tuple(normalize_search_text(alias).split())
+        span = _find_token_sequence(normalized_tokens, alias_tokens)
+        if span is None:
+            continue
+        _, end = span
+        segment_end = _next_degree_marker(normalized_tokens, start=end)
+        segment = normalized_tokens[end:segment_end]
+        role_tokens = tuple(_canonical_role_token(token) for token in segment)
+        field_terms = tuple(
+            _canonical_role_token(term) for term in condition.terms
+        )
+        field_match = all(
+            any(
+                token == expected or token.startswith(expected)
+                for token in role_tokens
+            )
+            for expected in field_terms
+        )
+        if field_match:
+            return _lexical_evidence_strength(hit)
+    return 0.0
+
+
+def _find_token_sequence(
+    tokens: tuple[str, ...],
+    expected: tuple[str, ...],
+) -> tuple[int, int] | None:
+    if not expected or len(expected) > len(tokens):
+        return None
+    width = len(expected)
+    for index in range(len(tokens) - width + 1):
+        if tokens[index : index + width] == expected:
+            return index, index + width
+    return None
+
+
+def _next_degree_marker(tokens: tuple[str, ...], *, start: int) -> int:
+    markers = {"bachelor", "bsc", "bs", "master", "msc", "ms", "phd"}
+    for index in range(start, len(tokens)):
+        if tokens[index] in markers:
+            return index
+    return len(tokens)
+
+
+def _contains_ordered_role_terms(
+    tokens: tuple[str, ...],
+    expected: tuple[str, ...],
+    *,
+    max_gap: int = 2,
+) -> bool:
+    """Allow narrow role modifiers such as ``QA Automation Engineer``."""
+
+    if not expected:
+        return False
+    expected_index = 0
+    last_match = -1
+    for index, token in enumerate(tokens):
+        if token != expected[expected_index]:
+            continue
+        if last_match >= 0 and index - last_match - 1 > max_gap:
+            expected_index = 0
+            last_match = -1
+            if token != expected[0]:
+                continue
+        last_match = index
+        expected_index += 1
+        if expected_index == len(expected):
+            return True
+    return False
+
+
+def _term_evidence_score(
+    term: str,
+    hit: ScoredCvEvidenceHit,
+) -> float:
+    if term not in hit.score.matched_terms:
+        return 0.0
+
+    evidence = next(
+        (
+            item
+            for item in hit.score.matched_term_evidence
+            if item == term or item.startswith(f"{term}=")
+        ),
+        term,
+    )
+    if "=" in evidence:
+        # Morphological/alias matches are useful, but an incidental verb or
+        # adjective in one work bullet is weaker than a self-declared skill.
+        if hit.source.section_name not in {
+            "identity",
+            "professional_summary",
+            "projects",
+            "skills",
+            "skills_and_languages",
+        }:
+            return 0.0
+    return _lexical_evidence_strength(hit)
 
 
 def _is_role_phrase(condition: CandidateQueryCondition) -> bool:
@@ -623,8 +847,11 @@ def _role_evidence_score(
 
     role_terms = tuple(_canonical_role_token(term) for term in terms)
     title_tokens = _canonical_role_tokens(hit.source.professional_title or "")
-    if _contains_token_sequence(title_tokens, role_terms):
+    if _contains_ordered_role_terms(title_tokens, role_terms):
         return _lexical_evidence_strength(hit)
+
+    if role_terms == ("engineer",) and hit.source.section_name != "identity":
+        return 0.0
 
     section_prefix_limits = {
         "identity": 18,
@@ -636,7 +863,7 @@ def _role_evidence_score(
         return 0.0
 
     evidence_tokens = _canonical_role_tokens(hit.text)[:prefix_limit]
-    if not _contains_token_sequence(evidence_tokens, role_terms):
+    if not _contains_ordered_role_terms(evidence_tokens, role_terms):
         return 0.0
     return _lexical_evidence_strength(hit)
 
@@ -666,7 +893,7 @@ def _canonical_role_tokens(text: str) -> tuple[str, ...]:
 
 def _canonical_role_token(token: str) -> str:
     canonical = canonicalize_lexical_term(token)
-    if canonical == "engineering":
+    if canonical in {"developer", "development", "engineering"}:
         return "engineer"
     return canonical
 
@@ -733,18 +960,22 @@ def _select_candidate_evidence(
         uncovered.difference_update(covered)
         available.remove(best)
 
-    for hit in sorted(
-        available,
-        key=lambda item: (
-            item.score.combined_score,
-            item.score.semantic_score,
-            -item.rank,
-        ),
-        reverse=True,
-    ):
-        if len(selected) >= evidence_limit:
-            break
-        selected.append(hit)
+    structured_only = bool(condition_matches) and all(
+        match.condition.kind != "term" for match in condition_matches
+    )
+    if not structured_only:
+        for hit in sorted(
+            available,
+            key=lambda item: (
+                item.score.combined_score,
+                item.score.semantic_score,
+                -item.rank,
+            ),
+            reverse=True,
+        ):
+            if len(selected) >= evidence_limit:
+                break
+            selected.append(hit)
 
     return tuple(
         CandidateEvidenceSelection(

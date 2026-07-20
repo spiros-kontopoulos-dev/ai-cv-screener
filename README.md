@@ -94,8 +94,8 @@ CV collection does not require dataset regeneration.
 
 ## Query robustness diagnostic
 
-The controlled corpus includes a separate 48-question diagnostic matrix across
-12 paraphrase families. It is intentionally provider-free: the command runs the
+The controlled corpus includes a separate 50-question diagnostic matrix across
+13 paraphrase families. It is intentionally provider-free: the command runs the
 existing retrieval pipeline, records whether a hosted answer provider would have
 been called, and never sends a request to OpenAI or Gemini.
 
@@ -132,3 +132,30 @@ The report exposes:
 The matrix is an evaluation oracle for the committed synthetic corpus only. It
 does not become an answer source; user-visible evidence continues to come from
 the rendered and indexed CV PDFs.
+
+## Query-understanding safeguards
+
+Recruiter questions are normalized into evidence concepts before candidate
+coverage is calculated. Conversational wording such as `knows`, `skilled in`,
+`related to`, `uses`, `compare`, and `between` is preserved in the original
+question for semantic recall but is not promoted into a fact that must appear
+literally in a CV.
+
+The deterministic query layer now models reusable relations for:
+
+- degree level plus field of study, including BSc/BS/full-form aliases;
+- professional-experience duration and comparison operators such as `6+`;
+- language plus proficiency, including `native language` and `mother tongue`;
+- candidate-owned role evidence with engineer/developer/development aliases;
+- named-candidate comparisons without comparison verbs becoming skills;
+- morphological capability aliases with stronger source requirements.
+
+Run the robustness matrix as a strict regression gate after retrieval changes:
+
+```powershell
+docker compose exec backend python -m app.scripts.evaluate_cv_query_robustness `
+    --strict `
+    --json-output data/cv_query_robustness_after_refactor.json
+```
+
+The expected result is 50/50 scenarios passing with zero hosted-provider calls.

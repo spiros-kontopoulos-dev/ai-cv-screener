@@ -40,6 +40,7 @@ _STOP_WORDS = {
     "and",
     "any",
     "are",
+    "as",
     "candidate",
     "candidates",
     "do",
@@ -55,6 +56,7 @@ _STOP_WORDS = {
     "is",
     "me",
     "of",
+    "on",
     "or",
     "please",
     "show",
@@ -65,7 +67,63 @@ _STOP_WORDS = {
     "to",
     "which",
     "who",
+    "whose",
     "with",
+}
+
+# These words describe how the recruiter asks for evidence, not facts that
+# must literally appear in a CV. They remain visible in the original question
+# but never become lexical evidence requirements or supplemental-scan hooks.
+_QUERY_SCAFFOLDING_TERMS = {
+    "at",
+    "background",
+    "between",
+    "career",
+    "combine",
+    "compare",
+    "cv",
+    "cvs",
+    "earned",
+    "evaluate",
+    "experience",
+    "experienced",
+    "fits",
+    "focused",
+    "how",
+    "hold",
+    "know",
+    "knowledge",
+    "language",
+    "least",
+    "less",
+    "maximum",
+    "minimum",
+    "more",
+    "mother",
+    "over",
+    "people",
+    "person",
+    "position",
+    "professional",
+    "related",
+    "role",
+    "skill",
+    "skilled",
+    "someone",
+    "speaker",
+    "speaking",
+    "than",
+    "tongue",
+    "under",
+    "up",
+    "use",
+    "uses",
+    "using",
+    "versus",
+    "versu",
+    "work",
+    "worked",
+    "working",
 }
 
 _NUMBER_WORDS = {
@@ -151,8 +209,57 @@ _PROFICIENCY_ALIASES = {
     "professionally": "professional",
     "intermediately": "intermediate",
 }
-_LANGUAGE_FILLER_TERMS = {"language", "languages", "speaker", "speaking"}
-_COMPARISON_FILLER_TERMS = {"at", "least", "most", "more", "less", "than", "over", "under", "minimum", "maximum", "exact", "exactly", "precisely", "up"}
+_LANGUAGE_FILLER_TERMS = {
+    "as",
+    "language",
+    "languages",
+    "mother",
+    "speaker",
+    "speaking",
+    "tongue",
+}
+_COMPARISON_FILLER_TERMS = {
+    "at",
+    "exact",
+    "exactly",
+    "least",
+    "less",
+    "maximum",
+    "minimum",
+    "more",
+    "most",
+    "over",
+    "precisely",
+    "than",
+    "under",
+    "up",
+}
+_NON_LANGUAGE_TERMS = {
+    "backend",
+    "career",
+    "candidate",
+    "data",
+    "developer",
+    "engineer",
+    "engineering",
+    "experience",
+    "frontend",
+    "professional",
+    "qa",
+    "role",
+    "skill",
+    "software",
+    "work",
+    "working",
+    "day",
+    "month",
+    "week",
+    "year",
+}
+_DEGREE_LEVEL_ALIASES = {
+    "bachelor_science": ("bachelor of science", "bachelor science", "bsc", "bs"),
+    "master_science": ("master of science", "master science", "msc", "ms"),
+}
 
 
 @dataclass(frozen=True, slots=True)
@@ -167,6 +274,22 @@ class TextRelationConstraint:
             raise ValueError("Text relation name is required.")
         if len(self.terms) < 2 or any(not term.strip() for term in self.terms):
             raise ValueError("Text relation requires at least two terms.")
+
+
+@dataclass(frozen=True, slots=True)
+class EducationQueryConstraint:
+    """A degree level bound to its requested field of study."""
+
+    degree_level: str
+    degree_aliases: tuple[str, ...]
+    field_terms: tuple[str, ...]
+    display_label: str
+
+    def __post_init__(self) -> None:
+        if not self.degree_level.strip() or not self.display_label.strip():
+            raise ValueError("Education constraints require a degree level and label.")
+        if not self.degree_aliases or not self.field_terms:
+            raise ValueError("Education constraints require aliases and field terms.")
 
 
 @dataclass(frozen=True, slots=True)
@@ -205,6 +328,7 @@ class CvQueryEvidenceFeatures:
     lexical_phrases: tuple[str, ...]
     numeric_constraints: tuple[NumericQueryConstraint, ...]
     text_relations: tuple[TextRelationConstraint, ...] = ()
+    education_constraints: tuple[EducationQueryConstraint, ...] = ()
 
     def __post_init__(self) -> None:
         if not self.normalized_text.strip():
@@ -304,7 +428,7 @@ class AssistedCvRetrievalResult:
 
 
 def analyze_recruiter_question(text: str) -> CvQueryEvidenceFeatures:
-    """Extract exact terms and typed relationships from a recruiter question."""
+    """Extract typed facts while discarding conversational query scaffolding."""
 
     normalized = normalize_search_text(text)
     raw_tokens = _tokenize(normalized)
@@ -313,16 +437,27 @@ def analyze_recruiter_question(text: str) -> CvQueryEvidenceFeatures:
         for index, token in enumerate(raw_tokens)
         if (number := _parse_number_token(token)) is not None
     }
+    education_constraints = _extract_education_constraints(normalized)
 
-    lexical_terms = tuple(
-        dict.fromkeys(
-            canonicalize_lexical_term(token)
-            for token in raw_tokens
-            if token not in _STOP_WORDS
-            and index_not_numeric(token)
-            and canonicalize_lexical_term(token)
-        )
-    )
+    lexical_items: list[str] = []
+    for token in raw_tokens:
+        canonical = canonicalize_lexical_term(token)
+        if (
+            token in _STOP_WORDS
+            or not index_not_numeric(token)
+            or not canonical
+            or canonical in _QUERY_SCAFFOLDING_TERMS
+        ):
+            continue
+        lexical_items.append(canonical)
+
+    # Degree abbreviations are expanded into transparent canonical evidence
+    # terms so the bounded exact scan can recover full-form PDF wording.
+    for education in education_constraints:
+        lexical_items.extend(_degree_scan_terms(education.degree_level))
+        lexical_items.extend(education.field_terms)
+
+    lexical_terms = tuple(dict.fromkeys(lexical_items))
     text_relations = _extract_text_relations(raw_tokens)
     lexical_phrases = _extract_phrases(text, lexical_terms)
     numeric_constraints = tuple(
@@ -330,6 +465,7 @@ def analyze_recruiter_question(text: str) -> CvQueryEvidenceFeatures:
             raw_tokens,
             position=index,
             value=value,
+            original_text=text,
         )
         for index, value in numeric_positions.items()
     )
@@ -339,6 +475,7 @@ def analyze_recruiter_question(text: str) -> CvQueryEvidenceFeatures:
         lexical_phrases=lexical_phrases,
         numeric_constraints=numeric_constraints,
         text_relations=text_relations,
+        education_constraints=education_constraints,
     )
 
 
@@ -510,6 +647,8 @@ def canonicalize_lexical_term(term: str) -> str:
     normalized = term.casefold().strip(".-")
     if normalized in _PROFICIENCY_ALIASES:
         return _PROFICIENCY_ALIASES[normalized]
+    if normalized in {"accessible", "accessibility"}:
+        return "accessibility"
     if normalized in _MANAGEMENT_TERMS:
         return "manage"
     if normalized.endswith("ies") and len(normalized) > 4:
@@ -539,25 +678,34 @@ class _NumericEvidenceMatch:
 def _extract_text_relations(
     tokens: tuple[str, ...],
 ) -> tuple[TextRelationConstraint, ...]:
-    """Detect language/proficiency pairs without a static language list."""
+    """Detect language/proficiency relations without mistaking prose for facts."""
 
+    canonical = tuple(canonicalize_lexical_term(token) for token in tokens)
     relations: list[TextRelationConstraint] = []
-    for index, token in enumerate(tokens):
-        proficiency = canonicalize_lexical_term(token)
+
+    # Explicit idiom: ``mother tongue is German``.
+    for index in range(len(canonical) - 2):
+        if canonical[index : index + 2] != ("mother", "tongue"):
+            continue
+        for candidate in canonical[index + 2 : index + 6]:
+            if _is_plausible_language_term(candidate):
+                relation = TextRelationConstraint(
+                    relation="language_proficiency",
+                    terms=(candidate, "native"),
+                )
+                if relation not in relations:
+                    relations.append(relation)
+                break
+
+    for index, proficiency in enumerate(canonical):
         if proficiency not in _PROFICIENCY_TERMS:
             continue
         candidates: list[tuple[int, str]] = []
-        for position in range(max(0, index - 3), min(len(tokens), index + 4)):
+        for position in range(max(0, index - 5), min(len(tokens), index + 6)):
             if position == index:
                 continue
-            candidate = canonicalize_lexical_term(tokens[position])
-            if (
-                not candidate
-                or candidate in _STOP_WORDS
-                or candidate in _LANGUAGE_FILLER_TERMS
-                or candidate in _PROFICIENCY_TERMS
-                or candidate in _COMPARISON_FILLER_TERMS
-            ):
+            candidate = canonical[position]
+            if not _is_plausible_language_term(candidate):
                 continue
             candidates.append((abs(position - index), candidate))
         if not candidates:
@@ -570,6 +718,19 @@ def _extract_text_relations(
         if relation not in relations:
             relations.append(relation)
     return tuple(relations)
+
+
+def _is_plausible_language_term(term: str) -> bool:
+    return bool(
+        term
+        and _parse_number_token(term) is None
+        and term not in _STOP_WORDS
+        and term not in _LANGUAGE_FILLER_TERMS
+        and term not in _PROFICIENCY_TERMS
+        and term not in _COMPARISON_FILLER_TERMS
+        and term not in _QUERY_SCAFFOLDING_TERMS
+        and term not in _NON_LANGUAGE_TERMS
+    )
 
 
 def _match_text_relation(
@@ -637,6 +798,7 @@ def _build_numeric_constraint(
     *,
     position: int,
     value: float,
+    original_text: str = "",
 ) -> NumericQueryConstraint:
     context_tokens = [
         canonicalize_lexical_term(token)
@@ -656,7 +818,11 @@ def _build_numeric_constraint(
         display_value=_format_number(value),
         context_terms=tuple(dict.fromkeys(context_tokens)),
         context_concepts=tuple(sorted(concepts)),
-        operator=_detect_operator(tokens, position),
+        operator=(
+            "gte"
+            if _number_has_plus_suffix(original_text, value)
+            else _detect_operator(tokens, position)
+        ),
         relation=relation,
         target_terms=tuple(
             dict.fromkeys(
@@ -666,6 +832,89 @@ def _build_numeric_constraint(
             )
         ),
     )
+
+
+def _extract_education_constraints(
+    normalized_text: str,
+) -> tuple[EducationQueryConstraint, ...]:
+    """Extract degree level + field as one candidate-owned relation."""
+
+    patterns = (
+        (
+            "bachelor_science",
+            re.compile(
+                r"(?:bachelor(?: of)? science|bsc|bs) "
+                r"(?:degree )?(?:in|focused on|with focus on) "
+                r"(.+)$"
+            ),
+        ),
+        (
+            "master_science",
+            re.compile(
+                r"(?:master(?: of)? science|msc|ms) "
+                r"(?:degree )?(?:in|focused on|with focus on) "
+                r"(.+)$"
+            ),
+        ),
+    )
+    constraints: list[EducationQueryConstraint] = []
+    for degree_level, pattern in patterns:
+        match = pattern.search(normalized_text)
+        if match is None:
+            continue
+        field_terms = tuple(
+            dict.fromkeys(
+                _canonical_education_term(token)
+                for token in match.group(1).split()
+                if token not in _STOP_WORDS
+                and canonicalize_lexical_term(token)
+                not in _QUERY_SCAFFOLDING_TERMS
+                and _canonical_education_term(token)
+            )
+        )
+        if not field_terms:
+            continue
+        aliases = _DEGREE_LEVEL_ALIASES[degree_level]
+        constraints.append(
+            EducationQueryConstraint(
+                degree_level=degree_level,
+                degree_aliases=aliases,
+                field_terms=field_terms,
+                display_label=(
+                    f"{aliases[0]} in {_display_education_field(field_terms)}"
+                ),
+            )
+        )
+    return tuple(constraints)
+
+
+def _display_education_field(field_terms: tuple[str, ...]) -> str:
+    return " ".join(
+        "engineering" if term == "engineer" else term
+        for term in field_terms
+    )
+
+
+def _degree_scan_terms(degree_level: str) -> tuple[str, ...]:
+    if degree_level == "bachelor_science":
+        return ("bachelor", "science")
+    if degree_level == "master_science":
+        return ("master", "science")
+    return ()
+
+
+def _canonical_education_term(term: str) -> str:
+    canonical = canonicalize_lexical_term(term)
+    if canonical in {"developer", "engineering"}:
+        return "engineer"
+    return canonical
+
+
+def _number_has_plus_suffix(text: str, value: float) -> bool:
+    if not text:
+        return False
+    display = re.escape(_format_number(value))
+    return re.search(rf"(?<![0-9.]){display}\s*\+", text) is not None
 
 
 def _score_numeric_constraint(
@@ -776,11 +1025,17 @@ def _matches_experience_duration_relation(
     tokens: tuple[str, ...],
     number_position: int,
 ) -> bool:
-    local = _window(tokens, number_position, radius=5)
-    lowered = {token.casefold() for token in local}
-    return bool(lowered & _DURATION_UNITS) and bool(
-        lowered & {"experience", "experienced", "career"}
+    """Match the stated total duration, never a nearby ID/date/phone number."""
+
+    following = tuple(
+        token.casefold()
+        for token in tokens[number_position + 1 : number_position + 3]
     )
+    if not following or following[0] not in _DURATION_UNITS:
+        return False
+    local = _window(tokens, number_position, radius=4)
+    lowered = {token.casefold() for token in local}
+    return bool(lowered & {"experience", "experienced", "career"})
 
 
 def _matches_generic_numeric_context(
@@ -816,13 +1071,19 @@ def _is_duration_number(tokens: tuple[str, ...], position: int) -> bool:
 
 
 def _detect_operator(tokens: tuple[str, ...], position: int) -> str:
-    before = tuple(token.casefold() for token in tokens[max(0, position - 4) : position])
+    before = tuple(
+        token.casefold()
+        for token in tokens[max(0, position - 4) : position]
+    )
     joined = " ".join(before)
     if any(marker in joined for marker in ("at least", "minimum", "no fewer than")):
         return "gte"
     if any(marker in joined for marker in ("more than", "over")):
         return "gt"
-    if any(marker in joined for marker in ("at most", "maximum", "up to", "no more than")):
+    if any(
+        marker in joined
+        for marker in ("at most", "maximum", "up to", "no more than")
+    ):
         return "lte"
     if any(marker in joined for marker in ("less than", "under")):
         return "lt"
