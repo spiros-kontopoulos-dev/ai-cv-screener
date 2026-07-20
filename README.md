@@ -33,13 +33,25 @@ a deterministic no-key fallback.
    ```
 
 4. Choose Gemini, OpenAI, or deterministic no-key mode.
-5. Start the complete product:
+5. Start the containers in the background:
 
    ```bash
-   docker compose up --build
+   docker compose up -d --build
    ```
 
-6. Open:
+6. Build the local CV search index from the committed PDF collection:
+
+   ```bash
+   docker compose exec backend python -m app.scripts.ingest_cv_documents --all --rebuild
+   ```
+
+7. Restart the backend so it opens the newly persisted Chroma index:
+
+   ```bash
+   docker compose restart backend
+   ```
+
+8. Open:
 
    - React application: `http://localhost:5173`
    - FastAPI documentation: `http://localhost:8000/docs`
@@ -48,6 +60,11 @@ a deterministic no-key fallback.
 Both setup assistants preserve unrelated `.env` settings, clear unused provider
 keys, and never print the entered secret. No Python or TypeScript source file
 needs to be edited for local setup.
+
+The Chroma index is a generated local artifact and is not committed to Git. The
+index command is therefore required once after cloning, and again only when the
+CV PDFs, extraction, chunking, embedding model, or indexing configuration changes.
+The first run may download the local sentence-transformer embedding model.
 
 ## Application preview
 
@@ -100,6 +117,28 @@ GET  /api/candidates/{candidate_id}/cv
 The API returns safe validation/error envelopes and serves candidate PDFs only
 through trusted indexed metadata.
 
+## Troubleshooting
+
+### `The CV index is not available`
+
+The backend is running, but the persisted Chroma collection has not been built
+or mounted. Rebuild it from the committed CV PDFs, then restart the backend:
+
+```bash
+docker compose exec backend python -m app.scripts.ingest_cv_documents --all --rebuild
+docker compose restart backend
+```
+
+Optionally inspect the resulting vector store:
+
+```bash
+docker compose exec backend python -m app.scripts.inspect_cv_vector_store
+```
+
+This indexing step is different from regenerating the synthetic candidate
+dataset. Reviewers can use the committed CV PDFs and do not need an OpenAI key
+to rebuild the local vector index.
+
 ## Validation
 
 Backend:
@@ -117,8 +156,9 @@ docker compose run --rm frontend npm run build
 ```
 
 The synthetic CV-generation utilities still require OpenAI when a developer
-chooses to regenerate the dataset. Normal question answering over the committed
-CV collection does not require dataset regeneration.
+chooses to regenerate the dataset. Normal question answering does not require
+dataset regeneration, but a fresh clone must build the local Chroma index once
+from the committed CV PDFs as shown in the quick start.
 
 ## Query robustness diagnostic
 
