@@ -1,4 +1,4 @@
-"""Google Gemini provider tests for grounded structured answers."""
+"""Google Gemini provider tests for grounded JSON answers."""
 
 from types import SimpleNamespace
 from unittest.mock import MagicMock
@@ -61,10 +61,12 @@ def _provider(client) -> GeminiGroundedAnswerProvider:
     )
 
 
-def test_provider_uses_raw_json_schema_structured_output() -> None:
+def test_provider_uses_json_mode_without_api_schema_transport() -> None:
+    """Gemini receives JSON mode plus a compact prompt contract only."""
+
     client = MagicMock()
     client.models.generate_content.return_value = SimpleNamespace(
-        parsed=_draft(),
+        parsed=None,
         text=_draft().model_dump_json(),
     )
 
@@ -74,22 +76,18 @@ def test_provider_uses_raw_json_schema_structured_output() -> None:
     call = client.models.generate_content.call_args.kwargs
     assert call["model"] == "gemini-test"
     assert "candidate_001-source-1" in call["contents"]
-    expected_schema = GroundedAnswerDraft.model_json_schema()
-    assert call["config"].response_json_schema == expected_schema
-    assert call["config"].response_schema is None
-    assert expected_schema["additionalProperties"] is False
-    assert (
-        expected_schema["$defs"]["GroundedCandidateAnswer"][
-            "additionalProperties"
-        ]
-        is False
-    )
-    assert call["config"].response_mime_type == "application/json"
-    assert call["config"].max_output_tokens == 2000
+    config = call["config"]
+    assert config.response_mime_type == "application/json"
+    assert config.response_schema is None
+    assert config.response_json_schema is None
+    assert config.max_output_tokens == 2000
+    assert "Return exactly one JSON object" in config.system_instruction
+    assert '"candidate_id"' in config.system_instruction
+    assert "no additional keys" in config.system_instruction
 
 
 def test_provider_validates_parsed_mapping_with_pydantic() -> None:
-    """Raw JSON schema responses remain subject to the strict app contract."""
+    """JSON-mode mappings remain subject to the strict app contract."""
 
     client = MagicMock()
     client.models.generate_content.return_value = SimpleNamespace(
@@ -102,10 +100,42 @@ def test_provider_validates_parsed_mapping_with_pydantic() -> None:
     assert result == _draft()
 
 
+def test_provider_validates_json_text_with_pydantic() -> None:
+    """The normal no-schema SDK path validates response text locally."""
+
+    client = MagicMock()
+    client.models.generate_content.return_value = SimpleNamespace(
+        parsed=None,
+        text=_draft().model_dump_json(),
+    )
+
+    result = _provider(client).generate(_retrieval_result())
+
+    assert result == _draft()
+
+
+def test_provider_rejects_json_that_violates_application_contract() -> None:
+    """Provider JSON cannot bypass forbidden fields or required values."""
+
+    invalid = _draft().model_dump(mode="json")
+    invalid["unexpected"] = "not allowed"
+    client = MagicMock()
+    client.models.generate_content.return_value = SimpleNamespace(
+        parsed=invalid,
+        text=None,
+    )
+
+    with pytest.raises(GroundedAnswerProviderError) as raised:
+        _provider(client).generate(_retrieval_result())
+
+    assert raised.value.retryable is True
+    assert "did not pass" in str(raised.value)
+
+
 def test_provider_passes_correction_feedback() -> None:
     client = MagicMock()
     client.models.generate_content.return_value = SimpleNamespace(
-        parsed=_draft(),
+        parsed=None,
         text=_draft().model_dump_json(),
     )
 
@@ -133,7 +163,7 @@ def test_provider_marks_quota_error_as_retryable() -> None:
     assert "HTTP 429" in str(raised.value)
 
 
-def test_provider_rejects_missing_structured_content() -> None:
+def test_provider_rejects_missing_json_content() -> None:
     client = MagicMock()
     client.models.generate_content.return_value = SimpleNamespace(
         parsed=None,

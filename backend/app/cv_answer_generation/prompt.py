@@ -40,6 +40,36 @@ Required behavior:
 """.strip()
 
 
+GEMINI_GROUNDED_ANSWER_JSON_CONTRACT = r"""
+Return exactly one JSON object with this shape and no additional keys:
+
+{
+  "outcome": "supported | partial | unsupported",
+  "answer": "concise recruiter-facing explanation",
+  "answer_citation_ids": ["source_id"],
+  "candidates": [
+    {
+      "candidate_id": "candidate_id from the candidate registry",
+      "candidate_name": "exact candidate name from the candidate registry",
+      "professional_title": "exact title from the candidate registry",
+      "assessment": "candidate-specific explanation grounded in evidence",
+      "matched_requirements": ["exact matched requirement label"],
+      "citation_ids": ["source_id belonging to this candidate"]
+    }
+  ],
+  "limitations": ["short limitation"]
+}
+
+JSON rules:
+- Use double-quoted JSON strings and valid JSON arrays.
+- Return every top-level key exactly once.
+- Do not add Markdown fences, commentary, or additional fields.
+- Preserve registry values exactly where the field description says exact.
+- Use empty arrays when a list has no values.
+- For an unsupported outcome, candidates and citation arrays must be empty.
+""".strip()
+
+
 def build_grounded_answer_prompt(
     retrieval_result: FinalCvRetrievalResult,
     *,

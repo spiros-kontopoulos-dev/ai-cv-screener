@@ -1,4 +1,4 @@
-"""Google Gemini structured-output client for grounded CV answers."""
+"""Google Gemini JSON-mode client for grounded CV answers."""
 
 from collections.abc import Sequence
 
@@ -10,11 +10,15 @@ from app.cv_retrieval import FinalCvRetrievalResult
 
 from .client import GroundedAnswerProviderError
 from .models import GroundedAnswerDraft
-from .prompt import GROUNDED_ANSWER_INSTRUCTIONS, build_grounded_answer_prompt
+from .prompt import (
+    GEMINI_GROUNDED_ANSWER_JSON_CONTRACT,
+    GROUNDED_ANSWER_INSTRUCTIONS,
+    build_grounded_answer_prompt,
+)
 
 
 class GeminiGroundedAnswerProvider:
-    """Generate one structured recruiter answer through the Gemini API."""
+    """Generate one validated recruiter answer through Gemini JSON mode."""
 
     def __init__(
         self,
@@ -53,17 +57,19 @@ class GeminiGroundedAnswerProvider:
                     correction_feedback=correction_feedback,
                 ),
                 config=types.GenerateContentConfig(
-                    system_instruction=GROUNDED_ANSWER_INSTRUCTIONS,
-                    response_mime_type="application/json",
-                    # ``response_schema`` converts the Pydantic model through
-                    # Gemini's legacy Schema message. That path rejects valid
-                    # JSON Schema keywords emitted by ``extra="forbid"``,
-                    # including ``additionalProperties``. Send the model's raw
-                    # JSON Schema instead, then keep Pydantic as the strict
-                    # application-side validation boundary below.
-                    response_json_schema=(
-                        GroundedAnswerDraft.model_json_schema()
+                    system_instruction=(
+                        GROUNDED_ANSWER_INSTRUCTIONS
+                        + "\n\n"
+                        + GEMINI_GROUNDED_ANSWER_JSON_CONTRACT
                     ),
+                    # Gemini JSON mode guarantees JSON syntax without sending
+                    # the nested Pydantic schema through either of the API
+                    # schema transports. Both schema paths were rejected by
+                    # the live Gemini endpoint for this contract. The compact
+                    # prompt contract guides generation, while the original
+                    # GroundedAnswerDraft remains the strict validation
+                    # boundary immediately after the response.
+                    response_mime_type="application/json",
                     max_output_tokens=self._max_completion_tokens,
                     temperature=0.1,
                 ),
@@ -89,12 +95,12 @@ class GeminiGroundedAnswerProvider:
                 return GroundedAnswerDraft.model_validate_json(response.text)
         except ValidationError as error:
             raise GroundedAnswerProviderError(
-                "The Gemini structured response did not pass "
+                "The Gemini JSON response did not pass "
                 "GroundedAnswerDraft validation.",
                 retryable=True,
             ) from error
 
         raise GroundedAnswerProviderError(
-            "Gemini completed without returning a structured grounded answer.",
+            "Gemini completed without returning a grounded JSON answer.",
             retryable=False,
         )
