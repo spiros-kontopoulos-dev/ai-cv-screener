@@ -1,9 +1,14 @@
-"""Create stable, candidate-safe chunks from PDF-extracted CV documents.
+"""Turn an extracted CV document into stable, candidate-safe chunks.
 
-The public chunker coordinates section detection, paragraph-aware packing, and
-stable identifiers. Template-specific heading heuristics and low-level packing
-remain in focused modules so later embedding and retrieval code do not turn
-this file into a mixed-responsibility RAG utility.
+This module coordinates two focused helpers:
+
+- ``sectioning.py`` labels text as experience, skills, education, and other
+  common CV sections;
+- ``chunk_packing.py`` keeps each chunk within the configured size limits.
+
+Every output chunk belongs to one document and one candidate. The chunker also
+checks ordering, page numbers, sizes, and unique IDs before returning data to
+the embedding stage.
 """
 
 from collections.abc import Sequence
@@ -38,12 +43,12 @@ DEFAULT_OVERLAP_CHARACTERS = 120
 
 
 class CvChunkingError(ValueError):
-    """Raised when documents cannot be converted into valid chunks."""
+    """Raised when extracted documents cannot produce safe, valid chunks."""
 
 
 @dataclass(frozen=True, slots=True)
 class CvChunkingConfig:
-    """Deterministic size and version controls for one chunking strategy."""
+    """Version, size, and overlap settings that define the chunking contract."""
 
     version: str = DEFAULT_CHUNKING_VERSION
     max_characters: int = DEFAULT_MAX_CHARACTERS
@@ -80,7 +85,7 @@ def chunk_cv_document(
     *,
     config: CvChunkingConfig | None = None,
 ) -> tuple[CvChunk, ...]:
-    """Create deterministic section-aware chunks for one extracted PDF."""
+    """Split one extracted PDF into section-aware chunks with stable IDs."""
 
     active_config = config or CvChunkingConfig()
     fragments = split_document_into_sections(document)
@@ -143,7 +148,7 @@ def chunk_cv_documents(
     *,
     config: CvChunkingConfig | None = None,
 ) -> tuple[CvChunk, ...]:
-    """Chunk a deterministic document batch without mixing candidate sources."""
+    """Chunk several documents while keeping every candidate completely separate."""
 
     if not documents:
         raise CvChunkingError(
@@ -176,7 +181,7 @@ def _validate_chunks(
     chunks: Sequence[CvChunk],
     config: CvChunkingConfig,
 ) -> None:
-    """Protect candidate, page, size, ordering, and identifier invariants."""
+    """Check that every chunk keeps valid identity, pages, size, order, and ID."""
 
     expected_indices = list(range(len(chunks)))
     actual_indices = [chunk.chunk_index for chunk in chunks]

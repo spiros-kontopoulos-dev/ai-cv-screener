@@ -1,7 +1,9 @@
-"""Run raw semantic nearest-neighbour checks against the persisted CV index.
+"""Run simple semantic searches directly against the CV vector index.
 
-This command deliberately prints ungrouped Chroma chunks. Candidate-aware
-ranking, thresholds, and balanced evidence selection belong to Work Package 6.
+The command embeds each question and prints the nearest raw Chroma chunks. It
+stops before exact evidence checks, candidate grouping, support thresholds, and
+context selection. This makes it useful as a baseline when debugging later
+retrieval stages.
 """
 
 import argparse
@@ -20,7 +22,7 @@ from app.cv_ingestion import (
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """Create the raw semantic smoke-test command."""
+    """Define one or more questions and the number of raw chunks to display."""
 
     parser = argparse.ArgumentParser(
         description="Query raw nearest CV chunks without final retrieval logic."
@@ -53,7 +55,7 @@ def run_cli(
     provider: SentenceTransformerEmbeddingProvider | None = None,
     repository: CvChromaRepository | None = None,
 ) -> int:
-    """Embed each question and print raw nearest-neighbour evidence."""
+    """Embed each question, query Chroma, and print source-traceable raw matches."""
 
     parser = build_parser()
     arguments = parser.parse_args(argv)

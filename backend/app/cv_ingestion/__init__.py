@@ -1,4 +1,17 @@
-"""Public contracts for generic CV PDF ingestion and source identity."""
+"""Tools for turning CV PDF files into a searchable vector index.
+
+The package keeps the ingestion flow split into clear steps:
+
+1. select PDF files;
+2. calculate a stable hash and extract page text;
+3. split each CV into candidate-safe chunks;
+4. create local embedding vectors;
+5. store the chunks and vectors in persistent ChromaDB;
+6. report whether every document was indexed completely.
+
+The PDF text is the knowledge source. Candidate-generation JSON is not used as
+search evidence.
+"""
 
 from app.cv_ingestion.chroma_store import (
     CvChromaRepository,

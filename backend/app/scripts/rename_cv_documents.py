@@ -1,8 +1,8 @@
-"""Preview or apply optional human-readable CV filenames.
+"""Preview or apply readable filenames for selected CV PDFs.
 
-The command is deliberately separate from ingestion.  Uploads and arbitrary
-administrator files must never be silently renamed as a side effect of text
-extraction or vector persistence.
+The command is separate from ingestion. Extracting or indexing a PDF must not
+silently rename a user's file. Without ``--apply``, it only prints the planned
+changes.
 """
 
 import argparse
@@ -23,7 +23,7 @@ from app.cv_ingestion import (
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """Create the safe preview-first filename migration contract."""
+    """Define PDF selection and the explicit ``--apply`` option."""
 
     parser = argparse.ArgumentParser(
         description=(
@@ -69,7 +69,7 @@ def run_cli(
     *,
     settings: Settings | None = None,
 ) -> int:
-    """Load selected PDFs, build safe rename plans, and optionally apply them."""
+    """Extract display metadata, show rename plans, and apply them when requested."""
 
     parser = build_parser()
     arguments = parser.parse_args(argv)

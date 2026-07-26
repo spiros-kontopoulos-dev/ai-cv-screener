@@ -1,4 +1,8 @@
-"""Inspect generic PDF extraction before chunking and vector persistence.
+"""Show what the PDF extraction stage reads from selected CV files.
+
+The command calculates document hashes, extracts pages, and prints detected
+candidate details and text counts. It does not create chunks, embeddings, or
+ChromaDB records.
 
 Examples:
 
@@ -24,7 +28,7 @@ from app.cv_ingestion import (
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """Create the command-line contract for path-based PDF inspection."""
+    """Define file, directory, recursion, and display options for the command."""
 
     parser = argparse.ArgumentParser(
         description=(
@@ -83,7 +87,7 @@ def run_cli(
     *,
     settings: Settings | None = None,
 ) -> int:
-    """Select PDFs, extract them, and print document and page summaries."""
+    """Run PDF selection and extraction, then print a readable summary."""
 
     parser = build_parser()
     arguments = parser.parse_args(argv)

@@ -1,11 +1,16 @@
-"""Resolve explicit files and directories into deterministic PDF selections."""
+"""Choose which PDF files an ingestion or inspection command will process.
+
+A caller must choose exactly one mode: explicit files, one directory, or the
+configured default CV directory. The returned paths are validated and sorted
+so repeated runs process documents in the same order.
+"""
 
 from collections.abc import Sequence
 from pathlib import Path
 
 
 class CvDocumentSelectionError(ValueError):
-    """Raised when CLI-style PDF input selection is invalid."""
+    """Raised when the requested file or directory selection is not valid."""
 
 
 def select_cv_pdf_paths(
@@ -16,12 +21,11 @@ def select_cv_pdf_paths(
     select_all: bool = False,
     recursive: bool = False,
 ) -> tuple[Path, ...]:
-    """Resolve one selection mode into deterministic PDF paths.
+    """Return validated PDF paths for exactly one selection mode.
 
-    ``files`` may contain one or several explicit PDFs. ``directory`` scans a
-    caller-supplied folder. ``select_all`` scans the configured default
-    directory. Exactly one mode is required so an administrator cannot
-    accidentally process more documents than intended.
+    ``files`` accepts one or more named PDFs. ``directory`` scans a chosen
+    folder. ``select_all`` scans the configured CV folder. Requiring one mode
+    avoids accidentally processing a larger collection than intended.
     """
 
     selection_mode_count = sum(
@@ -73,7 +77,7 @@ def select_cv_pdf_paths(
 
 
 def validate_cv_pdf_path(path: Path) -> Path:
-    """Validate one explicit PDF source path and return it unchanged."""
+    """Check that one path exists, is a file, and has a PDF extension."""
 
     if path.suffix.casefold() != ".pdf":
         raise CvDocumentSelectionError(
@@ -94,7 +98,7 @@ def _scan_pdf_directory(
     *,
     recursive: bool,
 ) -> tuple[Path, ...]:
-    """Return PDF files from one validated directory."""
+    """Scan one directory and return its PDF files in stable order."""
 
     if not directory.exists():
         raise CvDocumentSelectionError(

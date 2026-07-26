@@ -1,4 +1,8 @@
-"""Inspect local Hugging Face embeddings without writing ChromaDB records.
+"""Create sample CV embeddings and check their shape without storing them.
+
+The command runs selection, extraction, and chunking, then loads the configured
+Sentence Transformer and prints the model, dimension, and vector norm range.
+It never writes ChromaDB records.
 
 Examples:
 
@@ -30,7 +34,7 @@ from app.cv_ingestion import (
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """Create the developer command for extraction-to-embedding inspection."""
+    """Define PDF selection and how many chunks should be embedded for inspection."""
 
     parser = argparse.ArgumentParser(
         description=(
@@ -82,7 +86,7 @@ def run_cli(
     settings: Settings | None = None,
     provider: SentenceTransformerEmbeddingProvider | None = None,
 ) -> int:
-    """Run PDF extraction, chunking, and local embedding inspection."""
+    """Build a small in-memory PDF-to-vector sample and print validation details."""
 
     parser = build_parser()
     arguments = parser.parse_args(argv)

@@ -1,9 +1,11 @@
-"""Detect common CV sections without depending on one document template.
+"""Split extracted CV text into common sections such as experience and skills.
 
-PyMuPDF text order may merge two visual columns onto one line. The detector
-therefore accepts exact headings and carefully constrained uppercase headings
-embedded after ordinary content. Unknown layouts remain valid and fall back to
-a generic document section.
+PDF text order is not always the same as the visible page layout. Two columns
+may be returned on one line, so the detector handles both normal headings and
+carefully checked embedded uppercase headings.
+
+A document does not fail when its layout is unknown. Unrecognized text is kept
+under a general ``document`` section so no candidate evidence is lost.
 """
 
 from collections.abc import Sequence
@@ -98,7 +100,7 @@ _COMBINED_SKILLS_LANGUAGE_HEADINGS = frozenset(
 
 @dataclass(frozen=True, slots=True)
 class SectionFragment:
-    """Contiguous PDF text assigned to one section on one page."""
+    """A continuous piece of one page assigned to a detected CV section."""
 
     section_name: str
     page_number: int
@@ -108,7 +110,7 @@ class SectionFragment:
 def split_document_into_sections(
     document: ExtractedCvDocument,
 ) -> tuple[SectionFragment, ...]:
-    """Assign page text to recognized sections or a generic fallback."""
+    """Find section headings and label every line without dropping unknown text."""
 
     fragments: list[SectionFragment] = []
     current_section = SECTION_IDENTITY
@@ -159,7 +161,7 @@ def split_document_into_sections(
 def group_contiguous_sections(
     fragments: Sequence[SectionFragment],
 ) -> tuple[tuple[str, tuple[SectionFragment, ...]], ...]:
-    """Group adjacent page fragments that belong to the same section."""
+    """Join neighbouring fragments when they continue the same CV section."""
 
     grouped_sections: list[tuple[str, tuple[SectionFragment, ...]]] = []
     current_name: str | None = None
@@ -182,7 +184,7 @@ def group_contiguous_sections(
 
 
 def _split_line_on_headings(line: str) -> tuple[tuple[str, str], ...]:
-    """Split one line around exact or uppercase embedded CV headings."""
+    """Separate a line when PDF extraction placed a heading beside other text."""
 
     stripped_line = line.strip()
     if not stripped_line:

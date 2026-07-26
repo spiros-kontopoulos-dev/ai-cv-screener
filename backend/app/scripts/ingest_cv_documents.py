@@ -1,4 +1,11 @@
-"""Run the complete idempotent PDF-to-Chroma CV ingestion workflow.
+"""Build or update the persistent CV vector index from PDF files.
+
+The command runs the complete pipeline: PDF hashing and extraction, section
+chunking, local embeddings, and ChromaDB storage. Unchanged complete documents
+are skipped before extraction and embedding.
+
+Use ``--rebuild`` to recreate the collection when the embedding or chunking
+contract changes. Use ``--replace-existing`` to reprocess selected documents.
 
 Examples:
 
@@ -27,7 +34,7 @@ from app.cv_ingestion import (
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """Create the administrator ingestion command."""
+    """Define PDF selection, rebuild, replacement, and optional metadata arguments."""
 
     parser = argparse.ArgumentParser(
         description=(
@@ -93,7 +100,7 @@ def run_cli(
     settings: Settings | None = None,
     service: CvIngestionService | None = None,
 ) -> int:
-    """Run one complete ingestion request and print a reviewable summary."""
+    """Select PDFs, call the ingestion service, and print counts and failures."""
 
     parser = build_parser()
     arguments = parser.parse_args(argv)
@@ -190,7 +197,7 @@ def run_cli(
 
 
 def _build_service(settings: Settings) -> CvIngestionService:
-    """Build the production service from central immutable settings."""
+    """Create the chunker, embedding provider, and Chroma repository from settings."""
 
     provider = get_embedding_provider(
         settings.cv_embedding_model_name,

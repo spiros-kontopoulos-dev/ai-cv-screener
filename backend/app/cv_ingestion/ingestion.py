@@ -1,8 +1,18 @@
-"""Orchestrate the complete idempotent CV PDF ingestion workflow.
+"""Run the complete PDF-to-Chroma ingestion pipeline.
 
-The service composes the independently tested PDF, chunking, embedding, and
-Chroma repository layers. The current administrator CLI and a future upload
-endpoint can call the same service without duplicating pipeline logic.
+For each selected PDF, the service:
+
+1. calculates its SHA-256 hash;
+2. skips it when the same complete document is already indexed;
+3. extracts page text with PyMuPDF;
+4. creates candidate-safe chunks;
+5. generates local embedding vectors;
+6. writes the records to ChromaDB;
+7. returns document and index coverage details.
+
+This makes repeated ingestion idempotent: unchanged complete PDFs are not
+extracted or embedded again. The command-line tool and a future upload endpoint
+can both call this same service.
 """
 
 from __future__ import annotations
@@ -37,12 +47,12 @@ from app.cv_ingestion.models import CvChunk, ExtractedCvDocument
 
 
 class CvIngestionError(RuntimeError):
-    """Raised when the complete ingestion workflow cannot continue safely."""
+    """Raised when ingestion cannot continue without risking an invalid index."""
 
 
 @dataclass(frozen=True, slots=True)
 class CvMetadataOverrides:
-    """Optional caller-supplied identity for one arbitrary uploaded-style PDF."""
+    """Optional candidate details supplied for one PDF with an unknown layout."""
 
     candidate_id: str | None = None
     candidate_name: str | None = None
@@ -51,7 +61,7 @@ class CvMetadataOverrides:
 
 @dataclass(frozen=True, slots=True)
 class CvIngestionFailure:
-    """One document-level failure retained while later documents continue."""
+    """A failed PDF, the stage that failed, and a safe error message."""
 
     source_path: Path
     stage: str
@@ -60,7 +70,7 @@ class CvIngestionFailure:
 
 @dataclass(frozen=True, slots=True)
 class CvIngestionDocumentResult:
-    """One selected PDF's terminal ingestion state."""
+    """The final indexed, skipped, refreshed, duplicate, or failed state of one PDF."""
 
     source_path: Path
     document_hash: str
@@ -78,7 +88,7 @@ class CvIngestionDocumentResult:
 
 @dataclass(frozen=True, slots=True)
 class CvIngestionSummary:
-    """Complete shell- and API-friendly result for one ingestion request."""
+    """Counts, per-document results, failures, and final index coverage."""
 
     selected_pdf_count: int
     unique_pdf_count: int
@@ -108,7 +118,7 @@ class _PendingDocument:
 
 
 class CvIngestionService:
-    """Run select-path PDFs through extraction, chunking, embedding, and storage."""
+    """Coordinate extraction, chunking, embedding, and persistent storage."""
 
     def __init__(
         self,
@@ -129,7 +139,7 @@ class CvIngestionService:
         replace_existing: bool = False,
         metadata_overrides: CvMetadataOverrides | None = None,
     ) -> CvIngestionSummary:
-        """Ingest selected PDFs and skip byte-identical complete documents."""
+        """Index selected PDFs while skipping unchanged documents already complete."""
 
         if not paths:
             raise CvIngestionError("At least one PDF path is required for ingestion.")
@@ -156,6 +166,8 @@ class CvIngestionService:
         duplicate_input_count = 0
 
         for path in ordered_paths:
+            # Hash first. This lets us detect duplicate input and skip already
+            # indexed PDFs before paying the cost of extraction or embeddings.
             try:
                 document_hash = calculate_pdf_sha256(path)
             except (CvDocumentExtractionError, OSError, ValueError) as error:
@@ -194,6 +206,8 @@ class CvIngestionService:
         metadata_refreshed_count = 0
         skipped_document_count = 0
         for document_hash, path in unique_sources.items():
+            # A complete document with the same bytes needs no new vectors.
+            # A partial document or an explicit replacement must be rebuilt.
             existing = existing_by_hash.get(document_hash)
             if existing is None or not existing.complete or replace_existing:
                 pending_paths.append((path, document_hash))
@@ -247,6 +261,7 @@ class CvIngestionService:
                 )
 
         pending: list[_PendingDocument] = []
+        # Only pending PDFs reach the expensive extraction and chunking stages.
         for path, expected_hash in pending_paths:
             overrides = metadata_overrides or CvMetadataOverrides()
             try:

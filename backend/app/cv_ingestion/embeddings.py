@@ -1,8 +1,11 @@
-"""Local Hugging Face embedding generation for PDF-derived CV chunks.
+"""Create local embedding vectors for CV chunks and user questions.
 
-The model is loaded lazily and cached by configuration. Chroma never receives
-an embedding function; this module owns every vector so the manual RAG workflow
-remains visible, testable, and reusable for both document and query embeddings.
+The Sentence Transformer model is loaded only when it is first needed and is
+then reused. Document chunks and questions use the same model and normalization
+settings, which makes their vectors comparable during semantic search.
+
+Vectors are created here and passed explicitly to ChromaDB. This keeps the
+model name, dimension, batching, and validation visible in application code.
 """
 
 from __future__ import annotations
@@ -19,11 +22,11 @@ from app.cv_ingestion.models import CvChunk
 
 
 class CvEmbeddingError(RuntimeError):
-    """Raised when local embedding generation cannot produce valid vectors."""
+    """Raised when the local model cannot create vectors that match the contract."""
 
 
 class SentenceTransformerModel(Protocol):
-    """Small protocol covering the SentenceTransformer methods we depend on."""
+    """The small part of the Sentence Transformer API used by this project."""
 
     def encode(
         self,
@@ -45,7 +48,7 @@ ModelLoader = Callable[[str, str, Path], SentenceTransformerModel]
 
 @dataclass(frozen=True, slots=True)
 class CvEmbeddingConfig:
-    """Deterministic model and batching settings for CV embeddings."""
+    """Model name, vector dimension, batch size, device, and cache settings."""
 
     model_name: str = "sentence-transformers/all-MiniLM-L6-v2"
     expected_dimension: int = 384
@@ -69,7 +72,7 @@ class CvEmbeddingConfig:
 
 @dataclass(frozen=True, slots=True)
 class EmbeddedCvChunk:
-    """One CV chunk paired with its validated dense vector."""
+    """One PDF-derived chunk together with its checked embedding vector."""
 
     chunk: CvChunk
     embedding: tuple[float, ...]
@@ -79,7 +82,7 @@ class EmbeddedCvChunk:
 
 
 class SentenceTransformerEmbeddingProvider:
-    """Lazily load one Sentence Transformer and embed CV chunk batches."""
+    """Load one reusable model and create validated document or query vectors."""
 
     def __init__(
         self,
@@ -222,7 +225,7 @@ def get_embedding_provider(
     device: str,
     cache_directory: Path,
 ) -> SentenceTransformerEmbeddingProvider:
-    """Return one cached provider for one immutable embedding configuration."""
+    """Reuse one embedding provider for the same model configuration."""
 
     return SentenceTransformerEmbeddingProvider(
         CvEmbeddingConfig(
@@ -267,7 +270,7 @@ def _load_sentence_transformer_model(
     device: str,
     cache_directory: Path,
 ) -> SentenceTransformerModel:
-    """Import Sentence Transformers lazily so non-RAG commands fail clearly."""
+    """Import and create the model only when embedding work is requested."""
 
     try:
         from sentence_transformers import SentenceTransformer

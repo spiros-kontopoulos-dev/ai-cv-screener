@@ -1,9 +1,15 @@
-"""Immutable contracts for PDF extraction and future RAG ingestion.
+"""Data objects passed between the PDF ingestion stages.
 
-These models deliberately describe documents independently from the synthetic
-candidate generator. A PDF may come from the committed demo dataset, a file
-copied into an administrator folder, or a future upload endpoint. Every later
-chunk and vector can inherit the same stable source metadata.
+These models describe a CV independently from the way it was created. A PDF
+can come from the included demo data, an administrator folder, or a future
+upload endpoint.
+
+The main transformation is:
+
+``CvSourceMetadata`` -> ``ExtractedCvDocument`` -> ``CvChunk``
+
+Every object keeps the same document hash, candidate ID, filename, and page
+information. This lets later search results point back to the exact PDF source.
 """
 
 from dataclasses import dataclass
@@ -12,7 +18,12 @@ from pathlib import Path
 
 @dataclass(frozen=True, slots=True)
 class CvSourceMetadata:
-    """Stable technical and human-readable identity for one PDF CV."""
+    """Identity and display information shared by every page and chunk of one PDF.
+
+``document_hash`` is calculated from the PDF bytes and is the technical
+identity. The filename is only a human-readable label and may change without
+creating a new document.
+"""
 
     document_id: str
     document_hash: str
@@ -25,7 +36,7 @@ class CvSourceMetadata:
 
 @dataclass(frozen=True, slots=True)
 class ExtractedCvPage:
-    """Normalized text and source metadata for one one-based PDF page."""
+    """Extracted text for one PDF page, using page numbers that start at 1."""
 
     source: CvSourceMetadata
     page_number: int
@@ -41,7 +52,11 @@ class ExtractedCvPage:
 
 @dataclass(frozen=True, slots=True)
 class ExtractedCvDocument:
-    """A complete PDF represented as ordered, candidate-safe pages."""
+    """One complete CV PDF represented as ordered extracted pages.
+
+All pages belong to the same source document and candidate. Keeping this
+boundary prevents text from different CVs from being mixed during chunking.
+"""
 
     source: CvSourceMetadata
     pages: tuple[ExtractedCvPage, ...]
@@ -67,11 +82,11 @@ class ExtractedCvDocument:
 
 @dataclass(frozen=True, slots=True)
 class CvChunk:
-    """One stable, candidate-safe unit prepared for later embedding.
+    """One bounded piece of PDF text prepared for embedding and search.
 
-    ``text`` contains only content extracted from the source PDF. Candidate and
-    source identity remain structured metadata, so later retrieval can group
-    evidence without injecting generator JSON into the knowledge content.
+    The text comes only from the PDF. Candidate identity, pages, section, and
+    filename remain separate metadata so search can group evidence by person
+    and create accurate citations.
     """
 
     chunk_id: str
@@ -111,7 +126,7 @@ class CvChunk:
 
 @dataclass(frozen=True, slots=True)
 class CvRenamePlan:
-    """One safe, reviewable filesystem rename operation."""
+    """A planned PDF rename that can be reviewed before the file is changed."""
 
     source_path: Path
     target_path: Path

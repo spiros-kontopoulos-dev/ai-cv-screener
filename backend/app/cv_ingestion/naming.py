@@ -1,8 +1,11 @@
-"""Plan and apply optional human-readable CV filename migrations.
+"""Create and apply optional human-readable CV filenames.
 
-File names are presentation metadata, never document identity.  The exact PDF
-bytes remain identified by their SHA-256 hash, so renaming or moving an
-unchanged file will not create a second vector record in later WP5 patches.
+A filename is presentation metadata, not technical identity. The PDF's
+SHA-256 hash remains unchanged when the file is renamed or moved, so the same
+content does not need new embeddings.
+
+Renaming is preview-first and separate from ingestion. This avoids unexpected
+filesystem changes while building the vector index.
 """
 
 from collections.abc import Sequence
@@ -14,11 +17,11 @@ from app.cv_ingestion.models import CvRenamePlan, ExtractedCvDocument
 
 
 class CvDocumentNamingError(ValueError):
-    """Raised when a safe readable filename cannot be produced or applied."""
+    """Raised when a readable filename is unsafe, incomplete, or conflicts."""
 
 
 def build_readable_cv_filename(document: ExtractedCvDocument) -> str:
-    """Return ``name-role-cv.pdf`` for a document with detected metadata."""
+    """Build a readable filename from the candidate name and professional title."""
 
     return build_readable_cv_filename_from_metadata(
         candidate_name=document.source.candidate_name,
@@ -33,11 +36,11 @@ def build_readable_cv_filename_from_metadata(
     professional_title: str | None,
     source_label: str = "candidate profile",
 ) -> str:
-    """Return the canonical readable PDF filename from display metadata.
+    """Return the shared ``name-role-cv.pdf`` filename format.
 
-    Both PDF ingestion and deterministic PDF rendering use this helper so a
-    rerender cannot silently recreate the legacy ``candidate_XXX.pdf`` names.
-    ``source_label`` is used only to make validation errors actionable.
+    Ingestion and PDF rendering use the same helper, so rerendering does not
+    bring back older technical filenames. ``source_label`` is included only in
+    validation errors.
     """
 
     if not candidate_name or not professional_title:
@@ -58,7 +61,7 @@ def build_readable_cv_filename_from_metadata(
 def plan_cv_document_renames(
     documents: Sequence[ExtractedCvDocument],
 ) -> tuple[CvRenamePlan, ...]:
-    """Build collision-safe rename operations without touching the filesystem."""
+    """Preview safe rename operations and resolve filename collisions."""
 
     reserved_targets: set[Path] = set()
     plans: list[CvRenamePlan] = []
@@ -105,7 +108,7 @@ def plan_cv_document_renames(
 def apply_cv_document_renames(
     plans: Sequence[CvRenamePlan],
 ) -> tuple[CvRenamePlan, ...]:
-    """Apply reviewed plans without overwriting existing different files."""
+    """Apply approved rename plans without overwriting another file."""
 
     applied_plans: list[CvRenamePlan] = []
     for plan in plans:

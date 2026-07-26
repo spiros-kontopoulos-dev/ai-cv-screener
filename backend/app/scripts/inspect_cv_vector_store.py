@@ -1,4 +1,8 @@
-"""Inspect configured persistent Chroma collection metadata and record count."""
+"""Show whether the persistent CV vector index is compatible and complete.
+
+The command prints collection settings, document and candidate counts, and any
+partial documents. It reads the index but never changes its records.
+"""
 
 from collections.abc import Sequence
 import sys
@@ -17,7 +21,7 @@ def run_cli(
     settings: Settings | None = None,
     repository: CvChromaRepository | None = None,
 ) -> int:
-    """Print vector collection compatibility details without writing records."""
+    """Open the configured collection and print settings and coverage counts."""
 
     if argv:
         print("ERROR: This command does not accept arguments.", file=sys.stderr)

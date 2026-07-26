@@ -1,8 +1,13 @@
-"""Persistent ChromaDB storage for explicitly generated CV embeddings.
+"""Store CV chunks and their vectors in persistent ChromaDB.
 
-The repository receives vectors from ``embeddings.py`` and always supplies
-them explicitly to Chroma. Collection metadata records compatibility-critical
-settings so incompatible models or chunking strategies are never mixed.
+The repository receives already-created vectors from ``embeddings.py``. It
+stores the chunk text together with candidate, document, page, section, model,
+and chunking metadata.
+
+Before using an existing collection, the repository checks the embedding model,
+vector dimension, chunking version, index version, and distance metric. A
+mismatch requires an explicit rebuild instead of silently mixing incompatible
+records.
 """
 
 from __future__ import annotations
@@ -17,11 +22,11 @@ from app.cv_ingestion.embeddings import EmbeddedCvChunk
 
 
 class CvVectorStoreError(RuntimeError):
-    """Raised when persistent vector records cannot be created or validated."""
+    """Raised when the vector index cannot be read, written, or validated safely."""
 
 
 class ChromaCollection(Protocol):
-    """Subset of the Chroma collection API used by the repository."""
+    """The small part of Chroma's collection API used by this repository."""
 
     metadata: dict[str, Any] | None
     configuration: dict[str, Any]
@@ -58,7 +63,7 @@ class ChromaCollection(Protocol):
 
 
 class ChromaClient(Protocol):
-    """Subset of the persistent Chroma client used by the repository."""
+    """The small part of Chroma's persistent client API used here."""
 
     def get_or_create_collection(self, **kwargs: Any) -> ChromaCollection:
         """Return a compatible collection or create it."""
@@ -72,7 +77,7 @@ ClientFactory = Callable[[Path], ChromaClient]
 
 @dataclass(frozen=True, slots=True)
 class CvVectorStoreConfig:
-    """Compatibility and persistence settings for one Chroma collection."""
+    """Path, collection name, and compatibility rules for the vector index."""
 
     persist_directory: Path = Path("storage/chroma")
     collection_name: str = "cv_chunks"
@@ -118,7 +123,7 @@ class CvVectorStoreConfig:
 
 @dataclass(frozen=True, slots=True)
 class VectorUpsertSummary:
-    """Storage-level result for one explicit upsert operation."""
+    """Counts returned after chunks are created or updated by stable ID."""
 
     collection_name: str
     records_submitted: int
@@ -128,7 +133,7 @@ class VectorUpsertSummary:
 
 @dataclass(frozen=True, slots=True)
 class VectorCollectionInfo:
-    """Read-only summary of one persistent Chroma collection."""
+    """Basic collection metadata and record count used by health checks."""
 
     collection_name: str
     record_count: int
@@ -138,7 +143,7 @@ class VectorCollectionInfo:
 
 @dataclass(frozen=True, slots=True)
 class IndexedDocumentSummary:
-    """Document-level completeness inferred from persisted chunk metadata."""
+    """Whether all expected chunks for one PDF are present in the index."""
 
     document_hash: str
     document_id: str
@@ -153,7 +158,7 @@ class IndexedDocumentSummary:
 
 @dataclass(frozen=True, slots=True)
 class VectorIndexCoverage:
-    """Collection coverage used by ingestion validation and diagnostics."""
+    """Index counts and per-document completeness used for checks and reports."""
 
     record_count: int
     document_count: int
@@ -166,7 +171,7 @@ class VectorIndexCoverage:
 
 @dataclass(frozen=True, slots=True)
 class RawVectorMatch:
-    """One ungrouped nearest-neighbour result for semantic smoke testing."""
+    """One raw nearest chunk returned before candidate-level retrieval logic."""
 
     chunk_id: str
     distance: float
@@ -176,7 +181,7 @@ class RawVectorMatch:
 
 @dataclass(frozen=True, slots=True)
 class RawStoredChunk:
-    """One persisted chunk loaded without embeddings for exact text assistance."""
+    """One stored chunk loaded as text and metadata without its vector."""
 
     chunk_id: str
     text: str
@@ -184,7 +189,13 @@ class RawStoredChunk:
 
 
 class CvChromaRepository:
-    """Persist validated CV vectors with stable IDs and complete metadata."""
+    """Read and write the persistent CV vector index.
+
+    Stable chunk IDs make upserts repeatable. Complete metadata lets later
+    retrieval group chunks by candidate and return PDF, page, and section
+    sources. The repository also detects partial documents and incompatible
+    collection settings.
+    """
 
     def __init__(
         self,
@@ -491,7 +502,7 @@ class CvChromaRepository:
         *,
         n_results: int = 5,
     ) -> tuple[RawVectorMatch, ...]:
-        """Return raw nearest chunks for smoke testing, without candidate ranking."""
+        """Return nearest chunks directly from Chroma, before candidate grouping."""
 
         if n_results < 1:
             raise CvVectorStoreError("Query result count must be positive.")
@@ -548,7 +559,7 @@ class CvChromaRepository:
         self,
         collection: ChromaCollection,
     ) -> None:
-        """Reject silent mixing of incompatible vectors or chunk contracts."""
+        """Compare stored collection settings with the current application settings."""
 
         actual_metadata = dict(collection.metadata or {})
         expected_metadata = self._config.collection_metadata
@@ -577,7 +588,7 @@ class CvChromaRepository:
             )
 
     def _validate_embedded_chunk(self, item: EmbeddedCvChunk) -> None:
-        """Ensure every vector matches the configured collection contract."""
+        """Check one vector's model, dimension, length, and chunking version."""
 
         if item.embedding_model != self._config.embedding_model:
             raise CvVectorStoreError(
@@ -601,7 +612,7 @@ def _build_document_summary(
     document_hash: str,
     records: Sequence[tuple[str, dict[str, Any]]],
 ) -> IndexedDocumentSummary:
-    """Build one deterministic completeness summary from chunk metadata."""
+    """Compare stored and expected chunk counts for one PDF document."""
 
     first_metadata = records[0][1]
     expected_values = {
@@ -635,7 +646,7 @@ def _serialize_chunk_metadata(
     *,
     document_chunk_count: int,
 ) -> dict[str, Any]:
-    """Convert source and chunk identity into Chroma-compatible scalar values."""
+    """Flatten chunk and source details into metadata values Chroma can store."""
 
     chunk = item.chunk
     source = chunk.source
@@ -661,7 +672,7 @@ def _serialize_chunk_metadata(
 
 
 def _create_persistent_client(path: Path) -> ChromaClient:
-    """Import Chroma lazily and create one disk-backed local client."""
+    """Create the disk-backed Chroma client only when the index is used."""
 
     try:
         import chromadb

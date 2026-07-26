@@ -1,8 +1,13 @@
-"""Fingerprint and extract arbitrary PDF CV documents with PyMuPDF.
+"""Read CV PDFs and turn them into page-based text documents.
 
-The extractor is reusable by the current administrator CLI and a future upload
-endpoint. It reads only the supplied PDF bytes: no candidate-profile JSON and
-no assumptions about how the document was generated.
+The module first calculates a SHA-256 hash from the exact PDF bytes. The hash
+stays the same when a file is renamed, so it is safer than using a filename as
+document identity.
+
+PyMuPDF then extracts visible text page by page. The code may detect a candidate
+ID, name, and title from the PDF, but it never reads candidate-generation JSON.
+The same functions can therefore process both the included CVs and unrelated
+PDF CVs.
 """
 
 from collections.abc import Callable, Sequence
@@ -58,11 +63,11 @@ _SECTION_HEADINGS = frozenset(
 
 
 class CvDocumentExtractionError(RuntimeError):
-    """Raised when a selected PDF cannot become a valid extracted document."""
+    """Raised when a PDF cannot be read or does not contain usable text."""
 
 
 def calculate_pdf_sha256(path: Path) -> str:
-    """Return a SHA-256 fingerprint of the exact PDF file bytes."""
+    """Calculate the stable document hash from the exact PDF file bytes."""
 
     validated_path = validate_cv_pdf_path(path)
     digest = sha256()
@@ -79,7 +84,7 @@ def calculate_pdf_sha256(path: Path) -> str:
 
 
 def normalize_extracted_page_text(raw_text: str) -> str:
-    """Clean extraction noise while preserving headings and line boundaries."""
+    """Remove simple PDF noise without joining headings, bullets, or paragraphs."""
 
     normalized_lines: list[str] = []
     previous_line_was_blank = False
@@ -113,7 +118,11 @@ def load_cv_document(
     candidate_name: str | None = None,
     professional_title: str | None = None,
 ) -> ExtractedCvDocument:
-    """Extract one PDF into a deterministic document and page contract."""
+    """Open one PDF, extract every page, and return one validated document.
+
+    Optional candidate details supplied by the caller take priority. Otherwise,
+    the function uses conservative header detection and safe fallback values.
+    """
 
     validated_path = validate_cv_pdf_path(path)
     document_hash = calculate_pdf_sha256(validated_path)
@@ -189,7 +198,11 @@ def load_cv_document(
 def load_cv_documents(
     paths: Sequence[Path],
 ) -> tuple[ExtractedCvDocument, ...]:
-    """Extract a deterministic batch and reject ambiguous document identity."""
+    """Extract several PDFs and reject duplicate hashes or candidate IDs.
+
+    Duplicate hashes mean the same PDF bytes were selected more than once.
+    Duplicate candidate IDs would make candidate-level search ambiguous.
+    """
 
     if not paths:
         raise CvDocumentExtractionError(
@@ -227,7 +240,7 @@ def detect_candidate_id(
     *,
     document_hash: str,
 ) -> str:
-    """Derive candidate identity without depending on a fixed filename format."""
+    """Find a visible candidate ID, then fall back to a hash-based ID."""
 
     filename_match = _GENERATED_CANDIDATE_ID_PATTERN.search(path.stem)
     if filename_match is not None:
@@ -241,11 +254,11 @@ def detect_candidate_id(
 
 
 def detect_candidate_header(first_page_text: str) -> tuple[str | None, str | None]:
-    """Best-effort detection of the visible name and role near a CV header.
+    """Try to find the candidate name and job title near the PDF header.
 
-    Upload callers may override these values explicitly. The heuristic is
-    intentionally conservative: failure to detect optional display metadata
-    never makes an otherwise extractable PDF invalid.
+    This information is useful for display but is not required for ingestion.
+    Upload or CLI callers can provide explicit values when a layout cannot be
+    detected reliably.
     """
 
     lines = [line.strip() for line in first_page_text.splitlines() if line.strip()]
@@ -275,7 +288,7 @@ def _reject_duplicate_values(
     value_name: str,
     value_getter: Callable[[ExtractedCvDocument], str],
 ) -> None:
-    """Reject duplicate technical or candidate identity inside one batch."""
+    """Reject repeated document hashes or candidate IDs in one batch."""
 
     documents_by_value: dict[str, list[ExtractedCvDocument]] = {}
     for document in documents:

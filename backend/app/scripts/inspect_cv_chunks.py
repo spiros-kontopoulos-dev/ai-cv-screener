@@ -1,4 +1,7 @@
-"""Inspect adaptive CV chunking before embeddings and ChromaDB persistence.
+"""Show how extracted CV pages are divided into searchable chunks.
+
+The command prints section names, page ranges, chunk sizes, stable IDs, and a
+text preview. It does not create embeddings or write to ChromaDB.
 
 Examples:
 
@@ -29,7 +32,7 @@ from app.cv_ingestion import (
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """Create the command-line contract for extraction and chunk inspection."""
+    """Define PDF selection, chunk limits, metadata overrides, and previews."""
 
     parser = argparse.ArgumentParser(
         description=(
@@ -107,7 +110,7 @@ def run_cli(
     *,
     settings: Settings | None = None,
 ) -> int:
-    """Select PDFs, extract them, chunk them, and print stable summaries."""
+    """Run extraction and chunking, then print the results without persistence."""
 
     parser = build_parser()
     arguments = parser.parse_args(argv)

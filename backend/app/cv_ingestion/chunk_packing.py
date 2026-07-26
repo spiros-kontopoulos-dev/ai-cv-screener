@@ -1,4 +1,10 @@
-"""Pack section fragments into bounded, overlapping text chunks."""
+"""Pack section text into chunks that fit the embedding and retrieval limits.
+
+The code keeps paragraph and bullet boundaries where possible. Long text is
+split on word boundaries, and a small amount of trailing text may be repeated
+in the next chunk so meaning is not lost at a split. The configured maximum
+size is always treated as a hard limit.
+"""
 
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
@@ -17,7 +23,7 @@ _UNIT_LABEL_PATTERN = re.compile(
 
 @dataclass(frozen=True, slots=True)
 class TextUnit:
-    """A paragraph, bullet, label, or bounded text window used for packing."""
+    """One paragraph, bullet, label, or word window used to build a chunk."""
 
     page_numbers: tuple[int, ...]
     text: str
@@ -26,7 +32,7 @@ class TextUnit:
 
 @dataclass(frozen=True, slots=True)
 class ChunkDraft:
-    """Internal chunk content before stable identifiers are assigned."""
+    """Chunk text and page numbers before the final stable ID is created."""
 
     section_name: str
     page_numbers: tuple[int, ...]
@@ -39,7 +45,7 @@ def fragment_to_units(
     max_characters: int,
     overlap_characters: int,
 ) -> tuple[TextUnit, ...]:
-    """Convert one section fragment into paragraph and bullet-aware units."""
+    """Break one section fragment into useful paragraph and bullet units."""
 
     raw_units: list[str] = []
     buffered_lines: list[str] = []
@@ -94,7 +100,7 @@ def pack_section_units(
     min_characters: int,
     overlap_characters: int,
 ) -> tuple[ChunkDraft, ...]:
-    """Pack section units into bounded chunks with controlled local overlap."""
+    """Combine text units into chunks while respecting size and overlap limits."""
 
     if not units:
         return ()
@@ -151,7 +157,11 @@ def build_chunk_id(
     page_numbers: Sequence[int],
     text: str,
 ) -> str:
-    """Return a stable ID independent from filename and filesystem location."""
+    """Build a chunk ID from document content, position, pages, and text.
+
+    The filename and folder are not included, so moving or renaming an unchanged
+    PDF does not create different chunk identities.
+    """
 
     identity_payload = "\x1f".join(
         (
@@ -172,7 +182,7 @@ def _split_long_unit(
     max_characters: int,
     overlap_characters: int,
 ) -> tuple[TextUnit, ...]:
-    """Split one oversized unit into bounded word windows with overlap."""
+    """Split text that is too large into word-safe windows with small overlap."""
 
     if len(unit.text) <= max_characters:
         return (unit,)
