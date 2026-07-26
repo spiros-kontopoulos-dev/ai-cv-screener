@@ -141,6 +141,28 @@ docker compose exec backend python -m app.scripts.inspect_final_cv_retrieval --h
 The complete command catalogue is available in
 [`backend/app/scripts/README.md`](backend/app/scripts/README.md).
 
+## Architecture guides for PyCharm
+
+Each main backend and frontend section contains a local `README.md`. These are
+code-reading guides, not only file lists. Each guide explains:
+
+- the state before the section starts;
+- the entry point and orchestrator;
+- the exact runtime call order;
+- the objects passed between files;
+- important functions and classes;
+- failure branches and safety boundaries;
+- the state handed to the next pipeline section;
+- commands and related tests.
+
+Start with:
+
+- [`backend/app/README.md`](backend/app/README.md) for the complete backend pipeline map;
+- [`backend/app/cv_ingestion/README.md`](backend/app/cv_ingestion/README.md) for a detailed PDF-to-Chroma example;
+- [`backend/app/cv_retrieval/README.md`](backend/app/cv_retrieval/README.md) for the complete recruiter-question flow;
+- [`frontend/src/README.md`](frontend/src/README.md) for React state and component execution order;
+- [`backend/tests/README.md`](backend/tests/README.md) for the test-suite architecture.
+
 ## Troubleshooting
 
 ### `The CV index is not available`

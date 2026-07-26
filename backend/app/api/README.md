@@ -1,65 +1,149 @@
-# API layer
+# API route execution flows
 
 ## Summary explanation
 
-This folder exposes the application through FastAPI. It keeps HTTP concerns
-separate from candidate generation, indexing, retrieval, and answer generation.
-A route validates the request, calls an application service, and converts the
-result into the public JSON contract.
+These modules are the public endpoint functions. They are intentionally small.
+Each route receives a validated request and an injected service, calls one main
+application operation, maps expected failures and returns a public response.
+
+## Position in the architecture
 
 ```text
-HTTP request -> route -> dependency/service -> presenter -> HTTP response
+React or browser
+-> FastAPI route
+-> injected service
+-> domain pipeline
+-> public schema / FileResponse
+-> browser
 ```
 
-## Files
+The route files are the HTTP entry points, not the place where retrieval or
+storage algorithms live.
 
-| File | Purpose |
-|---|---|
-| [`router.py`](router.py) | Combines the route modules under the `/api` prefix. |
-| [`dependencies.py`](dependencies.py) | Builds shared settings, catalogue, retrieval, and answer-generation services for route functions. |
-| [`schemas.py`](schemas.py) | Defines the public health, candidate, chat, source, and error JSON models. |
-| [`presenters.py`](presenters.py) | Converts internal grounded-answer results into the stable chat response returned to React. |
-| [`errors.py`](errors.py) | Defines safe public exceptions and installs consistent JSON exception handlers. |
-| [`routes/`](routes/README.md) | Contains the health, candidate, CV-file, and chat endpoints. |
-
-## Main rules
-
-- Routes do not read ChromaDB, call providers, or open files directly unless the
-  operation belongs to that route's trusted service boundary.
-- Provider keys never appear in API responses.
-- Candidate PDF paths come from indexed metadata rather than arbitrary user
-  input.
-- Internal exceptions are translated into safe public error messages.
-- The public contract is represented by Pydantic models in `schemas.py` and is
-  visible in FastAPI's generated OpenAPI documentation.
-
-## How the chat endpoint works
+## Route registration order
 
 ```text
-ChatRequest
--> GroundedCvAnswerGenerator
--> final retrieval result
--> provider or deterministic wording
--> citation validation
--> present_chat_response()
+api/router.py
+-> APIRouter(prefix="/api")
+-> health.router
+-> candidates.router
+-> chat.router
+-> app.main includes api_router
+```
+
+## `health.py` runtime order
+
+### Endpoint
+
+```text
+GET /api/health
+```
+
+### Function flow
+
+```text
+health_check(settings, catalog)
+-> _provider_status(settings)
+   -> resolve_grounded_answer_provider()
+   -> report requested mode, active provider, model and readiness
+-> catalog.get_index_coverage()
+   -> record/document/candidate completeness
+-> status = ok only when provider ready and index available
+-> HealthResponse
+```
+
+A missing or unreadable index becomes degraded health rather than an unhandled
+500 response. API keys and provider error details are never returned.
+
+Important functions:
+
+- `health_check()` — combines provider and index readiness;
+- `_provider_status()` — uses the same provider resolver as real chat requests.
+
+## `candidates.py` runtime order
+
+### Candidate list
+
+```text
+GET /api/candidates
+-> list_candidates(catalog)
+-> catalog.list_candidates()
+-> convert IndexedCandidate rows to CandidateListItem
+-> CandidateListResponse
+```
+
+### Candidate PDF
+
+```text
+GET /api/candidates/{candidate_id}/cv
+-> open_candidate_cv(candidate_id, catalog)
+-> catalog.get_candidate(candidate_id)
+-> catalog.resolve_candidate_pdf(candidate_id)
+-> FileResponse(media_type="application/pdf", inline)
+```
+
+Known failures are translated:
+
+- unknown ID -> `candidate_not_found` / 404;
+- PDF unavailable -> `candidate_cv_not_found` / 404;
+- index unavailable -> `candidate_index_unavailable` / 503.
+
+Important functions:
+
+- `list_candidates()` — builds the sidebar response;
+- `open_candidate_cv()` — serves a trusted PDF path resolved by the service.
+
+## `chat.py` runtime order
+
+### Endpoint
+
+```text
+POST /api/chat
+```
+
+### Function flow
+
+```text
+FastAPI validates ChatRequest
+-> ask_candidates(request, generator)
+-> FinalCvRetrievalQuery(question, candidate_limit)
+-> generator.generate(query)
+   -> final retrieval
+   -> provider/deterministic wording
+   -> citation validation
+-> present_chat_response(result)
 -> ChatResponse
 ```
 
-## Related tests
+An unsupported question is a successful HTTP request. It returns HTTP 200 with
+`outcome="unsupported"` because the application completed the search and found
+insufficient evidence.
 
-- `tests/test_api_health.py`
-- `tests/test_api_candidates.py`
-- `tests/test_api_chat.py`
-- `tests/test_api_cors.py`
-- `tests/test_api_openapi.py`
+Known failures are separated by where they occurred:
 
-Run the API tests:
+- provider configuration missing -> 503;
+- hosted provider called and failed -> 502;
+- local retrieval unavailable before provider call -> 503.
 
-```powershell
-docker compose exec backend pytest `
-  tests/test_api_health.py `
-  tests/test_api_candidates.py `
-  tests/test_api_chat.py `
-  tests/test_api_cors.py `
-  tests/test_api_openapi.py
-```
+Important function:
+
+- `ask_candidates()` — the only public HTTP entry point for the complete
+  recruiter-question flow.
+
+## Route-to-service map
+
+| Route function | Main service call | Final response |
+|---|---|---|
+| `health_check()` | `resolve_grounded_answer_provider()` and `catalog.get_index_coverage()` | `HealthResponse` |
+| `list_candidates()` | `catalog.list_candidates()` | `CandidateListResponse` |
+| `open_candidate_cv()` | `catalog.resolve_candidate_pdf()` | `FileResponse` |
+| `ask_candidates()` | `generator.generate()` | `ChatResponse` through presenter |
+
+## Important boundary
+
+No route accepts a filesystem path, Chroma query, provider prompt or citation
+list from the browser. The browser supplies only public inputs such as a
+candidate ID or recruiter question.
+
+See [`../README.md`](../README.md) for dependency construction, schemas,
+presenters and exception handling.
