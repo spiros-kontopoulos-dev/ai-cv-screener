@@ -1,8 +1,12 @@
-"""Render validated candidate profiles into standalone HTML and PDF files.
+"""Render validated candidate profiles as standalone HTML and PDF CVs.
 
-Jinja owns variable substitution, CSS owns document presentation, WeasyPrint
-owns paged layout, and PyMuPDF performs a small post-render integrity check.  No
-step reads from the dataset plan or bypasses the validated ``CandidateProfile``.
+Jinja inserts the profile data, CSS controls the document design, WeasyPrint
+creates the A4 PDF, and PyMuPDF confirms that the result opens and still contains
+selectable candidate text.
+
+The renderer never reads the dataset plan or uses profile JSON as search data.
+It receives an already validated ``CvRenderJob`` and produces the document that
+the later ingestion pipeline will index.
 """
 
 import base64
@@ -54,11 +58,11 @@ def render_cv_jobs(
     template_path: Path = DEFAULT_CV_TEMPLATE_PATH,
     stylesheet_path: Path = DEFAULT_CV_STYLESHEET_PATH,
 ) -> list[CvRenderResult]:
-    """Render selected jobs in deterministic order and return their results.
-
-    ``enforce_portrait_plan`` protects final dataset generation from silently
-    falling back to initials for candidates selected by the committed portrait
-    plan. Intentionally photo-free candidates remain valid.
+    """Render selected jobs in stable order and return verified results.
+    
+    Final collection rendering can enforce the portrait plan so a planned portrait
+    cannot silently become an initials placeholder. Photo-free candidates remain
+    valid by design.
     """
 
     if enforce_portrait_plan:
@@ -91,7 +95,7 @@ def render_cv_job(
     template_path: Path = DEFAULT_CV_TEMPLATE_PATH,
     stylesheet_path: Path = DEFAULT_CV_STYLESHEET_PATH,
 ) -> CvRenderResult:
-    """Render one job to PDF and verify that its identity remains extractable."""
+    """Render one profile to PDF, optionally save HTML, and verify the output."""
 
     rendered_html = render_cv_html(
         job,
@@ -142,7 +146,7 @@ def render_cv_html(
     template_path: Path = DEFAULT_CV_TEMPLATE_PATH,
     stylesheet_path: Path = DEFAULT_CV_STYLESHEET_PATH,
 ) -> str:
-    """Return one standalone HTML document ready for browser or PDF output."""
+    """Build one complete HTML document from a validated render job."""
 
     if not template_path.is_file():
         raise CvRenderingError(f"CV template does not exist: {template_path}")
@@ -175,12 +179,11 @@ def render_cv_html(
 
 
 def _build_portrait_data_uri(job: CvRenderJob) -> str | None:
-    """Embed a real portrait so saved HTML previews work outside Docker.
-
-    A ``file:///app/...`` URI is readable by WeasyPrint inside the backend
-    container but not by a Windows browser opening the mounted HTML file.
-    Embedding the small normalized WebP as a data URI makes the standalone
-    preview portable while preserving identical input for PDF rendering.
+    """Embed the portrait bytes inside the generated HTML.
+    
+    A Docker-only ``file:///app/...`` path works for WeasyPrint but not for a host
+    browser. A data URI lets the same saved HTML preview display the same portrait
+    on any machine.
     """
 
     if not (job.portrait_planned and job.portrait_exists):
@@ -193,7 +196,7 @@ def _build_portrait_data_uri(job: CvRenderJob) -> str | None:
 
 
 def _build_jinja_environment(template_directory: Path) -> Environment:
-    """Create a strict, HTML-safe Jinja environment for the CV template."""
+    """Create the strict Jinja environment and register CV formatting filters."""
 
     environment = Environment(
         loader=FileSystemLoader(template_directory),
@@ -219,7 +222,7 @@ def _build_jinja_environment(template_directory: Path) -> Environment:
 
 
 def _verify_rendered_pdf(job: CvRenderJob) -> tuple[int, int]:
-    """Verify that the new PDF opens and preserves the candidate's name."""
+    """Open the new PDF and confirm that the candidate name remains extractable."""
 
     try:
         with pymupdf.open(job.pdf_path) as document:

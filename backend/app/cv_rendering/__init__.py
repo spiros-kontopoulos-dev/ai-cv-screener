@@ -1,4 +1,14 @@
-"""Public contracts for planning and rendering candidate CVs."""
+"""Public interface for CV planning, rendering, and PDF validation.
+
+The rendering flow is:
+
+1. Map validated profiles to stable image, HTML, and PDF paths.
+2. Format machine-friendly values for display.
+3. Render one standalone HTML document with Jinja.
+4. Convert HTML and CSS to an A4 PDF with WeasyPrint.
+5. Reopen the PDF with PyMuPDF and verify its text.
+6. Validate the complete PDF collection against the expected visible facts.
+"""
 
 from app.cv_rendering.formatting import (
     CvFormattingError,

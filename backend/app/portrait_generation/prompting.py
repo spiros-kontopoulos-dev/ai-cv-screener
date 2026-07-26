@@ -1,4 +1,10 @@
-"""Deterministic prompts for clean, fictional professional headshots."""
+"""Build clean, text-free portrait prompts from the coverage plan.
+
+The prompt describes a fictional adult's appearance, clothing, pose, lighting,
+and background. It intentionally excludes the candidate's name, job title, and
+location because those words previously encouraged caption cards, labels, and
+other unwanted text inside the image.
+"""
 
 from app.schemas import CandidateProfile, SeniorityLevel
 
@@ -58,15 +64,7 @@ def build_portrait_prompt(
     *,
     appearance: PortraitAppearance | None = None,
 ) -> str:
-    """Create one controlled prompt for a clean fictional portrait.
-
-    Candidate names, job titles, and locations are intentionally excluded from
-    the provider prompt. Those values do not determine a person's appearance,
-    and image models may incorrectly turn identity text into captions,
-    nameplates, or profile-card layouts. Instead, the committed portrait plan
-    provides an explicit fictional presentation and visual descriptor for each
-    selected candidate.
-    """
+    """Create one stable image prompt for a planned fictional appearance."""
 
     variation_index = _candidate_number(profile.candidate_id) - 1
     age_description = _age_description(profile)
@@ -109,13 +107,13 @@ def build_portrait_prompt(
 
 
 def _candidate_number(candidate_id: str) -> int:
-    """Return the numeric portion of a validated candidate identifier."""
+    """Convert ``candidate_XXX`` into a number used for repeatable visual variation."""
 
     return int(candidate_id.rsplit("_", maxsplit=1)[1])
 
 
 def _age_description(profile: CandidateProfile) -> str:
-    """Return a broad adult age range consistent with career seniority."""
+    """Return a broad adult age description without claiming an exact birth date."""
 
     if profile.seniority == SeniorityLevel.JUNIOR:
         return "mid-to-late twenties age range"

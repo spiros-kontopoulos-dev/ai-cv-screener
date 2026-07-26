@@ -1,4 +1,9 @@
-"""Typed models for fictional candidate portrait generation."""
+"""Small immutable models used by the portrait pipeline.
+
+They describe planned work, saved image metadata, generation results, and the
+final collection validation report without mixing those values with provider or
+filesystem logic.
+"""
 
 from dataclasses import dataclass
 from pathlib import Path
@@ -8,7 +13,7 @@ from app.schemas import CandidateProfile
 
 @dataclass(frozen=True, slots=True)
 class PortraitGenerationJob:
-    """One deterministic portrait request and its normalized output path."""
+    """One candidate profile, appearance plan, and destination image path."""
 
     profile: CandidateProfile
     output_path: Path
@@ -29,7 +34,7 @@ class PortraitGenerationJob:
 
 @dataclass(frozen=True, slots=True)
 class PortraitImageMetadata:
-    """Verified properties of one normalized portrait file."""
+    """Verified format, dimensions, colour mode, and file size for one portrait."""
 
     path: Path
     width: int
@@ -41,7 +46,7 @@ class PortraitImageMetadata:
 
 @dataclass(frozen=True, slots=True)
 class PortraitGenerationResult:
-    """Successful generation details for one candidate portrait."""
+    """One completed or skipped portrait job and its attempt count."""
 
     candidate_id: str
     output_path: Path
@@ -51,7 +56,7 @@ class PortraitGenerationResult:
 
 @dataclass(frozen=True, slots=True)
 class PortraitCollectionValidation:
-    """Collection-level profile-to-portrait validation summary."""
+    """Collection report for missing, invalid, or unexpected portrait files."""
 
     expected_count: int
     valid_count: int

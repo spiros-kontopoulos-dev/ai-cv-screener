@@ -1,18 +1,9 @@
-"""Generate and normalize fictional AI portraits for validated candidates.
+"""Command-line tool for planned fictional portrait generation.
 
-Examples:
-
-    python -m app.scripts.generate_candidate_portraits \
-        --candidate-id candidate_003 --dry-run --show-prompts
-
-    python -m app.scripts.generate_candidate_portraits \
-        --candidate-id candidate_003
-
-    python -m app.scripts.generate_candidate_portraits --all
-
-Existing valid portraits are skipped by default so interrupted batches can be
-resumed safely. Use ``--overwrite`` only when a selected portrait should be
-replaced after visual review.
+A dry run can print every selected prompt without an API call. Normal runs skip
+valid existing files, while ``--overwrite`` replaces portraits selected after a
+visual review. The script delegates provider calls, retries, normalisation, and
+validation to the portrait package.
 """
 
 import argparse
@@ -61,7 +52,7 @@ def _positive_integer(value: str) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """Create the reusable parser for portrait generation."""
+    """Define portrait selection, dry-run, prompt display, retry, and overwrite options."""
 
     parser = argparse.ArgumentParser(
         description=(
@@ -137,7 +128,7 @@ def run_cli(
     settings: Settings | None = None,
     provider_factory: ProviderFactory = create_openai_provider,
 ) -> int:
-    """Run prompt inspection or persisted portrait generation."""
+    """Inspect planned prompts or generate, normalise, and save selected portraits."""
 
     parser = build_parser()
     arguments = parser.parse_args(argv)
@@ -275,7 +266,7 @@ def _partition_existing_jobs(
     settings: Settings,
     overwrite: bool,
 ) -> tuple[list[PortraitGenerationJob], int]:
-    """Skip valid existing files or require overwrite for invalid files."""
+    """Separate jobs that can be skipped from jobs that must be generated."""
 
     jobs_to_generate: list[PortraitGenerationJob] = []
     skipped_existing = 0
@@ -326,7 +317,7 @@ def _print_dry_run(
     selected_jobs: Sequence[PortraitGenerationJob],
     show_prompts: bool,
 ) -> None:
-    """Display deterministic portrait requests without provider activity."""
+    """Show planned portraits and optional prompts without creating the provider."""
 
     existing_count = sum(job.portrait_exists for job in all_jobs)
 

@@ -1,4 +1,4 @@
-"""Tests for the WP4 candidate portrait-generation command."""
+"""Tests for the candidate portrait-generation command."""
 
 from io import BytesIO
 from pathlib import Path

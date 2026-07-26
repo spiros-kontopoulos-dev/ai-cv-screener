@@ -1,9 +1,11 @@
-"""Deterministic checks between a generated profile and its plan slot.
+"""Check that a generated profile satisfies its exact dataset slot.
 
-Pydantic validates the general CandidateProfile contract. These checks validate
-that the profile also satisfies the *specific* controlled slot that produced
-it, for example the required name, skill combination, language proficiency,
-or leadership team size.
+Pydantic checks the general profile shape. This module checks the facts that are
+specific to one planned candidate, such as required skills, language level,
+education, project, certification, leadership, and location.
+
+The main function returns every problem at once. The generation loop can then
+send useful correction feedback instead of discovering one problem per retry.
 """
 
 import re
@@ -32,10 +34,10 @@ def validate_profile_against_slot(
     profile: CandidateProfile,
     slot: CandidateGenerationSlot,
 ) -> list[str]:
-    """Return every deterministic mismatch between a profile and its slot.
-
-    Returning a list instead of raising on the first problem gives the retry
-    prompt complete, actionable feedback and usually avoids extra API calls.
+    """Return every difference between the generated profile and its plan slot.
+    
+    An empty list means the profile is compliant. A non-empty list is used as
+    correction feedback for the next generation attempt.
     """
 
     problems: list[str] = []
@@ -87,7 +89,7 @@ def _check_required_skills(
     slot: CandidateGenerationSlot,
     problems: list[str],
 ) -> None:
-    """Ensure every planned skill exists and has visible supporting evidence."""
+    """Check that every planned skill appears in the skill list and visible CV text."""
 
     generated_skill_names = {
         _normalize(skill.name) for skill in profile.skills
@@ -124,7 +126,7 @@ def _check_required_languages(
     slot: CandidateGenerationSlot,
     problems: list[str],
 ) -> None:
-    """Match each controlled language and its exact proficiency."""
+    """Check each required language together with its required proficiency."""
 
     generated_languages = {
         _normalize(language.name): language.proficiency
@@ -187,7 +189,7 @@ def _check_leadership(
     slot: CandidateGenerationSlot,
     problems: list[str],
 ) -> None:
-    """Validate explicit people-leadership evidence and team size."""
+    """Check that leadership evidence and the planned team size are both visible."""
 
     generated_team_sizes = [
         role.managed_team_size
@@ -215,7 +217,7 @@ def _check_education(
     slot: CandidateGenerationSlot,
     problems: list[str],
 ) -> None:
-    """Find the exact education entry used by controlled retrieval tests."""
+    """Check the planned degree, field, institution, and other locked education facts."""
 
     if slot.required_education is None:
         return
@@ -247,7 +249,7 @@ def _check_project(
     slot: CandidateGenerationSlot,
     problems: list[str],
 ) -> None:
-    """Preserve the controlled portfolio-project distribution."""
+    """Check that a required project and its planned technologies are present."""
 
     if slot.required_project is None:
         if profile.projects:

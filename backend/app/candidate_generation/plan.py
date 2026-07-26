@@ -1,8 +1,8 @@
-"""Load and select controlled candidate-generation plan entries.
+"""Load the candidate dataset plan and select which slots to process.
 
-The dataset plan is deterministic input for the probabilistic LLM stage. This
-module handles filesystem and selection behaviour, while ``models.py`` owns
-the Pydantic contracts for the plan itself.
+The JSON plan is deterministic input for candidate generation. This module owns
+filesystem errors and command-line selection rules; ``models.py`` owns the plan
+schema and its internal validation.
 """
 
 from json import JSONDecodeError, loads
@@ -22,7 +22,7 @@ class CandidateSelectionError(ValueError):
 
 
 def load_candidate_dataset_plan(path: Path) -> CandidateDatasetPlan:
-    """Read a JSON plan from disk and return its validated typed model."""
+    """Read the plan JSON and return a fully validated ``CandidateDatasetPlan``."""
 
     try:
         raw_text = path.read_text(encoding="utf-8")
@@ -58,11 +58,7 @@ def select_candidate_slots(
     start_from: str | None = None,
     select_all: bool = False,
 ) -> list[CandidateGenerationSlot]:
-    """Select ordered slots for one future generation command.
-
-    Exactly one selection mode is required. ``start_from`` may be combined
-    with ``count`` or ``select_all`` to resume from a later plan position.
-    """
+    """Select one slot, a limited range, or all remaining slots in stable order."""
 
     selected_modes = sum(
         value is not None

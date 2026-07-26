@@ -1,4 +1,4 @@
-"""Tests for the WP4 CV planning and rendering command."""
+"""Tests for the CV planning and rendering command."""
 
 from pathlib import Path
 

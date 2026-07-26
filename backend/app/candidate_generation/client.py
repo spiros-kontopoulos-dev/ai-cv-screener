@@ -1,4 +1,10 @@
-"""Direct OpenAI structured-output client for candidate generation."""
+"""OpenAI client used to generate one structured candidate profile.
+
+This module only talks to the provider and returns a Pydantic
+``CandidateProfile``. It does not decide whether the candidate satisfies the
+dataset plan. Experience normalisation, slot checks, retries, and persistence
+happen in the surrounding generation service.
+"""
 
 from collections.abc import Sequence
 
@@ -13,7 +19,7 @@ from .prompt import CANDIDATE_GENERATION_INSTRUCTIONS, build_candidate_prompt
 
 
 class CandidateProviderError(RuntimeError):
-    """A provider failure with explicit retry guidance for the orchestrator."""
+    """Provider failure that tells the caller whether another attempt is useful."""
 
     def __init__(self, message: str, *, retryable: bool) -> None:
         super().__init__(message)
@@ -21,12 +27,11 @@ class CandidateProviderError(RuntimeError):
 
 
 class OpenAICandidateGenerator:
-    """Generate one CandidateProfile through OpenAI Structured Outputs.
-
-    The modern Responses API receives the shared instructions, one focused
-    candidate prompt, and the Pydantic model used as the structured output
-    contract. SDK retries are disabled because the application-level loop owns
-    one clear retry budget for provider and slot-compliance failures together.
+    """Call OpenAI and parse the response directly into ``CandidateProfile``.
+    
+    The shared instructions and one candidate-specific prompt are sent through the
+    Responses API. OpenAI SDK retries are disabled because the application owns one
+    clear retry limit for both provider errors and invalid generated content.
     """
 
     def __init__(
@@ -52,7 +57,11 @@ class OpenAICandidateGenerator:
         *,
         correction_feedback: Sequence[str] = (),
     ) -> CandidateProfile:
-        """Return one schema-validated profile for a controlled slot."""
+        """Generate one schema-valid profile for the supplied dataset slot.
+        
+        The returned object has passed Pydantic parsing, but it still needs experience
+        normalisation, slot compliance, and cross-candidate duplicate checks.
+        """
 
         try:
             response = self._client.responses.parse(

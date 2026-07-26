@@ -1,4 +1,10 @@
-"""Normalize and validate generated portrait image files."""
+"""Convert provider image bytes into safe, consistent portrait files.
+
+The processor applies image orientation, crops to a square, resizes to the
+configured dimensions, converts to RGB WebP, rejects tiny or almost blank
+images, and saves through a temporary file. The final file is reopened and
+checked before it is accepted.
+"""
 
 from io import BytesIO
 from os import replace
@@ -20,7 +26,11 @@ def normalize_portrait_image(
     normalized_size: int,
     webp_quality: int,
 ) -> PortraitImageMetadata:
-    """Decode, crop, resize, and atomically save one RGB WebP portrait."""
+    """Create and atomically save one normalised WebP portrait.
+    
+    The function preserves an existing valid file until the replacement has been
+    fully written and verified.
+    """
 
     if not image_bytes:
         raise PortraitImageError("Generated portrait image data is empty.")
@@ -79,7 +89,7 @@ def inspect_portrait_image(
     *,
     expected_size: int,
 ) -> PortraitImageMetadata:
-    """Open one saved portrait and verify its normalized contract."""
+    """Open one saved portrait and return its format, dimensions, and basic validity."""
 
     if not path.is_file():
         raise PortraitImageError(f"Portrait file does not exist: {path}")
@@ -122,7 +132,7 @@ def inspect_portrait_image(
 
 
 def _validate_visual_variation(image: Image.Image) -> None:
-    """Reject blank or nearly uniform provider output before persistence."""
+    """Reject images that are almost a single colour and therefore unusable as portraits."""
 
     statistics = ImageStat.Stat(image.resize((64, 64)))
     if sum(statistics.var) < 25:

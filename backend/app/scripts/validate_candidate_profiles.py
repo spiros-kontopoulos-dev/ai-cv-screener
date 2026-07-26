@@ -1,8 +1,7 @@
-"""Validate the complete generated candidate collection before PDF rendering.
+"""Command-line tool for validating the complete saved profile collection.
 
-Example:
-
-    python -m app.scripts.validate_candidate_profiles
+It loads the dataset plan and generated JSON, runs collection-wide checks, and
+prints a pass/fail report before CV rendering begins.
 """
 
 import sys
@@ -18,7 +17,7 @@ from app.core.config import Settings, get_settings
 
 
 def run_cli(*, settings: Settings | None = None) -> int:
-    """Load the configured plan and profiles, print a report, and return status."""
+    """Load the plan and profiles, print all collection results, and return a shell status."""
 
     active_settings = settings or get_settings()
 

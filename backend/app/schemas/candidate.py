@@ -1,8 +1,11 @@
-"""Candidate-profile schemas and controlled values.
+"""Data rules for one fictional candidate profile.
 
-These models define the structured data contract used when generating
-fictional candidate profiles. Later, validated profiles will be rendered
-into CV PDFs, but the RAG system will index only the generated PDFs.
+The language model must return data that matches these Pydantic models. The
+same validated profile is then used to render a CV PDF.
+
+Important boundary: the JSON profile helps create the PDF, but the search and
+answer system reads the PDF itself. It does not use this JSON as candidate
+evidence.
 """
 
 from enum import StrEnum
@@ -54,10 +57,11 @@ def _find_case_insensitive_duplicates(values: list[str]) -> list[str]:
 
 
 class CandidateSchema(BaseModel):
-    """Shared validation behaviour for all candidate-related models.
-
-    Every candidate schema inherits these rules so we do not need to
-    repeat the same Pydantic configuration in every nested model.
+    """Base class shared by all candidate models.
+    
+    It removes accidental spaces from strings and rejects unknown fields. This is
+    especially useful for model-generated JSON because unexpected keys fail early
+    instead of being silently ignored.
     """
 
     model_config = ConfigDict(
@@ -333,11 +337,13 @@ class Project(CandidateSchema):
 
 
 class CandidateProfile(CandidateSchema):
-    """Complete validated representation of one fictional candidate.
-
-    The structured profile is used to generate a deterministic CV PDF.
-    Later, the RAG pipeline will extract and index the PDF rather than
-    reading this original structured object.
+    """The complete validated profile for one fictional candidate.
+    
+    It combines contact details, skills, languages, work history, education,
+    certifications, and projects. Cross-field validators also reject obvious
+    contradictions, such as senior candidates with too little experience.
+    
+    A valid instance can be saved and rendered. Invalid generated data stops here.
     """
 
     # Stable identifiers such as candidate_001 make filenames and metadata
@@ -452,11 +458,11 @@ class CandidateProfile(CandidateSchema):
 
     @model_validator(mode="after")
     def validate_profile_consistency(self) -> Self:
-        """Validate relationships between candidate-level fields.
-
-        Individual fields may be valid by themselves while still creating
-        an implausible profile when considered together. These checks reject
-        clear contradictions without trying to model every possible career.
+        """Check rules that involve more than one field.
+        
+        A value can be valid by itself but still conflict with the rest of the profile.
+        For example, a skill cannot claim more years than the candidate's total career,
+        and only one work role may be marked as current.
         """
 
         experience = self.years_of_experience

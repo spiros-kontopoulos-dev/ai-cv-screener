@@ -1,8 +1,8 @@
-"""Validate the final rendered CV PDF collection.
+"""Command-line tool for final CV PDF validation.
 
-Example:
-
-    python -m app.scripts.validate_candidate_cvs
+It checks that every expected PDF exists, opens correctly, contains all intended
+visible facts, stays within the page limit, and supports the planned search
+scenarios using PDF-extracted text.
 """
 
 import sys
@@ -18,7 +18,7 @@ from app.cv_rendering import validate_cv_pdf_collection
 
 
 def run_cli(*, settings: Settings | None = None) -> int:
-    """Load configured inputs, validate PDFs, print a report, and return status."""
+    """Load the plan and profiles, validate the PDF collection, and print pass/fail details."""
 
     active_settings = settings or get_settings()
 

@@ -1,3 +1,8 @@
+/*
+ * Print-first styling shared by browser previews and WeasyPrint PDF output.
+ * Physical units and conservative page-break rules keep CVs readable on A4
+ * pages while preserving selectable text for the later ingestion pipeline.
+ */
 @page {
   size: A4;
   margin: 10mm 12mm 12mm;

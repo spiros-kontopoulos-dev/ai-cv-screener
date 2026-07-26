@@ -1,4 +1,9 @@
-"""Bounded portrait provider retries and normalized image persistence."""
+"""Generate, normalise, and save one portrait with bounded retries.
+
+The provider creates image bytes. The image module then crops, resizes, checks,
+and atomically saves the WebP file. Retry decisions remain in this service so
+the provider client and image processor each keep one clear responsibility.
+"""
 
 from typing import Protocol
 
@@ -8,7 +13,7 @@ from .models import PortraitGenerationJob, PortraitGenerationResult
 
 
 class PortraitImageProvider(Protocol):
-    """Small provider contract used by orchestration and deterministic tests."""
+    """Small image-provider interface used by live code and provider-free tests."""
 
     def generate(self, prompt: str, *, candidate_id: str) -> bytes:
         """Generate raw image bytes for one fictional portrait."""
@@ -17,7 +22,7 @@ class PortraitImageProvider(Protocol):
 
 
 class PortraitGenerationFailed(RuntimeError):
-    """Raised after a non-retryable error or exhausted retry budget."""
+    """Raised when a portrait cannot be produced within the retry limit."""
 
     def __init__(
         self,
@@ -42,7 +47,7 @@ def generate_portrait_with_retries(
     normalized_size: int,
     webp_quality: int,
 ) -> PortraitGenerationResult:
-    """Generate and normalize one portrait within a fixed retry budget."""
+    """Generate one portrait, normalise it, and retry only correctable failures."""
 
     total_attempts = max_retries + 1
 

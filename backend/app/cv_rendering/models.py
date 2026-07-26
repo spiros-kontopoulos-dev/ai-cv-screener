@@ -1,8 +1,8 @@
-"""Typed planning contracts for deterministic CV rendering.
+"""Immutable data passed through the CV rendering pipeline.
 
-WP4 converts validated ``CandidateProfile`` objects into visual assets.  These
-small immutable data classes describe the work that will be performed without
-mixing filesystem planning with the later Jinja and WeasyPrint implementation.
+These models keep planning separate from rendering. A job contains one validated
+profile and all of its stable artifact paths. A result contains the verified
+HTML/PDF output details.
 """
 
 from dataclasses import dataclass
@@ -13,12 +13,7 @@ from app.schemas import CandidateProfile
 
 @dataclass(frozen=True, slots=True)
 class CvProfileMetrics:
-    """Approximate content-density measurements for one candidate profile.
-
-    The metrics do not remove or rewrite candidate content.  They help us pick
-    representative short and dense profiles for template testing and will later
-    support conservative CSS density classes when a CV needs tighter spacing.
-    """
+    """Simple content measurements used to find short and dense CV examples."""
 
     total_text_characters: int
     work_entries: int
@@ -32,12 +27,7 @@ class CvProfileMetrics:
 
 @dataclass(frozen=True, slots=True)
 class CvRenderJob:
-    """All deterministic paths and source data for rendering one CV.
-
-    Candidate IDs remain the internal identity key for portraits, previews,
-    ingestion metadata, and retrieval. The public PDF path is intentionally
-    human-readable presentation metadata.
-    """
+    """One validated profile and every path needed to render its CV."""
 
     profile: CandidateProfile
     portrait_path: Path
@@ -61,7 +51,7 @@ class CvRenderJob:
 
 @dataclass(frozen=True, slots=True)
 class CvRenderResult:
-    """Verified output metadata for one rendered candidate CV."""
+    """Verified page count, text size, portrait state, and output paths for one CV."""
 
     candidate_id: str
     pdf_path: Path

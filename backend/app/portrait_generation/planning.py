@@ -1,4 +1,9 @@
-"""Build and select deterministic candidate portrait-generation jobs."""
+"""Turn validated profiles and the portrait plan into deterministic jobs.
+
+Each job joins one candidate profile, one fictional appearance description, and
+one stable ``candidate_XXX.webp`` output path. Selection supports one candidate,
+a limited batch, or the full planned set.
+"""
 
 from collections.abc import Collection, Mapping, Sequence
 from pathlib import Path
@@ -24,12 +29,7 @@ def build_portrait_generation_jobs(
     portrait_candidate_ids: Collection[str] | None = None,
     appearance_by_candidate_id: Mapping[str, PortraitAppearance] | None = None,
 ) -> list[PortraitGenerationJob]:
-    """Map validated profiles to prompts and stable WebP output paths.
-
-    Production callers pass the committed appearance mapping so every selected
-    portrait receives an explicit fictional presentation. The optional mapping
-    keeps isolated unit tests and generic callers backwards-compatible.
-    """
+    """Build one ordered portrait job for every candidate selected by the plan."""
 
     ordered_profiles = sorted(
         profiles,
@@ -102,7 +102,7 @@ def select_portrait_generation_jobs(
     start_from: str | None,
     select_all: bool,
 ) -> list[PortraitGenerationJob]:
-    """Select one planned portrait, a bounded batch, or all planned portraits."""
+    """Select one portrait, a bounded sequence, or every planned portrait."""
 
     selected_modes = sum(
         mode_selected

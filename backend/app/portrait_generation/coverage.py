@@ -1,13 +1,10 @@
-"""Load and validate the committed candidate portrait coverage plan.
+"""Load and check the committed portrait coverage plan.
 
-The assignment asks for realistic CVs that include AI-generated photography,
-but it does not require every CV to use the same visual convention. This plan
-makes the mixed dataset deliberate: selected candidates receive generated
-portraits and the remaining candidates use an intentional photo-free layout.
-
-Portrait appearance descriptors are explicit plan data. They describe only the
-fictional image presentation that should be generated; they are not inferred
-from a candidate name, nationality, or any real person's identity.
+The collection deliberately contains both portrait CVs and photo-free CVs. The
+plan lists exactly which candidate IDs receive portraits and gives each one a
+stable fictional appearance description. Those descriptions control visual
+consistency without using names, national stereotypes, celebrities, or real
+people as references.
 """
 
 from collections.abc import Sequence
@@ -34,7 +31,7 @@ class PortraitCoveragePlanError(RuntimeError):
 
 
 class PortraitAppearance(BaseModel):
-    """One explicit fictional appearance contract for a portrait candidate."""
+    """The fictional visual description used to keep one portrait consistent."""
 
     model_config = ConfigDict(
         str_strip_whitespace=True,
@@ -47,7 +44,7 @@ class PortraitAppearance(BaseModel):
 
 
 class PortraitCoveragePlan(BaseModel):
-    """Strict contract for the controlled photo and photo-free CV split."""
+    """The planned portrait candidate IDs and their appearance descriptions."""
 
     model_config = ConfigDict(
         str_strip_whitespace=True,
@@ -63,7 +60,7 @@ class PortraitCoveragePlan(BaseModel):
 
     @model_validator(mode="after")
     def validate_internal_consistency(self) -> Self:
-        """Keep count, ordered IDs, and appearance descriptors aligned."""
+        """Check unique IDs, complete appearance entries, and valid plan balance."""
 
         if self.portrait_count != len(self.portrait_candidate_ids):
             raise ValueError(
@@ -123,7 +120,7 @@ class PortraitCoveragePlan(BaseModel):
 
 
 def load_portrait_coverage_plan(path: Path) -> PortraitCoveragePlan:
-    """Read and validate the committed portrait coverage JSON file."""
+    """Read and validate the committed portrait plan JSON."""
 
     try:
         raw_text = path.read_text(encoding="utf-8")
@@ -155,7 +152,7 @@ def validate_portrait_coverage_against_profiles(
     plan: PortraitCoveragePlan,
     profiles: Sequence[CandidateProfile],
 ) -> None:
-    """Ensure the coverage plan references the current profile collection."""
+    """Check that planned portrait IDs exist in the loaded profile collection."""
 
     profile_ids = [profile.candidate_id for profile in profiles]
     if len(profile_ids) != len(set(profile_ids)):

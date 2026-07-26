@@ -1,8 +1,16 @@
-"""Collection-wide verification for the generated candidate dataset.
+"""Validate the complete generated candidate collection.
 
-Generation validates one candidate at a time. Before rendering PDFs, this
-module performs the complementary dataset-level checks: completeness, plan
-compliance, distributions, uniqueness, and the curated demo scenarios.
+Single-candidate checks run during generation. This module performs the final
+collection checks before CV rendering:
+
+- all planned candidates exist in stable order;
+- every profile still matches its slot;
+- names, emails, summaries, and work histories are not duplicated;
+- planned profession and seniority distributions are preserved;
+- the known search scenarios have visible supporting facts.
+
+It returns one report containing all problems so the dataset can be reviewed in
+one pass.
 """
 
 from collections import Counter
@@ -27,7 +35,7 @@ _UNSUPPORTED_SCENARIO_PHRASES: dict[str, tuple[str, ...]] = {
 
 @dataclass(frozen=True, slots=True)
 class CandidateDatasetValidationReport:
-    """Structured result returned by the final dataset validator."""
+    """Final collection report with counts, scenario results, and problems."""
 
     expected_profile_count: int
     actual_profile_count: int
@@ -49,11 +57,11 @@ def validate_candidate_dataset(
     plan: CandidateDatasetPlan,
     profiles: Sequence[CandidateProfile],
 ) -> CandidateDatasetValidationReport:
-    """Validate one persisted profile collection against its controlled plan.
-
-    The function deliberately returns all discovered problems together. A
-    complete report is more useful than repeatedly fixing one issue at a time,
-    especially after an expensive LLM generation run.
+    """Compare a saved profile collection with the complete dataset plan.
+    
+    The function collects all issues instead of stopping at the first one. This is
+    more useful after a generation run because one report shows everything that
+    must be fixed before PDF rendering.
     """
 
     issues: list[str] = []
@@ -241,7 +249,7 @@ def _validate_search_scenarios(
     profiles_by_id: Mapping[str, CandidateProfile],
     profiles: Sequence[CandidateProfile],
 ) -> tuple[int, list[str]]:
-    """Confirm that curated demo evidence is visible in generated profiles."""
+    """Check that each planned search example is supported by visible profile data."""
 
     issues: list[str] = []
     validated_count = 0
@@ -310,7 +318,7 @@ def _profile_contains_evidence(
 
 
 def _build_profile_evidence_parts(profile: CandidateProfile) -> str:
-    """Flatten every future PDF-visible field plus useful derived labels."""
+    """Collect every field that will later appear as searchable CV text."""
 
     parts = [
         profile.candidate_id,

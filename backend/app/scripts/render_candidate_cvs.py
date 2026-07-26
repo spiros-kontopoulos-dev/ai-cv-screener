@@ -1,14 +1,8 @@
-"""Plan or render validated candidate profiles as HTML and PDF CVs.
+"""Command-line tool for planning or rendering candidate CV documents.
 
-Examples:
-
-    python -m app.scripts.render_candidate_cvs \\
-        --candidate-id candidate_003 --dry-run
-
-    python -m app.scripts.render_candidate_cvs \\
-        --candidate-id candidate_003 --keep-html
-
-    python -m app.scripts.render_candidate_cvs --all
+A dry run shows selected profiles, output filenames, content-density boundaries,
+and portrait readiness without creating files. A normal run creates PDFs and
+can keep standalone HTML previews for visual inspection.
 """
 
 import argparse
@@ -55,7 +49,7 @@ def _positive_integer(value: str) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """Create the reusable argument parser for the CV rendering command."""
+    """Define candidate selection, dry-run, HTML preview, and portrait-plan options."""
 
     parser = argparse.ArgumentParser(
         description=(
@@ -122,7 +116,7 @@ def run_cli(
     *,
     settings: Settings | None = None,
 ) -> int:
-    """Load profiles, select jobs, then plan or render their CV artifacts."""
+    """Load profiles, build and select render jobs, then print or execute the plan."""
 
     parser = build_parser()
     arguments = parser.parse_args(argv)
@@ -212,7 +206,7 @@ def _print_rendering_plan(
     shortest_job: CvRenderJob,
     densest_job: CvRenderJob,
 ) -> None:
-    """Print concise paths, boundary cases, and portrait readiness."""
+    """Print selected artifact paths, portrait states, and short/dense examples."""
 
     planned_jobs = [job for job in all_jobs if job.portrait_planned]
     portrait_count = sum(job.portrait_exists for job in planned_jobs)
@@ -263,7 +257,7 @@ def _print_rendering_summary(
     settings: Settings,
     results: Sequence[CvRenderResult],
 ) -> None:
-    """Print the verified output details from one rendering operation."""
+    """Print verified page, text, portrait, HTML, and PDF results."""
 
     placeholder_count = sum(
         result.used_placeholder_portrait

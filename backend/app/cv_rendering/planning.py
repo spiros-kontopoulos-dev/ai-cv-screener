@@ -1,8 +1,8 @@
-"""Prepare deterministic jobs for candidate CV rendering.
+"""Prepare CV rendering jobs without creating any files.
 
-This module is intentionally independent from Jinja and WeasyPrint.  It proves
-that the validated profile collection can be selected, measured, and mapped to
-stable portrait, HTML-preview, and PDF paths before any visual rendering starts.
+The planner loads validated profiles, measures their content, assigns stable
+portrait, optional HTML preview, and readable PDF paths, and returns jobs in
+candidate-ID order. Jinja and WeasyPrint are called later by ``rendering.py``.
 """
 
 from collections.abc import Collection, Sequence
@@ -17,7 +17,7 @@ from app.cv_rendering.models import CvProfileMetrics, CvRenderJob
 from app.schemas import CandidateProfile
 
 
-# Portrait generation may initially produce PNG files, but WP4 will normalize
+# The image provider may return PNG data, but the portrait pipeline normalises
 # every accepted asset to one predictable format before the final PDF batch.
 NORMALIZED_PORTRAIT_EXTENSION = ".webp"
 
@@ -27,11 +27,10 @@ class CvRenderingPlanError(ValueError):
 
 
 def measure_candidate_profile(profile: CandidateProfile) -> CvProfileMetrics:
-    """Return deterministic size measurements for one validated profile.
-
-    ``total_text_characters`` is an approximation based on all string values in
-    the profile.  It is useful for locating boundary cases, but the generated
-    PDF remains the final authority for page count and overflow decisions.
+    """Measure the approximate amount of content in one profile.
+    
+    The measurement helps find short and dense examples for visual testing. The
+    rendered PDF remains the final source for page-count and overflow decisions.
     """
 
     serialized_profile = profile.model_dump(mode="json")
@@ -59,11 +58,7 @@ def build_cv_render_jobs(
     html_preview_directory: Path,
     portrait_candidate_ids: Collection[str] | None = None,
 ) -> list[CvRenderJob]:
-    """Map every validated profile to stable rendering artifact paths.
-
-    Jobs are always returned in candidate-ID order.  Duplicate IDs are rejected
-    defensively even though the WP3 collection validator already checks them.
-    """
+    """Create one ordered render job for every validated candidate profile."""
 
     ordered_profiles = sorted(
         profiles,
@@ -128,7 +123,7 @@ def select_cv_render_jobs(
     start_from: str | None,
     select_all: bool,
 ) -> list[CvRenderJob]:
-    """Select one candidate, a bounded sequence, or the complete collection."""
+    """Select one CV, a limited sequence, or the full collection."""
 
     selected_modes = sum(
         mode_selected
@@ -192,7 +187,7 @@ def select_cv_render_jobs(
 def find_profile_boundaries(
     jobs: Sequence[CvRenderJob],
 ) -> tuple[CvRenderJob, CvRenderJob]:
-    """Return the shortest and densest jobs by approximate text volume."""
+    """Return the shortest and densest profiles for layout review."""
 
     if not jobs:
         raise CvRenderingPlanError(

@@ -1,15 +1,18 @@
-"""Deterministic experience calculation and profile normalization.
+"""Calculate candidate experience with deterministic Python rules.
 
-The LLM is good at creating realistic roles and descriptions, but it is not a
-reliable date-arithmetic engine. This module therefore owns the numerical link
-between employment dates and ``years_of_experience``.
+The language model creates realistic roles and descriptions, but calendar
+arithmetic must be exact. This module converts work dates into month intervals,
+merges overlapping jobs, and calculates the real visible career duration.
 
-For slots with an explicit experience fact, the plan remains authoritative. If
-the generated dates materially disagree with that locked value, Python rebuilds
-the role timeline deterministically while preserving role order and content.
-For every other slot, Python derives the total from the union of non-overlapping
-work intervals and updates skill-year values that would otherwise exceed the
-derived career total.
+There are two modes:
+
+- Derived experience: Python calculates the total from the generated dates.
+- Locked experience: the dataset plan requires an exact total, so Python keeps
+  that value and repairs clearly inconsistent role dates.
+
+Skill durations are also capped so they cannot exceed the candidate's total
+career. The result is rebuilt as a valid ``CandidateProfile`` before it moves to
+compliance checks and persistence.
 """
 
 import math
@@ -68,11 +71,10 @@ def extract_locked_experience_years(
 def calculate_non_overlapping_employment_months(
     profile: CandidateProfile,
 ) -> int:
-    """Return the union of all employment intervals in whole months.
-
-    Adjacent ranges are joined and overlapping roles are counted only once.
-    This avoids inflating experience when a candidate held a part-time or
-    advisory role alongside their main position.
+    """Calculate the number of unique months covered by all jobs.
+    
+    Overlapping jobs are merged before counting, so two roles held at the same time
+    do not double the candidate's experience.
     """
 
     latest_month = year_month_to_index(LATEST_ALLOWED_YEAR_MONTH)
@@ -118,11 +120,12 @@ def normalize_profile_experience(
     profile: CandidateProfile,
     slot: CandidateGenerationSlot,
 ) -> CandidateProfile:
-    """Normalize locked or unlocked experience and return a valid profile.
-
-    Unlocked slots use Python-derived experience totals. Locked slots preserve
-    the plan's exact total and repair only materially inconsistent work dates.
-    Skill durations are capped at the authoritative total in both cases.
+    """Return a profile with one authoritative experience total.
+    
+    For ordinary slots, the total comes from the visible work dates. For slots that
+    lock an exact number, the plan remains authoritative and inconsistent dates are
+    adjusted. In both cases, impossible skill-year claims are reduced to the final
+    career total.
     """
 
     locked_years = extract_locked_experience_years(slot)
@@ -165,11 +168,11 @@ def _normalize_locked_profile_experience(
     *,
     locked_years: float,
 ) -> CandidateProfile:
-    """Preserve a locked total and repair an overlong or short timeline.
-
-    The LLM still chooses role names, employers, achievements, and technology
-    evidence. Python owns only the deterministic date allocation when the
-    visible calendar duration falls outside the accepted tolerance.
+    """Keep the plan's exact total and repair the timeline only when needed.
+    
+    Job titles, employers, achievements, technologies, and role order stay intact.
+    Only the date ranges are reassigned so the visible timeline agrees with the
+    locked experience fact.
     """
 
     calculated_years = calculate_employment_years(profile)
@@ -196,11 +199,11 @@ def _allocate_role_months(
     profile: CandidateProfile,
     target_months: int,
 ) -> list[int]:
-    """Distribute a locked career duration across existing roles.
-
-    The allocation preserves the model's relative role-duration pattern using
-    proportional weights, applies a small realism floor, and then uses a
-    largest-remainder pass so the final month total is exact.
+    """Split an exact career duration across the existing roles.
+    
+    The function keeps roughly the same relative role lengths, gives each role a
+    small realistic minimum, and adjusts the final remainder so the month total is
+    exact.
     """
 
     role_count = len(profile.work_experience)
@@ -255,7 +258,7 @@ def _rebuild_work_dates(
     profile: CandidateProfile,
     role_months: Sequence[int],
 ) -> list[dict]:
-    """Rebuild contiguous role dates backwards while preserving role order."""
+    """Create consecutive role date ranges while keeping the existing role order."""
 
     newest_role = profile.work_experience[0]
     cursor_end = (

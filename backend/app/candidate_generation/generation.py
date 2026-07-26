@@ -1,4 +1,10 @@
-"""Bounded generation orchestration for one controlled candidate slot."""
+"""Coordinate generation and validation for one candidate slot.
+
+The service calls the provider, normalises experience, checks slot compliance,
+runs any cross-candidate validators, and returns the accepted profile. When a
+problem can be corrected, it sends the full problem list back to the provider
+within a fixed retry budget.
+"""
 
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
@@ -16,7 +22,7 @@ from .models import CandidateGenerationSlot
 
 
 class CandidateProfileProvider(Protocol):
-    """Small provider contract used by the orchestrator and deterministic tests."""
+    """Small provider interface used by OpenAI code and provider-free tests."""
 
     def generate(
         self,
@@ -37,14 +43,14 @@ CandidateProfileValidator = Callable[[CandidateProfile], Sequence[str]]
 
 @dataclass(frozen=True, slots=True)
 class CandidateGenerationResult:
-    """Successful candidate generation and the attempts it required."""
+    """Accepted candidate profile together with the number of attempts used."""
 
     profile: CandidateProfile
     attempts: int
 
 
 class CandidateGenerationFailed(RuntimeError):
-    """Raised after a non-retryable error or an exhausted retry budget."""
+    """Raised when generation cannot produce an acceptable profile."""
 
     def __init__(
         self,
@@ -71,11 +77,12 @@ def generate_candidate_with_retries(
     max_retries: int,
     additional_validators: Sequence[CandidateProfileValidator] = (),
 ) -> CandidateGenerationResult:
-    """Generate, normalize, validate, and retry within a fixed budget.
-
-    ``max_retries`` counts attempts *after* the first request. A value of two
-    therefore allows at most three provider calls. Python normalizes unlocked
-    experience totals before slot compliance and cross-candidate validators run.
+    """Generate and validate one candidate within a fixed number of attempts.
+    
+    Each attempt follows the same order: provider output, deterministic experience
+    normalisation, slot checks, then cross-candidate checks. Correctable problems
+    become feedback for the next attempt. Non-retryable provider errors stop
+    immediately.
     """
 
     correction_feedback: tuple[str, ...] = ()

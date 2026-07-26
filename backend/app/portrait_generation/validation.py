@@ -1,4 +1,9 @@
-"""Validate the normalized portrait subset defined by the coverage plan."""
+"""Check that portrait files match the committed coverage plan.
+
+The validator reports planned files that are missing or invalid and files that
+exist for candidates intended to be photo-free. It checks image structure; a
+final human visual review still protects against semantic appearance problems.
+"""
 
 from collections.abc import Collection, Sequence
 from pathlib import Path
@@ -19,7 +24,7 @@ def validate_portrait_collection(
     images_directory: Path,
     expected_size: int,
 ) -> PortraitCollectionValidation:
-    """Verify every planned portrait exists and no unplanned images remain."""
+    """Inspect every planned portrait and report missing, invalid, or unexpected files."""
 
     profile_ids = {
         profile.candidate_id

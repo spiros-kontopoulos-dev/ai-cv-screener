@@ -1,8 +1,9 @@
-"""Lightweight duplicate checks across generated candidate profiles.
+"""Find clear duplicates across generated candidate profiles.
 
-The assignment needs varied CVs, but WP3 does not need semantic embeddings or
-an advanced plagiarism detector. Deterministic exact signatures catch the
-high-risk repetitions cheaply and keep this preparation workflow explainable.
+This small dataset does not need a second embedding system for duplicate
+detection. Exact normalised signatures catch the highest-risk repetitions:
+identical IDs, names, emails, summaries, and employer/title histories. The
+checks run before a profile is saved and again during final dataset validation.
 """
 
 from collections.abc import Sequence
@@ -22,7 +23,7 @@ def find_profile_uniqueness_problems(
     candidate: CandidateProfile,
     accepted_profiles: Sequence[CandidateProfile],
 ) -> list[str]:
-    """Return exact cross-candidate duplicates using stable signatures."""
+    """Return every exact duplicate problem between one profile and the collection."""
 
     problems: list[str] = []
 
@@ -65,7 +66,7 @@ def validate_profile_uniqueness(
     candidate: CandidateProfile,
     accepted_profiles: Sequence[CandidateProfile],
 ) -> None:
-    """Raise one focused error when exact duplicate evidence is found."""
+    """Raise a single clear error when exact duplicate checks fail."""
 
     problems = find_profile_uniqueness_problems(
         candidate,

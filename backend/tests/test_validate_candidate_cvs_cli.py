@@ -11,7 +11,7 @@ _PLAN_PATH = _BACKEND_DIRECTORY / "app" / "dataset" / "candidate_dataset_plan.js
 
 
 def test_cli_passes_for_committed_final_pdf_collection(capsys) -> None:
-    """The developer command reports the committed WP4 collection as valid."""
+    """The command reports the committed final PDF collection as valid."""
 
     data_directory = _resolve_committed_data_directory()
 

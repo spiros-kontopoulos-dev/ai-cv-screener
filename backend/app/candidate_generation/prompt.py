@@ -1,9 +1,9 @@
-"""Prompt construction for one controlled fictional candidate profile.
+"""Build the instructions for one fictional candidate profile.
 
-The dataset plan decides *what* each candidate must contain. This module turns
-one deterministic plan slot into the focused instructions sent to the LLM.
-Keeping prompt construction separate makes it easy to inspect, test, and tune
-without mixing provider calls or validation logic into the prompt text.
+The dataset plan says which facts are fixed. This module turns one slot into a
+focused prompt and keeps provider wording separate from generation logic.
+Correction feedback can be added after a failed attempt without changing the
+underlying slot.
 """
 
 from collections.abc import Sequence
@@ -51,11 +51,11 @@ def build_candidate_prompt(
     *,
     correction_feedback: Sequence[str] = (),
 ) -> str:
-    """Build the user prompt for one candidate-generation attempt.
-
-    ``correction_feedback`` is empty on the first attempt. After a structurally
-    valid response fails deterministic checks, the retry loop passes the exact
-    problems back to the model so it can repair only the conflicting details.
+    """Build the user prompt for one slot and optional correction feedback.
+    
+    Only the selected candidate's requirements are included. Sending the complete
+    30-candidate plan would waste tokens and increase the risk of mixing facts
+    between candidates.
     """
 
     slot_json = slot.model_dump_json(indent=2)
@@ -93,7 +93,7 @@ def build_candidate_prompt(
 
 
 def _build_experience_instruction(slot: CandidateGenerationSlot) -> str:
-    """Explain whether experience is plan-locked or Python-derived."""
+    """Explain whether experience is plan-locked or calculated later by Python."""
 
     locked_years = extract_locked_experience_years(slot)
 

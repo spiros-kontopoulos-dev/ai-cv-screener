@@ -1,4 +1,9 @@
-"""Validate the planned profile-to-portrait mapping and image integrity."""
+"""Command-line tool for checking the planned portrait collection.
+
+It validates plan coverage, image structure, missing files, and unexpected
+portraits for photo-free candidates, then returns a shell-friendly pass/fail
+status.
+"""
 
 import sys
 from collections.abc import Sequence
@@ -21,7 +26,7 @@ def run_cli(
     *,
     settings: Settings | None = None,
 ) -> int:
-    """Validate the committed portrait subset and print a concise report."""
+    """Validate the portrait plan and image directory, then print one summary report."""
 
     if argv:
         print("ERROR: This command accepts no arguments.", file=sys.stderr)

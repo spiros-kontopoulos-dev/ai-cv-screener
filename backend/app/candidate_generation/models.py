@@ -1,4 +1,10 @@
-"""Typed contracts for the controlled candidate dataset plan."""
+"""Pydantic models for the controlled candidate dataset plan.
+
+The plan decides the shape of the full fictional collection before any provider
+call is made. Each slot locks the facts required for diversity and later search
+tests, while leaving the language model free to write realistic employers,
+achievements, and descriptions.
+"""
 
 from typing import Annotated, Any, Self
 
@@ -51,7 +57,7 @@ class PlannedProject(GenerationPlanSchema):
 
 
 class CandidateGenerationSlot(GenerationPlanSchema):
-    """Deterministic requirements for generating one fictional candidate."""
+    """One planned candidate and the facts their generated CV must contain."""
 
     candidate_id: CandidateId
     full_name: str = Field(min_length=3, max_length=100)
@@ -96,7 +102,7 @@ class CandidateGenerationSlot(GenerationPlanSchema):
 
 
 class SearchScenario(GenerationPlanSchema):
-    """A known question used later to verify retrieval and grounding."""
+    """One known search question and the candidate evidence expected to support it."""
 
     scenario_id: str = Field(min_length=3, max_length=100)
     question: str = Field(min_length=5, max_length=500)
@@ -108,7 +114,7 @@ class SearchScenario(GenerationPlanSchema):
 
 
 class CandidateDatasetPlan(GenerationPlanSchema):
-    """Validated top-level contract for the synthetic dataset plan."""
+    """The full candidate plan, distribution targets, and search scenarios."""
 
     dataset_version: int = Field(ge=1)
     candidate_count: int = Field(ge=1, le=100)
@@ -116,7 +122,7 @@ class CandidateDatasetPlan(GenerationPlanSchema):
     fictional_data_policy: dict[str, bool] = Field(min_length=1)
     generation_rules: dict[str, bool | str] = Field(min_length=1)
 
-    # Distribution summaries are already verified by the existing WP2 tests.
+    # Separate dataset-plan tests already verify the distribution totals.
     # The generator only needs to preserve them as plan metadata.
     distributions: dict[str, Any] = Field(min_length=1)
 
@@ -125,7 +131,7 @@ class CandidateDatasetPlan(GenerationPlanSchema):
 
     @model_validator(mode="after")
     def validate_plan_consistency(self) -> Self:
-        """Ensure counts, identifiers, policies, and scenarios agree."""
+        """Check that slot IDs, distributions, and scenario references agree."""
 
         if self.candidate_count != len(self.candidates):
             raise ValueError(

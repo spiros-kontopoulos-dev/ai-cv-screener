@@ -1,9 +1,10 @@
-"""Safe JSON persistence for validated candidate profiles.
+"""Load and save the validated candidate profile collection.
 
-The generated profile file is preparation data for deterministic PDF rendering.
-Only ``CandidateProfile`` instances may enter this module, and every existing
-file is validated again when it is loaded. Atomic replacement prevents a
-partially written JSON document if generation is interrupted during a save.
+The JSON file is preparation data for CV rendering. Every loaded record is
+validated again as ``CandidateProfile``. Saves use a temporary file followed by
+an atomic replacement, so an interruption cannot leave half-written JSON.
+Profiles are always written in candidate-ID order to keep resume and review
+behaviour predictable.
 """
 
 from json import JSONDecodeError, dumps, loads
@@ -27,10 +28,11 @@ class CandidateProfilesFileError(RuntimeError):
 
 
 def load_candidate_profiles(path: Path) -> list[CandidateProfile]:
-    """Load and validate previously accepted profiles.
-
-    A missing file represents an empty dataset. Existing malformed files fail
-    loudly so ``--resume`` never builds new results on top of corrupted data.
+    """Load, validate, and sort the saved candidate profiles.
+    
+    A missing file means generation has not started and returns an empty list. A
+    present but invalid file raises a clear error rather than letting bad data reach
+    CV rendering.
     """
 
     if not path.exists():
@@ -64,12 +66,7 @@ def save_candidate_profiles(
     path: Path,
     profiles: list[CandidateProfile],
 ) -> None:
-    """Atomically persist validated profiles in stable candidate-ID order.
-
-    The temporary file is created beside the destination so ``os.replace`` is
-    an atomic operation on the same filesystem. ``flush`` and ``fsync`` push
-    buffered content before the final replacement.
-    """
+    """Validate ordering and atomically save the complete profile collection."""
 
     ordered_profiles = _sort_profiles(profiles)
     serialized_profiles = dumps(

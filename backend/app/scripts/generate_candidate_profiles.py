@@ -1,20 +1,15 @@
-"""Generate controlled fictional candidate profiles from the dataset plan.
+"""Command-line tool for generating the fictional candidate collection.
 
-Examples:
+Common uses:
 
-    # Inspect three slots without making network requests.
-    python -m app.scripts.generate_candidate_profiles --count 3 --dry-run
+- ``--dry-run`` shows which slots would be processed without calling OpenAI.
+- ``--candidate-id`` generates one selected candidate.
+- ``--all --resume`` continues an interrupted collection.
+- ``--all --overwrite`` deliberately starts the collection again.
 
-    # Generate one validated candidate and persist it.
-    python -m app.scripts.generate_candidate_profiles \
-        --candidate-id candidate_001
-
-    # Continue a partially generated collection without repeating completed IDs.
-    python -m app.scripts.generate_candidate_profiles --all --resume
-
-The command owns developer-facing arguments and output. Prompting, provider
-calls, validation, duplicate detection, and persistence remain in focused
-candidate-generation modules so this script stays an orchestration boundary.
+The script handles arguments and progress output. The generation package owns
+prompting, provider calls, deterministic validation, duplicate checks, and safe
+JSON persistence.
 """
 
 import argparse
@@ -60,7 +55,7 @@ def _positive_integer(value: str) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """Create the reusable argument parser for candidate generation."""
+    """Define the candidate selection, retry, dry-run, resume, and overwrite options."""
 
     parser = argparse.ArgumentParser(
         description=(
@@ -146,7 +141,7 @@ def run_cli(
     settings: Settings | None = None,
     provider_factory: ProviderFactory = create_openai_provider,
 ) -> int:
-    """Run dry-run inspection or persisted candidate generation."""
+    """Run a dry-run preview or generate and save the selected candidates."""
 
     parser = build_parser()
     arguments = parser.parse_args(argv)
@@ -306,7 +301,7 @@ def _prepare_existing_profiles(
     resume: bool,
     overwrite: bool,
 ) -> list[CandidateProfile]:
-    """Apply explicit existing-file behavior before provider creation."""
+    """Apply resume or overwrite rules before any provider is created."""
 
     output_path = settings.candidate_profiles_output_path
 
@@ -352,7 +347,7 @@ def _print_dry_run(
     available_slot_count: int,
     selected_slots: Sequence[CandidateGenerationSlot],
 ) -> None:
-    """Display deterministic selection details without provider activity."""
+    """Show selected slots and output paths without making a provider call."""
 
     print("CANDIDATE GENERATION DRY RUN")
     print(f"  Plan version: {plan_version}")

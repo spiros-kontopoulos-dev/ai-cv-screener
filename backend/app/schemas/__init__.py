@@ -1,7 +1,7 @@
-"""Public imports for the application's Pydantic schemas.
+"""Public candidate schema imports.
 
-Other application modules can import these types directly from
-``app.schemas`` without knowing which internal file defines them.
+Most backend modules import candidate types from ``app.schemas``. This file
+keeps those imports short and hides the internal schema file layout.
 """
 
 from .candidate import (

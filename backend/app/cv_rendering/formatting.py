@@ -1,9 +1,9 @@
-"""Presentation helpers for CV template rendering.
+"""Convert validated profile values into readable CV labels.
 
-The validated candidate schema deliberately stores predictable machine-friendly
-values such as ``2023-01`` and ``backend_engineering``.  This module converts
-those values into concise human-readable labels without changing the source
-profile or duplicating business validation.
+Candidate models store predictable values such as ``2023-01`` and
+``backend_engineering``. These helpers format dates, experience, seniority,
+languages, initials, and skill groups for Jinja without changing the original
+profile or repeating business validation.
 """
 
 from collections import defaultdict
@@ -131,10 +131,10 @@ def candidate_initials(full_name: str) -> str:
 
 
 def group_skills(skills: Iterable[Skill]) -> list[dict[str, object]]:
-    """Group skills by controlled category while preserving input order.
-
-    A plain dictionary payload keeps the Jinja template simple.  Skills remain
-    real ``Skill`` objects so the template can access their validated fields.
+    """Group skills by category while keeping their original order.
+    
+    The simple dictionary structure keeps the Jinja template readable, while each
+    entry remains a validated ``Skill`` object.
     """
 
     grouped_skills: dict[str, list[Skill]] = defaultdict(list)

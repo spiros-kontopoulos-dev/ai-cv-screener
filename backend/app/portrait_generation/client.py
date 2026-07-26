@@ -1,4 +1,9 @@
-"""Direct OpenAI image-generation client for fictional CV portraits."""
+"""OpenAI image client for fictional candidate portraits.
+
+This module sends one prepared prompt to the image provider and returns the raw
+image bytes. Job selection, retries, image normalisation, saving, and collection
+validation are handled by the surrounding portrait modules.
+"""
 
 from base64 import b64decode
 from binascii import Error as Base64DecodeError
@@ -8,7 +13,7 @@ from openai import OpenAI
 
 
 class PortraitProviderError(RuntimeError):
-    """A provider failure with explicit retry guidance."""
+    """Image-provider failure that says whether the generation loop may retry."""
 
     def __init__(self, message: str, *, retryable: bool) -> None:
         super().__init__(message)
@@ -16,7 +21,7 @@ class PortraitProviderError(RuntimeError):
 
 
 class OpenAIPortraitGenerator:
-    """Generate one base64-backed portrait through the OpenAI Images API."""
+    """Call the configured OpenAI image model for one planned portrait."""
 
     def __init__(
         self,
@@ -40,7 +45,7 @@ class OpenAIPortraitGenerator:
         )
 
     def generate(self, prompt: str, *, candidate_id: str) -> bytes:
-        """Return decoded image bytes for one fictional candidate portrait."""
+        """Generate raw image bytes for one candidate-specific portrait prompt."""
 
         try:
             response = self._client.images.generate(

@@ -1,10 +1,11 @@
-"""Validate the final PDF CV collection against its rendering contract.
+"""Prove that the final PDF CVs contain the expected searchable facts.
 
-The structured candidate profiles remain preparation data.  This module opens
-only the generated PDF artifacts with PyMuPDF, extracts their text, and checks
-that every profile field intended for the CV survived the complete rendering
-boundary.  Curated search scenarios are then validated against that extracted
-PDF text rather than against the original JSON.
+This module opens the rendered PDFs with PyMuPDF and validates their extracted
+text. It checks file coverage, page counts, candidate identity, every profile
+field intended for display, and the known search scenarios.
+
+The profile JSON is used only as the expected rendering contract. The actual
+validation evidence always comes from text extracted from the PDF files.
 """
 
 from collections.abc import Mapping, Sequence
@@ -45,7 +46,7 @@ class CvPdfValidationError(RuntimeError):
 
 @dataclass(frozen=True, slots=True)
 class CvFactExpectation:
-    """One human-readable profile fact expected in a rendered PDF."""
+    """One labelled piece of profile text that should appear in the rendered PDF."""
 
     label: str
     evidence: str
@@ -53,7 +54,7 @@ class CvFactExpectation:
 
 @dataclass(frozen=True, slots=True)
 class ExtractedCvDocument:
-    """Text and metadata extracted from one candidate PDF."""
+    """Page text and source metadata extracted from one CV PDF."""
 
     candidate_id: str
     path: Path
@@ -69,7 +70,7 @@ class ExtractedCvDocument:
 
 @dataclass(frozen=True, slots=True)
 class CandidateCvValidation:
-    """Validation result for one expected candidate PDF."""
+    """Per-candidate result containing missing facts and structural problems."""
 
     candidate_id: str
     path: Path
@@ -88,7 +89,7 @@ class CandidateCvValidation:
 
 @dataclass(frozen=True, slots=True)
 class CvPdfCollectionValidationReport:
-    """Complete integrity report for the committed PDF collection."""
+    """Complete report for PDF count, facts, pages, and search scenarios."""
 
     expected_pdf_count: int
     actual_pdf_count: int
@@ -114,11 +115,11 @@ def extract_cv_pdf(
     *,
     candidate_id: str | None = None,
 ) -> ExtractedCvDocument:
-    """Open one PDF and extract page-sorted text with PyMuPDF.
-
-    The controlled CV template renders the stable candidate ID as visible text.
-    When callers do not already know the ID, it is recovered from that text so
-    human-readable source filenames remain presentation metadata only.
+    """Open one CV PDF and extract its text page by page.
+    
+    When the caller does not provide a candidate ID, the function reads the stable
+    ID from visible PDF text. The readable filename is therefore not treated as the
+    technical identity.
     """
 
     if not path.is_file():
@@ -149,7 +150,7 @@ def extract_cv_pdf(
 def build_profile_fact_expectations(
     profile: CandidateProfile,
 ) -> tuple[CvFactExpectation, ...]:
-    """Return every profile fact intentionally rendered as visible CV text."""
+    """Build the complete list of profile facts intentionally shown in the CV."""
 
     facts: list[CvFactExpectation] = [
         CvFactExpectation("candidate ID", profile.candidate_id),
@@ -304,7 +305,7 @@ def validate_profile_against_pdf_text(
     minimum_page_count: int = 1,
     maximum_page_count: int = 2,
 ) -> CandidateCvValidation:
-    """Verify one PDF's structure and every visible profile fact."""
+    """Check one extracted PDF against its candidate's expected visible facts."""
 
     missing_facts: list[str] = []
 
@@ -359,7 +360,7 @@ def validate_cv_pdf_collection(
     minimum_page_count: int = 1,
     maximum_page_count: int = 2,
 ) -> CvPdfCollectionValidationReport:
-    """Validate all expected PDFs and curated scenarios from extracted text."""
+    """Validate every expected PDF and every planned search scenario."""
 
     issues: list[str] = []
     expected_ids = [profile.candidate_id for profile in profiles]
@@ -587,12 +588,11 @@ def _contains_scenario_evidence(
 
 
 def _contains_normalized_phrase(normalized_text: str, evidence: str) -> bool:
-    """Match rendered evidence despite PDF column and line fragmentation.
-
-    PyMuPDF normally preserves each phrase, but a two-column page can insert a
-    neighbouring heading between words or concatenate text at a column edge.
-    We prefer a contiguous normalized phrase and then fall back to complete
-    token coverage within the same candidate PDF.
+    """Match a phrase even when PDF line or column extraction splits its words.
+    
+    The normal path looks for the complete normalised phrase. When two-column
+    reading order interrupts it, validation falls back to token coverage inside the
+    same candidate PDF only.
     """
 
     normalized_evidence = _normalize_text(evidence)

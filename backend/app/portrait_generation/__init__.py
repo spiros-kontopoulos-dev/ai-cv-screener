@@ -1,4 +1,9 @@
-"""Public interface for fictional candidate portrait generation."""
+"""Public interface for fictional portrait generation.
+
+The portrait pipeline loads the committed coverage plan, builds one job for each
+planned candidate, creates a text-free professional headshot, normalises it to
+a 512 x 512 WebP file, and validates the final planned collection.
+"""
 
 from .client import OpenAIPortraitGenerator, PortraitProviderError
 from .coverage import (

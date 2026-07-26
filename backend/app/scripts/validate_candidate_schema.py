@@ -1,12 +1,7 @@
-"""Run a compact demonstration of candidate-profile validation.
+"""Small command-line demonstration of the candidate Pydantic boundary.
 
-Execute inside the backend container with:
-
-    python -m app.scripts.validate_candidate_schema
-
-The script shows both sides of the Pydantic boundary: valid structured data
-becomes a typed ``CandidateProfile``, while contradictory data is rejected
-before it can reach candidate generation or PDF rendering.
+It validates one correct fictional payload and then shows that an obvious
+seniority contradiction is rejected before data can be saved or rendered.
 """
 
 from copy import deepcopy

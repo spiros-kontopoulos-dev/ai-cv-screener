@@ -1,8 +1,16 @@
-"""Controlled synthetic candidate generation domain.
+"""Public interface for fictional candidate generation.
 
-The package is divided by responsibility: plan models and loading, prompt
-construction, provider integration, deterministic compliance and uniqueness
-checks, bounded generation, and safe profile persistence.
+The package follows this order:
+
+1. Load one controlled slot from the dataset plan.
+2. Build a focused prompt for that slot.
+3. Ask OpenAI for a structured ``CandidateProfile``.
+4. Normalise dates and experience in Python.
+5. Check the profile against the slot and existing candidates.
+6. Save only accepted profiles.
+
+The separate modules keep provider calls, business rules, and file writing easy
+to test and explain.
 """
 
 from .client import CandidateProviderError, OpenAICandidateGenerator
