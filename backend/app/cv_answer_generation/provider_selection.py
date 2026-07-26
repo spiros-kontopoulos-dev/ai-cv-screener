@@ -1,4 +1,9 @@
-"""Configuration-driven selection of grounded-answer generation providers."""
+"""Choose OpenAI, Gemini, or deterministic answer wording from settings.
+
+Provider choice remains on the backend. ``auto`` prefers an available hosted
+provider and falls back to deterministic mode when no key is configured.
+Explicit hosted modes fail clearly when their required key is missing.
+"""
 
 from dataclasses import dataclass
 from typing import Any
@@ -11,12 +16,12 @@ from .models import GroundedAnswerProviderName
 
 
 class GroundedAnswerConfigurationError(RuntimeError):
-    """Raised when an explicitly selected provider is missing its API key."""
+    """Raised when an explicitly selected hosted provider has no API key."""
 
 
 @dataclass(frozen=True, slots=True)
 class ResolvedGroundedAnswerProvider:
-    """One selected provider plus stable diagnostic labels."""
+    """The selected provider object and stable provider/model labels."""
 
     provider: Any | None
     provider_name: GroundedAnswerProviderName
@@ -26,7 +31,7 @@ class ResolvedGroundedAnswerProvider:
 def resolve_grounded_answer_provider(
     settings: Settings,
 ) -> ResolvedGroundedAnswerProvider:
-    """Resolve auto, OpenAI, Gemini, or deterministic answer generation."""
+    """Resolve provider mode, validate keys, and build the selected provider."""
 
     requested = settings.cv_grounded_answer_provider
     gemini_key = _read_gemini_api_key(settings)
@@ -87,7 +92,7 @@ def resolve_grounded_answer_provider(
 
 
 def _read_gemini_api_key(settings: Settings) -> str | None:
-    """Follow Google's precedence when both supported key names are present."""
+    """Read Gemini keys using the supported Google precedence order."""
 
     return _read_secret(settings.google_api_key) or _read_secret(
         settings.gemini_api_key

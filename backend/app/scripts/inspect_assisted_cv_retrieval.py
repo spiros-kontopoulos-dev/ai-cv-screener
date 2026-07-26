@@ -1,4 +1,8 @@
-"""Inspect semantic, lexical, and numeric evidence before candidate grouping."""
+"""Show semantic, lexical, and numeric evidence before candidate grouping.
+
+The output explains which exact terms and number relations matched, which
+chunks came from the recovery scan, and how the combined chunk score changed.
+"""
 
 import argparse
 from collections.abc import Sequence
@@ -15,7 +19,7 @@ from app.cv_retrieval import (
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """Create the WP6 exact-condition inspection command."""
+    """Create command-line options for exact-evidence inspection."""
 
     parser = argparse.ArgumentParser(
         description=(
@@ -57,7 +61,7 @@ def run_cli(
     settings: Settings | None = None,
     retriever: AssistedCvRetriever | None = None,
 ) -> int:
-    """Print interpretable score components and exact-condition matches."""
+    """Print score components, matched evidence, and source details for each chunk."""
 
     arguments = build_parser().parse_args(argv)
     if arguments.display_limit < 1:
@@ -156,7 +160,7 @@ def run_cli(
 
 
 def main() -> None:
-    """Run the CLI and expose shell-friendly exit status."""
+    """Run the command and return a shell-friendly exit code."""
 
     raise SystemExit(run_cli())
 

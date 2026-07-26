@@ -1,9 +1,9 @@
-"""Run the diagnostic recruiter-query paraphrase matrix.
+"""Test many ways a recruiter might ask the same question.
 
-The command never calls OpenAI or Gemini. It exercises the existing retrieval
-pipeline, records whether a hosted provider *would* be called, and can write a
-full JSON report for before/after comparison during the query-understanding
-refactor.
+The command uses the real retrieval pipeline but never calls OpenAI or Gemini.
+It shows how each question was understood, which candidates were found, why a
+candidate passed or failed, and whether equivalent wording stayed consistent.
+A full JSON report can be saved for regression comparisons.
 """
 
 from __future__ import annotations
@@ -24,6 +24,7 @@ from app.cv_retrieval import (
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """Create filters, limits, detail options, and JSON output settings."""
     parser = argparse.ArgumentParser(
         description=(
             "Evaluate recruiter-query paraphrases through the unchanged final "
@@ -92,6 +93,7 @@ def run_cli(
     settings: Settings | None = None,
     retriever: FinalCvRetriever | None = None,
 ) -> int:
+    """Load the paraphrase matrix, run retrieval, and print the report."""
     arguments = build_parser().parse_args(argv)
     active_settings = settings or get_settings()
     matrix_path = (
@@ -137,6 +139,7 @@ def _print_report(
     failed_only: bool,
     verbose: bool,
 ) -> None:
+    """Print family and scenario totals together with consistency results."""
     print("CV QUERY ROBUSTNESS DIAGNOSTIC")
     print(f"  Matrix path: {report.matrix_path}")
     print(f"  Matrix version: {report.matrix_version}")
@@ -178,6 +181,7 @@ def _print_report(
 
 
 def _print_scenario(evaluation, *, verbose: bool) -> None:
+    """Print parser details and candidate coverage for one question."""
     status = "PASS" if evaluation.passed else "FAIL"
     expected = ", ".join(evaluation.expected_candidate_ids) or "none"
     returned = ", ".join(evaluation.returned_candidate_ids) or "none"
@@ -248,6 +252,7 @@ def _write_json_report(
     path: Path,
     report: CvQueryRobustnessReport,
 ) -> None:
+    """Write the stable diagnostic report to the requested JSON file."""
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(
@@ -262,6 +267,7 @@ def _write_json_report(
 
 
 def main() -> None:
+    """Run the command and return failure status in strict regression mode."""
     raise SystemExit(run_cli())
 
 

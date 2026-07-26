@@ -1,4 +1,10 @@
-"""Deterministic source registry and citation validation for grounded answers."""
+"""Build the source registry and validate every answer citation.
+
+Source IDs are created from the final candidate evidence. Validation rejects
+unknown sources, citations owned by another candidate, missing candidate
+coverage, and citations that do not prove the requirements claimed in the
+answer.
+"""
 
 from app.cv_retrieval import FinalCvCandidate, FinalCvRetrievalResult
 
@@ -6,7 +12,7 @@ from .models import GroundedAnswerDraft, GroundedAnswerSource
 
 
 def build_source_id(candidate_id: str, evidence_order: int) -> str:
-    """Return a stable source identifier safe for prompts and API responses."""
+    """Create a stable, readable source ID for one candidate evidence block."""
 
     return f"{candidate_id}-source-{evidence_order}"
 
@@ -14,7 +20,7 @@ def build_source_id(candidate_id: str, evidence_order: int) -> str:
 def build_grounded_answer_sources(
     retrieval_result: FinalCvRetrievalResult,
 ) -> tuple[GroundedAnswerSource, ...]:
-    """Convert final WP6 evidence into a deterministic source registry."""
+    """Convert final retrieval evidence into the fixed source registry."""
 
     labels_by_key = {
         condition.key: condition.label
@@ -50,7 +56,7 @@ def build_grounded_answer_sources(
 def default_candidate_citation_ids(
     candidate: FinalCvCandidate,
 ) -> tuple[str, ...]:
-    """Choose concise direct evidence citations for deterministic responses."""
+    """Choose concise direct citations for deterministic answer wording."""
 
     direct = [
         build_source_id(candidate.candidate_id, evidence.order)
@@ -66,7 +72,12 @@ def validate_grounded_answer_citations(
     draft: GroundedAnswerDraft,
     retrieval_result: FinalCvRetrievalResult,
 ) -> list[str]:
-    """Reject unknown, cross-candidate, or requirement-incomplete citations."""
+    """Check that all citation IDs are known, candidate-owned, and complete.
+
+    Supported and partial answers must cite every returned candidate. Each
+    candidate assessment must cite evidence that covers its claimed matched
+    requirements. Unsupported answers must not contain citations.
+    """
 
     problems: list[str] = []
     sources = build_grounded_answer_sources(retrieval_result)

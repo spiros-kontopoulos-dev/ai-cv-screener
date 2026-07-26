@@ -1,8 +1,11 @@
-"""Broad semantic retrieval over the persistent CV vector collection.
+"""Run broad semantic search over the persistent CV index.
 
-This first WP6 layer intentionally returns raw chunks in Chroma distance order.
-It does not yet deduplicate evidence, interpret exact constraints, group by
-candidate, balance candidates, or enforce the final LLM evidence budget.
+The question is embedded with the same local model used for CV chunks. ChromaDB
+then returns the nearest text chunks in distance order.
+
+This stage is designed for recall: it tries to bring related evidence into the
+search pool. It does not yet decide whether an exact number is correct, combine
+several chunks for one person, or decide whether a candidate fully matches.
 """
 
 from __future__ import annotations
@@ -31,21 +34,21 @@ from app.cv_retrieval.models import (
 
 
 class CvRawRetrievalError(RuntimeError):
-    """Raised when broad semantic retrieval cannot return trustworthy evidence."""
+    """Raised when semantic search cannot return safe, usable evidence."""
 
 
 class QueryEmbeddingProvider(Protocol):
-    """Small query-only boundary shared with the WP5 embedding provider."""
+    """Small interface for turning recruiter questions into embedding vectors."""
 
     def embed_texts(
         self,
         texts: Sequence[str],
     ) -> tuple[tuple[float, ...], ...]:
-        """Embed one or more normalized query strings."""
+        """Create vectors for one or more question strings."""
 
 
 class RawVectorRepository(Protocol):
-    """Read-only storage boundary needed by broad raw retrieval."""
+    """Read-only interface used to inspect and query the Chroma collection."""
 
     def get_collection_info(self) -> VectorCollectionInfo:
         """Open the collection and verify its compatibility metadata."""
@@ -60,7 +63,7 @@ class RawVectorRepository(Protocol):
 
 
 class RawCvRetriever:
-    """Embed one recruiter question and retrieve a broad raw evidence pool."""
+    """Embed one question and retrieve a broad pool of source-traceable chunks."""
 
     def __init__(
         self,
@@ -80,7 +83,12 @@ class RawCvRetriever:
         return self._config
 
     def retrieve(self, query: RawCvRetrievalQuery) -> RawCvRetrievalResult:
-        """Return source-traceable chunks without candidate-aware ranking."""
+        """Search the vector index for chunks related to the question.
+
+        The method checks question length, collection compatibility, embedding output,
+        and stored metadata. The result remains chunk-level and follows Chroma distance
+        order.
+        """
 
         if len(query.text) > self._config.max_question_characters:
             raise CvRawRetrievalError(
@@ -151,7 +159,12 @@ def build_raw_cv_retriever(
     *,
     vector_repository: RawVectorRepository | None = None,
 ) -> RawCvRetriever:
-    """Build retrieval dependencies while reusing the cached WP5 model provider."""
+    """Build semantic search from application settings.
+
+    The builder reuses the cached embedding model and creates a compatible Chroma
+    repository with the same model, dimension, chunking, and distance settings used
+    when the index was built.
+    """
 
     embedding_provider = get_embedding_provider(
         settings.cv_embedding_model_name,
@@ -187,7 +200,7 @@ def build_raw_cv_retriever(
 
 
 def _build_typed_hit(rank: int, match: RawVectorMatch) -> RawCvRetrievalHit:
-    """Convert one storage-level dictionary into a typed evidence contract."""
+    """Convert one Chroma match into the checked raw-hit model."""
 
     return RawCvRetrievalHit(
         rank=rank,

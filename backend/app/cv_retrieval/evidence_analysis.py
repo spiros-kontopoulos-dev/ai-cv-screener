@@ -1,14 +1,19 @@
-"""Deterministic lexical and relation-aware numeric CV evidence analysis.
+"""Understand recruiter wording and score exact evidence inside CV text.
 
-Semantic similarity is valuable for recall, but recruiter constraints such as
-"managed exactly eight engineers" require stricter evidence semantics. This
-module keeps the implementation lightweight while enforcing three boundaries:
+Semantic similarity can find related text, but it cannot prove every exact
+requirement. For example, “8 years of experience” must not satisfy “managed 8
+engineers.”
 
-* lexical matches must correspond to real tokens in the evidence;
-* related terms must occur locally rather than anywhere in a long chunk;
-* numbers must be attached to the requested relationship, unit and operator.
+This module therefore:
 
-Candidate-level aggregation remains a later WP6 responsibility.
+- removes conversational words that are not candidate requirements;
+- recognises skills, phrases, education, language proficiency, and numbers;
+- keeps comparison operators such as exactly, more than, and at least;
+- checks important relations inside a sentence, bullet, or small text window;
+- returns separate semantic, lexical, and numeric scores.
+
+All checks operate on one chunk at a time. Candidate grouping happens after this
+stage.
 """
 
 from __future__ import annotations
@@ -264,7 +269,7 @@ _DEGREE_LEVEL_ALIASES = {
 
 @dataclass(frozen=True, slots=True)
 class TextRelationConstraint:
-    """A pair of lexical concepts that must co-occur locally in evidence."""
+    """Two facts that must appear close together, such as German and native."""
 
     relation: str
     terms: tuple[str, ...]
@@ -278,7 +283,7 @@ class TextRelationConstraint:
 
 @dataclass(frozen=True, slots=True)
 class EducationQueryConstraint:
-    """A degree level bound to its requested field of study."""
+    """A degree level tied to a requested field of study in the same record."""
 
     degree_level: str
     degree_aliases: tuple[str, ...]
@@ -294,7 +299,11 @@ class EducationQueryConstraint:
 
 @dataclass(frozen=True, slots=True)
 class NumericQueryConstraint:
-    """One numeric requirement plus its operator and semantic relationship."""
+    """One number together with its meaning and comparison rule.
+
+    The relation tells the scorer whether the number describes team size,
+    experience duration, or a more general numeric fact.
+    """
 
     value: float
     display_value: str
@@ -321,7 +330,7 @@ class NumericQueryConstraint:
 
 @dataclass(frozen=True, slots=True)
 class CvQueryEvidenceFeatures:
-    """Deterministic lexical, relational, phrase, and numeric query signals."""
+    """The structured search requirements extracted from one recruiter question."""
 
     normalized_text: str
     lexical_terms: tuple[str, ...]
@@ -345,7 +354,7 @@ class CvQueryEvidenceFeatures:
 
 @dataclass(frozen=True, slots=True)
 class CvEvidenceScore:
-    """Separate semantic, lexical, and numeric components for one chunk."""
+    """Separate semantic, exact-text, and numeric scores for one CV chunk."""
 
     semantic_score: float
     lexical_score: float
@@ -372,7 +381,7 @@ class CvEvidenceScore:
 
 @dataclass(frozen=True, slots=True)
 class ScoredCvEvidenceHit:
-    """One unique chunk reranked by semantic and exact-condition evidence."""
+    """One source chunk after exact evidence checks and chunk-level reranking."""
 
     rank: int
     raw_rank: int | None
@@ -396,7 +405,7 @@ class ScoredCvEvidenceHit:
 
 @dataclass(frozen=True, slots=True)
 class AssistedCvRetrievalResult:
-    """Chunk-level assisted retrieval before candidate grouping and budgeting."""
+    """The scored chunk pool produced before evidence is grouped by candidate."""
 
     raw_result: RawCvRetrievalResult
     query_features: CvQueryEvidenceFeatures
@@ -428,7 +437,12 @@ class AssistedCvRetrievalResult:
 
 
 def analyze_recruiter_question(text: str) -> CvQueryEvidenceFeatures:
-    """Extract typed facts while discarding conversational query scaffolding."""
+    """Turn a natural-language question into inspectable search requirements.
+
+    The result separates meaningful candidate facts from conversational wording and
+    preserves typed relations such as degree plus field, language plus proficiency,
+    and numeric comparisons.
+    """
 
     normalized = normalize_search_text(text)
     raw_tokens = _tokenize(normalized)
@@ -485,7 +499,7 @@ def score_raw_hit(
     *,
     distance_metric: str,
 ) -> CvEvidenceScore:
-    """Score one semantic hit while preserving each interpretable component."""
+    """Add exact-text and numeric evidence scores to one semantic-search hit."""
 
     return score_evidence_text(
         hit.text,
@@ -503,7 +517,11 @@ def score_evidence_text(
     *,
     semantic_score: float = 0.0,
 ) -> CvEvidenceScore:
-    """Score one chunk using real lexical spans and local numeric relations."""
+    """Score one text chunk against the structured question requirements.
+
+    The function records the actual matched terms and number contexts so ranking
+    and diagnostic tools can explain why the chunk received credit.
+    """
 
     normalized = normalize_search_text(text)
     evidence_tokens = tuple(_tokenize(normalized))
@@ -616,7 +634,7 @@ def score_evidence_text(
 
 
 def semantic_relevance_from_distance(distance: float, metric: str) -> float:
-    """Convert supported Chroma distances into a larger-is-better score."""
+    """Convert a Chroma distance into a zero-to-one relevance score."""
 
     if not math.isfinite(distance):
         raise ValueError("Semantic distance must be finite.")
@@ -628,7 +646,7 @@ def semantic_relevance_from_distance(distance: float, metric: str) -> float:
 
 
 def normalize_search_text(text: str) -> str:
-    """Normalize Unicode, case, punctuation, and whitespace for exact matching."""
+    """Normalise case, accents, punctuation, hyphens, and whitespace for matching."""
 
     decomposed = unicodedata.normalize("NFKD", text).casefold()
     without_marks = "".join(
@@ -642,7 +660,7 @@ def normalize_search_text(text: str) -> str:
 
 
 def canonicalize_lexical_term(term: str) -> str:
-    """Apply small transparent normalizations rather than opaque stemming."""
+    """Apply a small set of clear aliases instead of broad automatic stemming."""
 
     normalized = term.casefold().strip(".-")
     if normalized in _PROFICIENCY_ALIASES:
@@ -678,7 +696,7 @@ class _NumericEvidenceMatch:
 def _extract_text_relations(
     tokens: tuple[str, ...],
 ) -> tuple[TextRelationConstraint, ...]:
-    """Detect language/proficiency relations without mistaking prose for facts."""
+    """Find typed relations such as a language stated with its proficiency."""
 
     canonical = tuple(canonicalize_lexical_term(token) for token in tokens)
     relations: list[TextRelationConstraint] = []
@@ -737,7 +755,7 @@ def _match_text_relation(
     text: str,
     relation: TextRelationConstraint,
 ) -> str | None:
-    """Return the actual local evidence span for one typed text relation."""
+    """Return the local words that prove one typed text relation."""
 
     if relation.relation != "language_proficiency":
         return None
@@ -774,6 +792,7 @@ def _extract_phrases(
     original_text: str,
     lexical_terms: tuple[str, ...],
 ) -> tuple[str, ...]:
+    """Build quoted, two-word, and three-word phrases from the useful query terms."""
     quoted = [
         normalize_search_text(match.group(1))
         for match in _QUOTED_PATTERN.finditer(original_text)
@@ -800,6 +819,7 @@ def _build_numeric_constraint(
     value: float,
     original_text: str = "",
 ) -> NumericQueryConstraint:
+    """Attach a number to its operator and likely meaning in the question."""
     context_tokens = [
         canonicalize_lexical_term(token)
         for token in tokens
@@ -837,7 +857,7 @@ def _build_numeric_constraint(
 def _extract_education_constraints(
     normalized_text: str,
 ) -> tuple[EducationQueryConstraint, ...]:
-    """Extract degree level + field as one candidate-owned relation."""
+    """Bind a recognised degree alias to its requested study field."""
 
     patterns = (
         (
@@ -921,7 +941,7 @@ def _score_numeric_constraint(
     text: str,
     constraint: NumericQueryConstraint,
 ) -> _NumericEvidenceMatch:
-    """Require a value, operator and relationship in one local clause/window."""
+    """Check whether a number in the evidence proves the requested relation and operator."""
 
     accepted_contexts: list[str] = []
     number_seen = False
@@ -980,7 +1000,7 @@ def _matches_team_size_relation(
     tokens: tuple[str, ...],
     number_position: int,
 ) -> bool:
-    """Recognize team headcount, rejecting durations and unrelated numbers."""
+    """Accept a number only when local text also proves management and workforce meaning."""
 
     if _is_duration_number(tokens, number_position):
         return False
@@ -1025,7 +1045,7 @@ def _matches_experience_duration_relation(
     tokens: tuple[str, ...],
     number_position: int,
 ) -> bool:
-    """Match the stated total duration, never a nearby ID/date/phone number."""
+    """Accept a number only when local text describes a duration of experience."""
 
     following = tuple(
         token.casefold()
@@ -1071,6 +1091,7 @@ def _is_duration_number(tokens: tuple[str, ...], position: int) -> bool:
 
 
 def _detect_operator(tokens: tuple[str, ...], position: int) -> str:
+    """Read comparison wording around a number, such as exactly, over, or at least."""
     before = tuple(
         token.casefold()
         for token in tokens[max(0, position - 4) : position]
@@ -1096,6 +1117,7 @@ def _value_satisfies_operator(
     evidence_value: float,
     evidence_operator: str,
 ) -> bool:
+    """Apply the parsed comparison operator to an evidence value."""
     query_value = constraint.value
     if constraint.operator == "eq":
         return evidence_operator == "eq" and evidence_value == query_value
@@ -1171,6 +1193,7 @@ def _find_term_match(
 
 
 def _iter_clause_tokens(text: str) -> tuple[tuple[str, ...], ...]:
+    """Split evidence into small clauses so unrelated facts are not joined together."""
     clauses: list[tuple[str, ...]] = []
     for raw_clause in _CLAUSE_SPLIT_PATTERN.split(text):
         normalized = normalize_search_text(raw_clause)

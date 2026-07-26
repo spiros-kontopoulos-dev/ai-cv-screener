@@ -1,4 +1,9 @@
-"""Deterministic prompts for grounded CV answer generation."""
+"""Build strict prompts from the final retrieval result.
+
+The prompt includes the original question, support outcome, fixed candidate
+registry, fixed source registry, and bounded evidence context. The provider is
+asked to write clear wording, not to search again or introduce new facts.
+"""
 
 from collections.abc import Sequence
 import json
@@ -75,7 +80,12 @@ def build_grounded_answer_prompt(
     *,
     correction_feedback: Sequence[str] = (),
 ) -> str:
-    """Build one model prompt from the immutable final retrieval result."""
+    """Build one provider prompt from approved retrieval evidence.
+
+    Candidate and source registries are included as immutable contracts. When a
+    previous draft fails validation, the prompt adds only the specific correction
+    feedback for one bounded retry.
+    """
 
     candidate_registry = [
         {

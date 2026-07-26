@@ -1,4 +1,8 @@
-"""Validate final CV retrieval against all committed recruiter scenarios."""
+"""Run all controlled retrieval scenarios against the current index.
+
+This command validates candidate policies, support outcomes, source identity,
+and context limits without calling an answer provider.
+"""
 
 import argparse
 from collections.abc import Sequence
@@ -15,6 +19,7 @@ from app.cv_retrieval import (
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """Create command-line options for controlled retrieval validation."""
     parser = argparse.ArgumentParser(
         description=(
             "Run the final source-traceable retrieval pipeline against the "
@@ -51,6 +56,7 @@ def run_cli(
     settings: Settings | None = None,
     retriever: FinalCvRetriever | None = None,
 ) -> int:
+    """Run the scenario suite and print a clear pass/fail summary."""
     arguments = build_parser().parse_args(argv)
     active_settings = settings or get_settings()
     plan_path = arguments.plan or active_settings.candidate_dataset_plan_path
@@ -73,6 +79,7 @@ def run_cli(
 
 
 def _print_report(report: CvRetrievalEvaluationReport) -> None:
+    """Print collection totals and each failed scenario in readable form."""
     print("FINAL CV RETRIEVAL VALIDATION")
     print(f"  Plan path: {report.plan_path}")
     print(f"  Scenarios: {report.scenario_count}")
@@ -114,6 +121,7 @@ def _print_report(report: CvRetrievalEvaluationReport) -> None:
 
 
 def main() -> None:
+    """Run the command and return failure status when validation does not pass."""
     raise SystemExit(run_cli())
 
 

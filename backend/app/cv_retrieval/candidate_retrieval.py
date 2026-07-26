@@ -1,4 +1,8 @@
-"""Candidate-aware orchestration over assisted chunk retrieval."""
+"""Coordinate exact chunk retrieval and candidate-level ranking.
+
+This is the small service boundary used when callers need ranked candidates but
+not yet final support classification or prompt-size budgeting.
+"""
 
 from __future__ import annotations
 
@@ -21,12 +25,12 @@ from app.cv_retrieval.models import (
 
 
 class CvCandidateRetrievalError(RuntimeError):
-    """Raised when candidate-level retrieval cannot be completed."""
+    """Raised when candidate grouping or ranking cannot complete safely."""
 
 
 @dataclass(frozen=True, slots=True)
 class CandidateRetrievalConfig:
-    """Resolve candidate and per-candidate evidence limits safely."""
+    """Default and maximum limits for candidates and evidence per candidate."""
 
     default_candidate_limit: int = 10
     max_candidate_limit: int = 30
@@ -44,6 +48,7 @@ class CandidateRetrievalConfig:
             raise ValueError("Default evidence limit cannot exceed its maximum.")
 
     def resolve_candidate_limit(self, requested: int | None) -> int:
+        """Validate a requested candidate limit or use the default."""
         value = self.default_candidate_limit if requested is None else requested
         if value < 1 or value > self.max_candidate_limit:
             raise ValueError(
@@ -53,6 +58,7 @@ class CandidateRetrievalConfig:
         return value
 
     def resolve_evidence_limit(self, requested: int | None) -> int:
+        """Validate a requested evidence limit or use the default."""
         value = self.default_evidence_limit if requested is None else requested
         if value < 1 or value > self.max_evidence_limit:
             raise ValueError(
@@ -64,7 +70,7 @@ class CandidateRetrievalConfig:
 
 @dataclass(frozen=True, slots=True)
 class CandidateCvRetrievalQuery:
-    """One recruiter question plus candidate-level output controls."""
+    """One recruiter question with optional candidate and evidence limits."""
 
     text: str
     candidate_limit: int | None = None
@@ -91,7 +97,7 @@ class CandidateCvRetrievalQuery:
 
 
 class CandidateAwareCvRetriever:
-    """Group assisted evidence and rank one balanced result per candidate."""
+    """Retrieve scored chunks, group them by candidate, and rank the candidates."""
 
     def __init__(
         self,
@@ -106,6 +112,7 @@ class CandidateAwareCvRetriever:
         self,
         query: CandidateCvRetrievalQuery,
     ) -> CandidateCvRetrievalResult:
+        """Run assisted retrieval and return one balanced result per candidate."""
         try:
             candidate_limit = self._config.resolve_candidate_limit(
                 query.candidate_limit
@@ -135,7 +142,7 @@ class CandidateAwareCvRetriever:
 def build_candidate_aware_cv_retriever(
     settings: Settings,
 ) -> CandidateAwareCvRetriever:
-    """Build candidate grouping over the configured assisted retriever."""
+    """Build candidate-aware retrieval from application settings."""
 
     return CandidateAwareCvRetriever(
         CandidateRetrievalConfig(

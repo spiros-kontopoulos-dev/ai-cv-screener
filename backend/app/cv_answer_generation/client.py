@@ -1,4 +1,9 @@
-"""Direct OpenAI structured-output client for grounded CV answers."""
+"""Call OpenAI for one structured answer over approved CV evidence.
+
+The client sends the strict prompt and asks the Responses API to return the
+``GroundedAnswerDraft`` schema. Provider errors are classified so orchestration
+can retry only failures that may succeed on another attempt.
+"""
 
 from collections.abc import Sequence
 
@@ -13,7 +18,7 @@ from .prompt import GROUNDED_ANSWER_INSTRUCTIONS, build_grounded_answer_prompt
 
 
 class GroundedAnswerProviderError(RuntimeError):
-    """Provider failure annotated for the bounded generation retry loop."""
+    """An OpenAI failure together with whether a retry is reasonable."""
 
     def __init__(self, message: str, *, retryable: bool) -> None:
         super().__init__(message)
@@ -21,7 +26,7 @@ class GroundedAnswerProviderError(RuntimeError):
 
 
 class OpenAIGroundedAnswerProvider:
-    """Generate one structured recruiter answer through the Responses API."""
+    """Generate one schema-checked answer through the OpenAI Responses API."""
 
     def __init__(
         self,
@@ -46,7 +51,7 @@ class OpenAIGroundedAnswerProvider:
         *,
         correction_feedback: Sequence[str] = (),
     ) -> GroundedAnswerDraft:
-        """Return one schema-valid draft for the supplied evidence package."""
+        """Send the approved evidence prompt and return one validated draft model."""
 
         try:
             response = self._client.responses.parse(

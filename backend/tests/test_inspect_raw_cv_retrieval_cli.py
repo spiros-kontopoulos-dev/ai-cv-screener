@@ -1,4 +1,4 @@
-"""CLI tests for WP6 broad raw retrieval inspection."""
+"""Tests for the broad semantic retrieval inspection command."""
 
 from app.cv_retrieval import (
     CvRawRetrievalError,
@@ -55,7 +55,7 @@ class FakeRetriever:
 
 
 def test_cli_prints_broad_typed_source_trace(capsys) -> None:
-    """Inspection output exposes every source identity needed by later WP6 work."""
+    """Inspection output includes every source field used by later retrieval stages."""
 
     retriever = FakeRetriever()
     exit_code = run_cli(

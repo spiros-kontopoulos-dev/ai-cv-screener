@@ -1,4 +1,13 @@
-"""Semantic retrieval assisted by bounded exact lexical and numeric scanning."""
+"""Combine semantic recall with a bounded exact-text recovery scan.
+
+Vector search supplies the main result pool. The module also scans stored chunk
+text for strong exact evidence that semantic top-k may have missed, especially
+numbers, names, and precise phrases.
+
+The recovery scan is deliberately narrow. Numeric questions admit only chunks
+that prove the requested numeric relation, which prevents broad keyword noise.
+The final output is still a list of chunks; candidate grouping comes next.
+"""
 
 from __future__ import annotations
 
@@ -35,11 +44,11 @@ from app.cv_retrieval.raw_retrieval import (
 
 
 class CvAssistedRetrievalError(RuntimeError):
-    """Raised when exact-condition-assisted retrieval cannot be completed."""
+    """Raised when semantic and exact-evidence retrieval cannot complete safely."""
 
 
 class ExactEvidenceRepository(Protocol):
-    """Read-only storage boundary for bounded exact-condition scanning."""
+    """Read-only access to stored chunk text for exact evidence recovery."""
 
     def get_all_chunks(self) -> tuple[RawStoredChunk, ...]:
         """Return persisted text and provenance without embeddings."""
@@ -47,7 +56,7 @@ class ExactEvidenceRepository(Protocol):
 
 @dataclass(frozen=True, slots=True)
 class AssistedRetrievalConfig:
-    """Bound the number of exact text hits added beyond semantic retrieval."""
+    """Maximum number of exact-scan chunks allowed beyond semantic results."""
 
     max_supplemental_hits: int = 50
 
@@ -64,7 +73,7 @@ ScoredCandidate = tuple[
 
 
 class AssistedCvRetriever:
-    """Merge semantic recall with exact text evidence, then rerank chunks."""
+    """Merge semantic hits with valid exact evidence and rerank the chunk pool."""
 
     def __init__(
         self,
@@ -78,7 +87,12 @@ class AssistedCvRetriever:
         self._exact_repository = exact_repository
 
     def retrieve(self, query: RawCvRetrievalQuery) -> AssistedCvRetrievalResult:
-        """Return unique scored chunks without grouping different CV sections."""
+        """Return unique, scored chunks for one question.
+
+        The method analyses the question, scores semantic hits, recovers missed exact
+        evidence, removes duplicate text, and orders chunks by the combined evidence
+        score. It never combines evidence from different candidates.
+        """
 
         try:
             raw_result = self._raw_retriever.retrieve(query)
@@ -175,7 +189,7 @@ class AssistedCvRetriever:
 
 
 def build_assisted_cv_retriever(settings: Settings) -> AssistedCvRetriever:
-    """Build one shared repository plus the cached semantic retrieval provider."""
+    """Build semantic and exact retrieval over one shared Chroma repository."""
 
     repository = CvChromaRepository(
         CvVectorStoreConfig(
@@ -207,7 +221,7 @@ def build_assisted_cv_retriever(settings: Settings) -> AssistedCvRetriever:
 def _deduplicate_candidates(
     candidates: list[ScoredCandidate],
 ) -> tuple[list[ScoredCandidate], int]:
-    """Remove repeated IDs and candidate-local duplicate text, keeping best score."""
+    """Remove repeated chunk IDs and repeated text within the same candidate."""
 
     ordered = sorted(
         candidates,
@@ -252,7 +266,7 @@ def _build_scored_hit(
     stored_record: RawStoredChunk | None,
     score: CvEvidenceScore,
 ) -> ScoredCvEvidenceHit:
-    """Create one public scored hit from semantic or exact-scan evidence."""
+    """Create the public scored-hit model from either search path."""
 
     if semantic_hit is not None:
         return ScoredCvEvidenceHit(

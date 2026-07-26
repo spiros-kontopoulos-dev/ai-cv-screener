@@ -1,4 +1,16 @@
-"""Public contracts for candidate-aware CV retrieval development."""
+"""Public imports for the complete CV retrieval pipeline.
+
+The package exposes the data models and builders used to move from a recruiter
+question to source-traceable candidate evidence:
+
+1. broad semantic search over ChromaDB;
+2. exact lexical and numeric evidence checks;
+3. grouping and ranking by candidate;
+4. support classification and context-size limits.
+
+Answer generation imports these final retrieval contracts instead of reaching
+into the lower-level modules directly.
+"""
 
 from app.cv_retrieval.assisted_retrieval import (
     AssistedCvRetriever,

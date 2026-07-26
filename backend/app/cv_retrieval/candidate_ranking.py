@@ -1,17 +1,15 @@
-"""Candidate-level CV evidence grouping, coverage scoring, and balancing.
+"""Turn chunk-level evidence into ranked candidate results.
 
-Chunk retrieval deliberately optimizes recall. Recruiter answers, however, are
-about people rather than individual text fragments. This module converts honest
-chunk scores into one bounded result per stable candidate ID while preserving
-all source evidence used to justify the rank.
+Recruiter questions are about people, while ChromaDB returns separate text
+chunks. One candidate may have a role in the header, a skill in experience, and
+a language in another section.
 
-The ranking rules are intentionally deterministic:
+This module builds clear question conditions, groups all accepted chunks by
+candidate ID, finds the best evidence for each condition, and calculates one
+score for the whole candidate. It also limits evidence per candidate so a long
+CV cannot fill the entire result set.
 
-* query conditions are explicit and inspectable;
-* one best evidence chunk supports each condition;
-* repeated chunks cannot increase condition coverage;
-* a small evidence cap prevents verbose CVs from dominating;
-* explicit candidate names are alternatives in comparison questions.
+Evidence from different candidate IDs is never combined.
 """
 
 from __future__ import annotations
@@ -110,7 +108,7 @@ _EXPERIENCE_RELATION_TERMS = {
 
 @dataclass(frozen=True, slots=True)
 class CandidateQueryCondition:
-    """One recruiter requirement that candidate evidence may satisfy."""
+    """One candidate requirement, such as a skill, role, degree, language relation, or number."""
 
     key: str
     label: str
@@ -146,7 +144,7 @@ class CandidateQueryCondition:
 
 @dataclass(frozen=True, slots=True)
 class CandidateConditionMatch:
-    """The best source chunk supporting one candidate-level condition."""
+    """The strongest chunk that proves one requirement for one candidate."""
 
     condition: CandidateQueryCondition
     chunk_id: str
@@ -166,7 +164,7 @@ class CandidateConditionMatch:
 
 @dataclass(frozen=True, slots=True)
 class CandidateEvidenceSelection:
-    """One bounded evidence chunk selected for a candidate result."""
+    """One selected chunk and the requirements it helps prove."""
 
     order: int
     hit: ScoredCvEvidenceHit
@@ -181,7 +179,7 @@ class CandidateEvidenceSelection:
 
 @dataclass(frozen=True, slots=True)
 class RankedCvCandidate:
-    """One candidate-level result with bounded, source-traceable evidence."""
+    """One candidate-level result with scores and a bounded set of source chunks."""
 
     rank: int
     candidate_id: str
@@ -236,7 +234,7 @@ class RankedCvCandidate:
 
 @dataclass(frozen=True, slots=True)
 class CandidateCvRetrievalResult:
-    """Candidate-aware ranking output before final context budgeting."""
+    """All ranked candidates before final support thresholds and context limits."""
 
     assisted_result: AssistedCvRetrievalResult
     conditions: tuple[CandidateQueryCondition, ...]
@@ -269,7 +267,12 @@ def build_candidate_conditions(
     *,
     candidate_names: tuple[str, ...] = (),
 ) -> tuple[CandidateQueryCondition, ...]:
-    """Build non-overlapping conditions from query features and known names."""
+    """Build a non-overlapping requirement list from the parsed question.
+
+    Conversational words are ignored, structured relations stay together, and
+    explicit candidate names are treated as allowed alternatives in comparison
+    questions.
+    """
 
     conditions: list[CandidateQueryCondition] = []
     consumed_terms: set[str] = set()
@@ -510,7 +513,12 @@ def rank_candidates(
     candidate_limit: int,
     evidence_limit: int,
 ) -> CandidateCvRetrievalResult:
-    """Group scored chunks by candidate and return balanced candidate ranks."""
+    """Group scored chunks by candidate and return balanced candidate ranks.
+
+    Each candidate is scored once using requirement coverage, evidence quality,
+    and semantic support. Several similar chunks cannot count as several separate
+    requirements.
+    """
 
     if candidate_limit < 1 or evidence_limit < 1:
         raise ValueError("Candidate and evidence limits must be positive.")
@@ -641,6 +649,7 @@ def _best_condition_match(
     candidate_id: str,
     hits: list[ScoredCvEvidenceHit],
 ) -> CandidateConditionMatch | None:
+    """Find the strongest candidate-owned chunk for one requirement."""
     candidates: list[tuple[float, ScoredCvEvidenceHit]] = []
     for hit in hits:
         evidence_score = _condition_evidence_score(
@@ -676,6 +685,7 @@ def _condition_evidence_score(
     candidate_id: str,
     hit: ScoredCvEvidenceHit,
 ) -> float:
+    """Measure how strongly one chunk proves one typed requirement."""
     if condition.kind == "education":
         return _education_evidence_score(condition, hit)
     if condition.kind == "identity":
@@ -714,7 +724,7 @@ def _education_evidence_score(
     condition: CandidateQueryCondition,
     hit: ScoredCvEvidenceHit,
 ) -> float:
-    """Bind a degree level to its field inside one education record."""
+    """Require the degree level and field to appear in the same education evidence."""
 
     if hit.source.section_name not in {
         "education", "skills", "skills_and_languages"
@@ -836,14 +846,7 @@ def _role_evidence_score(
     terms: tuple[str, ...],
     hit: ScoredCvEvidenceHit,
 ) -> float:
-    """Score role evidence only when it describes the candidate themselves.
-
-    A role phrase can appear in a CV because the candidate collaborated with
-    people in that role. Those mentions must not satisfy a recruiter condition
-    about the candidate's own profession. We therefore accept role evidence
-    from the canonical professional title, or from the title-like prefix of an
-    identity, professional-summary, or experience section.
-    """
+    """Score role wording while preferring role-bearing CV sections and titles."""
 
     role_terms = tuple(_canonical_role_token(term) for term in terms)
     title_tokens = _canonical_role_tokens(hit.source.professional_title or "")
@@ -926,7 +929,11 @@ def _select_candidate_evidence(
     condition_matches: tuple[CandidateConditionMatch, ...],
     evidence_limit: int,
 ) -> tuple[CandidateEvidenceSelection, ...]:
-    """Greedily cover conditions, then fill remaining bounded evidence slots."""
+    """Choose a small set of chunks that covers the most requirements.
+
+    The function first selects chunks that add missing condition coverage, then
+    uses remaining slots for strong supporting evidence when appropriate.
+    """
 
     matches_by_chunk: dict[str, list[CandidateConditionMatch]] = {}
     for match in condition_matches:
@@ -995,6 +1002,7 @@ def _numeric_condition(
     *,
     index: int,
 ) -> CandidateQueryCondition:
+    """Convert a parsed numeric requirement into a weighted candidate condition."""
     operator_labels = {
         "eq": "exactly",
         "gt": "more than",
@@ -1026,6 +1034,7 @@ def _validate_candidate_identity(
     candidate_id: str,
     hits: list[ScoredCvEvidenceHit],
 ) -> None:
+    """Ensure every grouped chunk agrees on the candidate name and title."""
     if not hits:
         raise ValueError(f"Candidate {candidate_id} has no evidence hits.")
     names = {

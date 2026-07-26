@@ -1,4 +1,9 @@
-"""Inspect grounded recruiter answers, citations, and provider selection."""
+"""Show the complete question-to-answer result for one or more questions.
+
+The command prints retrieval outcome, selected provider, candidate assessments,
+validated citations, warnings, and optional bounded evidence context. It is
+useful for checking both hosted and deterministic answer modes.
+"""
 
 import argparse
 from collections.abc import Sequence
@@ -15,7 +20,7 @@ from app.cv_retrieval import CvRawRetrievalContractError, FinalCvRetrievalQuery
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """Create the reusable grounded-answer inspection parser."""
+    """Create command-line options for grounded answer inspection."""
 
     parser = argparse.ArgumentParser(
         description=(
@@ -42,7 +47,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--show-context",
         action="store_true",
-        help="Print the exact bounded WP6 context supplied to the model.",
+        help="Print the exact bounded retrieval context supplied to the answer provider.",
     )
     return parser
 
@@ -53,7 +58,7 @@ def run_cli(
     settings: Settings | None = None,
     generator: GroundedCvAnswerGenerator | None = None,
 ) -> int:
-    """Run grounded answer inspection for one or more recruiter questions."""
+    """Generate each answer and print provider, candidates, citations, and sources."""
 
     arguments = build_parser().parse_args(argv)
     active_settings = settings or get_settings()
@@ -149,6 +154,7 @@ def run_cli(
 
 
 def main() -> None:
+    """Run the command and return a shell-friendly exit code."""
     raise SystemExit(run_cli())
 
 

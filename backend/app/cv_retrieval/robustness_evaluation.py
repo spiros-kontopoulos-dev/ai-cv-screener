@@ -1,13 +1,12 @@
-"""Diagnostic evaluation for recruiter-query paraphrase robustness.
+"""Test whether different recruiter phrasings produce reliable retrieval results.
 
-This module deliberately does not change retrieval behavior. It runs the
-existing final retriever against a controlled matrix and records where a
-question was lost: query features, hard candidate conditions, candidate-level
-coverage, support thresholds, or final source budgeting.
+The matrix groups questions that express the same intention, such as “knows
+Python” and “has Python experience.” Each question runs through the real final
+retriever, but OpenAI and Gemini are never called.
 
-The matrix belongs to the committed synthetic corpus and acts only as an
-evaluation oracle. The rendered PDFs and their persisted chunks remain the
-application evidence boundary.
+The report shows how the question was parsed, which requirements became hard
+conditions, why each candidate passed or failed, whether equivalent phrasings
+returned consistent results, and whether negative controls stayed unsupported.
 """
 
 from __future__ import annotations
@@ -73,7 +72,7 @@ _NUMBER_WORDS = {
 
 @dataclass(frozen=True, slots=True)
 class CvQueryRobustnessQuestion:
-    """One natural-language formulation inside an equivalence family."""
+    """One natural-language wording inside a paraphrase family."""
 
     scenario_id: str
     question: str
@@ -95,7 +94,7 @@ class CvQueryRobustnessQuestion:
 
 @dataclass(frozen=True, slots=True)
 class CvQueryRobustnessFamily:
-    """Equivalent questions plus one candidate/outcome expectation."""
+    """Equivalent questions that share one expected outcome and candidate policy."""
 
     family_id: str
     description: str
@@ -194,7 +193,7 @@ class CvQueryRobustnessFamily:
 
 @dataclass(frozen=True, slots=True)
 class CvQueryRobustnessMatrix:
-    """Complete committed diagnostic matrix and default retrieval controls."""
+    """The full set of paraphrase families and default retrieval limits."""
 
     matrix_version: int
     description: str
@@ -236,7 +235,7 @@ class CvQueryRobustnessMatrix:
 
 @dataclass(frozen=True, slots=True)
 class CvQueryConditionDiagnostic:
-    """Serializable representation of one current hard query condition."""
+    """Readable details for one hard requirement extracted from a question."""
 
     key: str
     label: str
@@ -249,7 +248,7 @@ class CvQueryConditionDiagnostic:
 
 @dataclass(frozen=True, slots=True)
 class CvQueryParserDiagnostic:
-    """Transparent snapshot of query features and candidate conditions."""
+    """A snapshot of parsed terms, relations, numbers, and discarded wording."""
 
     normalized_text: str
     lexical_terms: tuple[str, ...]
@@ -264,7 +263,7 @@ class CvQueryParserDiagnostic:
 
 @dataclass(frozen=True, slots=True)
 class CvCandidateCoverageDiagnostic:
-    """Candidate-level coverage before final support thresholds are applied."""
+    """Candidate condition coverage before final support thresholds are applied."""
 
     rank: int
     candidate_id: str
@@ -279,7 +278,7 @@ class CvCandidateCoverageDiagnostic:
 
 @dataclass(frozen=True, slots=True)
 class CvQueryRobustnessScenarioEvaluation:
-    """Diagnostic result for one paraphrase without calling an answer model."""
+    """Result and diagnostics for one paraphrased question."""
 
     family_id: str
     scenario_id: str
@@ -310,7 +309,7 @@ class CvQueryRobustnessScenarioEvaluation:
 
 @dataclass(frozen=True, slots=True)
 class CvQueryRobustnessFamilyEvaluation:
-    """Aggregate paraphrase-consistency diagnostics for one family."""
+    """Consistency summary for all questions in one paraphrase family."""
 
     family: CvQueryRobustnessFamily
     evaluations: tuple[CvQueryRobustnessScenarioEvaluation, ...]
@@ -346,7 +345,7 @@ class CvQueryRobustnessFamilyEvaluation:
 
 @dataclass(frozen=True, slots=True)
 class CvQueryRobustnessReport:
-    """Full diagnostic report for selected matrix families and scenarios."""
+    """Complete provider-free report for the selected families and questions."""
 
     matrix_path: Path
     matrix_version: int
@@ -392,12 +391,12 @@ class CvQueryRobustnessReport:
 
     @property
     def hosted_provider_calls_made(self) -> int:
-        """The diagnostic evaluator never calls OpenAI or Gemini."""
+        """Always return zero because this evaluator stops before answer generation."""
 
         return 0
 
     def to_json_dict(self) -> dict[str, Any]:
-        """Return a stable JSON-serializable report for later comparisons."""
+        """Return a stable JSON report that can be compared across code changes."""
 
         payload = asdict(self)
         payload["matrix_path"] = str(self.matrix_path)
@@ -419,14 +418,14 @@ class CvQueryRobustnessReport:
 
 
 class FinalRetrieverProtocol(Protocol):
-    """Small boundary used by production retrieval and deterministic tests."""
+    """Small final-retrieval interface used by the evaluator and tests."""
 
     def retrieve(self, query: FinalCvRetrievalQuery) -> FinalCvRetrievalResult:
         """Return final source-traceable evidence for one question."""
 
 
 def load_query_robustness_matrix(path: Path) -> CvQueryRobustnessMatrix:
-    """Load and validate the committed paraphrase-equivalence matrix."""
+    """Load and validate the committed paraphrase test matrix."""
 
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
@@ -466,7 +465,7 @@ def evaluate_query_robustness(
     candidate_limit: int | None = None,
     diagnostic_candidate_limit: int = 5,
 ) -> CvQueryRobustnessReport:
-    """Evaluate selected paraphrases through the unchanged final retriever."""
+    """Run selected paraphrases through final retrieval and build diagnostics."""
 
     if diagnostic_candidate_limit < 1:
         raise ValueError("Diagnostic candidate limit must be positive.")
@@ -590,6 +589,7 @@ def _evaluate_question(
     candidate_limit: int,
     diagnostic_candidate_limit: int,
 ) -> CvQueryRobustnessScenarioEvaluation:
+    """Evaluate one wording, expected candidate policy, and support outcome."""
     try:
         result = retriever.retrieve(
             FinalCvRetrievalQuery(
@@ -689,6 +689,7 @@ def _candidate_expectation(
     returned_ids: tuple[str, ...],
     minimum_returned_candidates: int,
 ) -> tuple[tuple[str, ...], tuple[str, ...], bool]:
+    """Apply exact, subset, contains-all, any-of, or none candidate policies."""
     expected = set(expected_ids)
     returned = set(returned_ids)
     missing = tuple(
@@ -738,6 +739,7 @@ def _candidate_policy_failure(
 def _build_parser_diagnostic(
     result: FinalCvRetrievalResult,
 ) -> CvQueryParserDiagnostic:
+    """Expose how the question became structured retrieval requirements."""
     candidate_result = result.candidate_result
     features = candidate_result.assisted_result.query_features
     conditions = candidate_result.conditions
@@ -811,6 +813,7 @@ def _build_candidate_diagnostics(
     *,
     limit: int,
 ) -> tuple[CvCandidateCoverageDiagnostic, ...]:
+    """Explain matched and missing conditions for each ranked candidate."""
     conditions = result.candidate_result.conditions
     all_labels = tuple(condition.label for condition in conditions)
     final_ids = {candidate.candidate_id for candidate in result.candidates}
@@ -839,6 +842,7 @@ def _build_candidate_diagnostics(
 
 
 def _is_source_traceable(result: FinalCvRetrievalResult) -> bool:
+    """Confirm that every returned evidence block keeps complete source identity."""
     for candidate in result.candidates:
         if not candidate.evidence:
             return False

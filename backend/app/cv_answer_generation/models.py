@@ -1,9 +1,8 @@
-"""Structured contracts for grounded recruiter answers and source references.
+"""Structured answer and citation models shared by all providers.
 
-WP6 already decides which candidates and evidence are safe to expose. WP7 asks
-an optional LLM only to explain that bounded result. Candidate identity,
-requirement coverage, and source provenance remain deterministic application
-contracts rather than facts the model may change.
+Retrieval has already decided which candidates and evidence are safe to use.
+These models define the wording, candidate assessments, citation IDs, source
+objects, provider details, and warnings returned by the answer layer.
 """
 
 from typing import Literal
@@ -16,7 +15,7 @@ GroundedAnswerProviderName = Literal["openai", "gemini", "deterministic"]
 
 
 class GroundedCandidateAnswer(BaseModel):
-    """One candidate-specific explanation returned by the answer layer."""
+    """One candidate explanation with matched requirements and source IDs."""
 
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
@@ -41,7 +40,7 @@ class GroundedCandidateAnswer(BaseModel):
 
 
 class GroundedAnswerDraft(BaseModel):
-    """Structured draft generated strictly from the final WP6 context."""
+    """The provider-generated answer before application-side validation."""
 
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
@@ -65,7 +64,7 @@ class GroundedAnswerDraft(BaseModel):
 
 
 class GroundedAnswerSource(BaseModel):
-    """One validated source exposed by the final answer response."""
+    """One checked PDF source that can be shown by the API and React interface."""
 
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
@@ -81,7 +80,7 @@ class GroundedAnswerSource(BaseModel):
 
 
 class GroundedAnswerResponse(BaseModel):
-    """Final API-ready answer contract with validated sources and warnings."""
+    """The final API-ready answer after candidate and citation validation."""
 
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 

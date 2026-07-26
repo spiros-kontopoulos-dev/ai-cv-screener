@@ -1,4 +1,9 @@
-"""End-to-end evaluation of final CV retrieval against committed scenarios."""
+"""Evaluate final retrieval against the controlled CV search scenarios.
+
+The evaluator runs real retrieval without calling an answer model. It checks
+expected candidate IDs, support outcomes, source traceability, and context
+limits so retrieval changes can be tested independently from generated prose.
+"""
 
 from __future__ import annotations
 
@@ -16,7 +21,7 @@ from app.cv_retrieval.final_retrieval import (
 
 @dataclass(frozen=True, slots=True)
 class CvRetrievalScenario:
-    """One committed recruiter question and its expected candidate identities."""
+    """One controlled recruiter question and its expected result policy."""
 
     scenario_id: str
     question: str
@@ -51,7 +56,7 @@ class CvRetrievalScenario:
 
 @dataclass(frozen=True, slots=True)
 class CvRetrievalScenarioEvaluation:
-    """Validation result for one end-to-end retrieval scenario."""
+    """Pass/fail details for one controlled retrieval scenario."""
 
     scenario: CvRetrievalScenario
     passed: bool
@@ -74,7 +79,7 @@ class CvRetrievalScenarioEvaluation:
 
 @dataclass(frozen=True, slots=True)
 class CvRetrievalEvaluationReport:
-    """Aggregate result for the committed retrieval scenario suite."""
+    """Summary of all controlled retrieval scenario results."""
 
     plan_path: Path
     evaluations: tuple[CvRetrievalScenarioEvaluation, ...]
@@ -97,12 +102,13 @@ class CvRetrievalEvaluationReport:
 
 
 class FinalRetrieverProtocol(Protocol):
+    """Small retrieval interface used by production code and tests."""
     def retrieve(self, query: FinalCvRetrievalQuery) -> FinalCvRetrievalResult:
         """Return final source-traceable evidence for one question."""
 
 
 def load_retrieval_scenarios(plan_path: Path) -> tuple[CvRetrievalScenario, ...]:
-    """Load and validate committed scenarios from the dataset plan."""
+    """Load and validate the controlled questions from the dataset plan."""
 
     try:
         payload = json.loads(plan_path.read_text(encoding="utf-8"))
@@ -136,7 +142,7 @@ def evaluate_retrieval_scenarios(
     semantic_result_limit: int | None = None,
     candidate_limit: int | None = None,
 ) -> CvRetrievalEvaluationReport:
-    """Run final retrieval and validate expected IDs, sources, and budgets."""
+    """Run selected scenarios and return a deterministic validation report."""
 
     scenarios = load_retrieval_scenarios(plan_path)
     if scenario_ids:
@@ -175,6 +181,7 @@ def _evaluate_one_scenario(
     semantic_result_limit: int | None,
     candidate_limit: int | None,
 ) -> CvRetrievalScenarioEvaluation:
+    """Check one result against expected candidates, sources, outcome, and budgets."""
     try:
         result = retriever.retrieve(
             FinalCvRetrievalQuery(
@@ -235,6 +242,7 @@ def _evaluate_one_scenario(
 
 
 def _is_source_traceable(result: FinalCvRetrievalResult) -> bool:
+    """Confirm that every returned evidence block points to a complete PDF source."""
     for candidate in result.candidates:
         if not candidate.evidence:
             return False

@@ -1,4 +1,8 @@
-"""Inspect candidate-level coverage, rank components, and selected CV evidence."""
+"""Show how scored chunks become ranked whole-candidate results.
+
+The command prints each requirement, candidate coverage, score components,
+missing conditions, and the limited evidence selected for that candidate.
+"""
 
 import argparse
 from collections.abc import Sequence
@@ -15,7 +19,7 @@ from app.cv_retrieval import (
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """Create the WP6 candidate-aware inspection command."""
+    """Create command-line options for candidate-level retrieval inspection."""
 
     parser = argparse.ArgumentParser(
         description=(
@@ -67,7 +71,7 @@ def run_cli(
     settings: Settings | None = None,
     retriever: CandidateAwareCvRetriever | None = None,
 ) -> int:
-    """Print interpretable candidate ranks and the evidence covering conditions."""
+    """Print candidate ranks and the source chunks that cover each requirement."""
 
     arguments = build_parser().parse_args(argv)
     if arguments.display_limit < 1:
@@ -167,7 +171,7 @@ def run_cli(
 
 
 def main() -> None:
-    """Run the CLI and expose shell-friendly exit status."""
+    """Run the command and return a shell-friendly exit code."""
 
     raise SystemExit(run_cli())
 

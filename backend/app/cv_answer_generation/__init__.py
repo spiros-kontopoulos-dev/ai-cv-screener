@@ -1,4 +1,9 @@
-"""Public contracts for grounded CV answer generation."""
+"""Public imports for grounded answer generation.
+
+The answer layer receives only the final, source-traceable retrieval result. It
+can use OpenAI, Gemini, or a deterministic no-key formatter, then validates the
+candidate list and citations before returning an API-ready response.
+"""
 
 from .client import GroundedAnswerProviderError, OpenAIGroundedAnswerProvider
 from .gemini_client import GeminiGroundedAnswerProvider

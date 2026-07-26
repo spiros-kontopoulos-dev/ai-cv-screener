@@ -1,4 +1,13 @@
-"""Grounded answer orchestration, provider selection, and output validation."""
+"""Coordinate retrieval, provider wording, and final answer validation.
+
+The service first runs final retrieval. Unsupported questions return an honest
+answer without calling OpenAI or Gemini. Supported or partial results use the
+configured provider, or the deterministic no-key formatter.
+
+Every draft is checked against the retrieval result. Candidate order, matched
+requirements, answer length, and candidate-owned citations must all agree
+before a response is accepted.
+"""
 
 from collections.abc import Sequence
 from dataclasses import dataclass
@@ -29,7 +38,7 @@ from .sources import (
 
 
 class GroundedAnswerProvider(Protocol):
-    """Small provider contract used by orchestration and deterministic tests."""
+    """Small provider interface shared by OpenAI, Gemini, and test doubles."""
 
     def generate(
         self,
@@ -37,14 +46,14 @@ class GroundedAnswerProvider(Protocol):
         *,
         correction_feedback: Sequence[str] = (),
     ) -> GroundedAnswerDraft:
-        """Generate one structured answer from the final retrieval package."""
+        """Generate one structured draft from the approved retrieval package."""
 
         ...
 
 
 @dataclass(frozen=True, slots=True)
 class GroundedAnswerGenerationConfig:
-    """Bounded correction and output-size policy for answer generation."""
+    """Retry and text-length limits for grounded answer generation."""
 
     max_retries: int = 1
     max_answer_characters: int = 5000
@@ -65,7 +74,7 @@ class GroundedAnswerGenerationConfig:
 
 @dataclass(frozen=True, slots=True)
 class GroundedAnswerGenerationResult:
-    """Accepted answer draft plus immutable retrieval and provider metadata."""
+    """The accepted draft together with retrieval and provider details."""
 
     retrieval_result: FinalCvRetrievalResult
     draft: GroundedAnswerDraft
@@ -84,7 +93,7 @@ class GroundedAnswerGenerationResult:
 
     @property
     def response(self) -> GroundedAnswerResponse:
-        """Return the final API-ready response with cited source objects."""
+        """Build the final response and include only sources that were actually cited."""
 
         all_sources = build_grounded_answer_sources(self.retrieval_result)
         referenced_ids = _ordered_referenced_source_ids(self.draft)
@@ -113,7 +122,7 @@ class GroundedAnswerGenerationResult:
 
 
 class GroundedAnswerGenerationFailed(RuntimeError):
-    """Raised after a non-retryable error or exhausted correction budget."""
+    """Raised when retrieval, provider calls, or validation cannot produce a safe answer."""
 
     def __init__(self, *, attempts: int, reasons: Sequence[str]) -> None:
         self.attempts = attempts
@@ -125,7 +134,7 @@ class GroundedAnswerGenerationFailed(RuntimeError):
 
 
 class GroundedCvAnswerGenerator:
-    """Retrieve evidence, generate wording, and validate the structured draft."""
+    """Run retrieval, generate wording, and validate the complete answer contract."""
 
     def __init__(
         self,
@@ -146,7 +155,12 @@ class GroundedCvAnswerGenerator:
         self,
         query: FinalCvRetrievalQuery,
     ) -> GroundedAnswerGenerationResult:
-        """Return deterministic or hosted-model wording over verified evidence."""
+        """Return a grounded answer for one recruiter question.
+
+        Unsupported retrieval skips hosted providers. Deterministic mode uses the same
+        candidate and source contracts without an external call. Hosted drafts receive
+        at most the configured number of correction attempts.
+        """
 
         try:
             retrieval_result = self._retriever.retrieve(query)
@@ -223,6 +237,7 @@ class GroundedCvAnswerGenerator:
         retrieval_result: FinalCvRetrievalResult,
         draft: GroundedAnswerDraft,
     ) -> GroundedAnswerGenerationResult:
+        """Wrap deterministic wording in the same result model used by hosted providers."""
         return GroundedAnswerGenerationResult(
             retrieval_result=retrieval_result,
             draft=draft,
@@ -243,7 +258,7 @@ def validate_grounded_answer_draft(
     *,
     config: GroundedAnswerGenerationConfig,
 ) -> list[str]:
-    """Validate model output against exact candidate and source contracts."""
+    """Check the draft outcome, candidate order, requirements, lengths, and citations."""
 
     problems: list[str] = []
 
@@ -311,7 +326,7 @@ def validate_grounded_answer_draft(
 def build_grounded_cv_answer_generator(
     settings: Settings,
 ) -> GroundedCvAnswerGenerator:
-    """Build final retrieval plus the configured hosted or no-key provider."""
+    """Build final retrieval and the configured answer provider from settings."""
 
     resolved = resolve_grounded_answer_provider(settings)
     return GroundedCvAnswerGenerator(
@@ -338,7 +353,7 @@ def _validate_candidate_draft(
     config: GroundedAnswerGenerationConfig,
     problems: list[str],
 ) -> None:
-    """Check one candidate identity and requirement list without cross-mixing."""
+    """Ensure one candidate draft matches the retrieved identity and requirements."""
 
     expected_name = expected.candidate_name or "Unknown candidate"
     expected_title = expected.professional_title or "Unknown title"
@@ -372,7 +387,7 @@ def _validate_candidate_draft(
 def _build_deterministic_draft(
     retrieval_result: FinalCvRetrievalResult,
 ) -> GroundedAnswerDraft:
-    """Produce a useful no-key answer from deterministic WP6 contracts."""
+    """Create useful no-key wording directly from the approved candidate evidence."""
 
     candidates: list[GroundedCandidateAnswer] = []
     answer_citations: list[str] = []
@@ -429,7 +444,7 @@ def _build_deterministic_draft(
 def _build_unsupported_draft(
     retrieval_result: FinalCvRetrievalResult,
 ) -> GroundedAnswerDraft:
-    """Return an honest no-evidence answer without making an LLM call."""
+    """Create an honest no-evidence answer without calling an external model."""
 
     return GroundedAnswerDraft(
         outcome="unsupported",
@@ -446,7 +461,7 @@ def _build_unsupported_draft(
 def _ordered_referenced_source_ids(
     draft: GroundedAnswerDraft,
 ) -> set[str]:
-    """Return all source IDs referenced anywhere in the accepted draft."""
+    """Collect cited source IDs once, preserving their first-used order."""
 
     ordered = list(draft.answer_citation_ids)
     for candidate in draft.candidates:

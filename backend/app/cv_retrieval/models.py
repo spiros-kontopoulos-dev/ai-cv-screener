@@ -1,9 +1,11 @@
-"""Typed contracts for broad, source-traceable CV retrieval.
+"""Data objects used by the first semantic-search stage.
 
-Work Package 5 exposed storage-level Chroma matches containing a free-form
-metadata dictionary. Work Package 6 converts those records into immutable
-application contracts before candidate grouping, exact-condition scoring, or
-LLM context construction is allowed to use them.
+ChromaDB returns text, distances, and a metadata dictionary. This module turns
+those loose records into checked Python objects with candidate, document, page,
+section, and chunk identity.
+
+These are still chunk-level results. Exact evidence checks and candidate-level
+ranking happen in later retrieval modules.
 """
 
 from __future__ import annotations
@@ -14,17 +16,12 @@ from typing import Any, Mapping
 
 
 class CvRawRetrievalContractError(ValueError):
-    """Raised when a query or persisted raw result violates its contract."""
+    """Raised when stored search data does not match the expected contract."""
 
 
 @dataclass(frozen=True, slots=True)
 class RawCvRetrievalConfig:
-    """Limits governing broad first-stage semantic retrieval.
-
-    The default deliberately retrieves substantially more chunks than a final
-    answer will consume. Later WP6 patches will deduplicate, group, score, and
-    budget this broad candidate pool.
-    """
+    """Limits for broad semantic search and recruiter-question length."""
 
     default_result_limit: int = 50
     max_result_limit: int = 200
@@ -51,7 +48,7 @@ class RawCvRetrievalConfig:
             )
 
     def resolve_result_limit(self, requested_limit: int | None) -> int:
-        """Resolve an optional caller limit within the configured safety cap."""
+        """Use the requested result count when valid, otherwise use the configured default."""
 
         result_limit = (
             self.default_result_limit
@@ -72,7 +69,7 @@ class RawCvRetrievalConfig:
 
 @dataclass(frozen=True, slots=True)
 class RawCvRetrievalQuery:
-    """One normalized recruiter question and optional broad-result override."""
+    """One recruiter question and an optional raw-result limit."""
 
     text: str
     result_limit: int | None = None
@@ -94,7 +91,11 @@ class RawCvRetrievalQuery:
 
 @dataclass(frozen=True, slots=True)
 class RawCvRetrievalSource:
-    """Complete candidate, document, page, section, and chunk provenance."""
+    """Source details for one retrieved PDF chunk.
+
+    The object keeps enough information to group evidence by candidate and later
+    build a citation that points to the correct PDF, page, and section.
+    """
 
     candidate_id: str
     candidate_name: str | None
@@ -163,7 +164,7 @@ class RawCvRetrievalSource:
         cls,
         metadata: Mapping[str, Any],
     ) -> RawCvRetrievalSource:
-        """Parse and validate one persisted Chroma metadata dictionary."""
+        """Build checked source details from one Chroma metadata record."""
 
         page_numbers = _parse_page_numbers(metadata)
         return cls(
@@ -183,7 +184,7 @@ class RawCvRetrievalSource:
 
 @dataclass(frozen=True, slots=True)
 class RawCvRetrievalHit:
-    """One ungrouped semantic chunk returned in Chroma nearest order."""
+    """One chunk returned by nearest-neighbour search, before exact checks."""
 
     rank: int
     chunk_id: str
@@ -214,7 +215,7 @@ class RawCvRetrievalHit:
 
 @dataclass(frozen=True, slots=True)
 class RawCvRetrievalResult:
-    """Broad first-stage retrieval output before candidate-aware processing."""
+    """The complete broad-search result for one recruiter question."""
 
     query: RawCvRetrievalQuery
     requested_result_limit: int

@@ -1,18 +1,16 @@
-"""Final supported-candidate selection and prompt-ready CV evidence budgets.
+"""Create the final evidence package used by answer generation.
 
-Candidate-aware retrieval deliberately keeps partial and zero-coverage rows so
-engineers can inspect ranking behavior. A downstream answer generator must not
-receive that entire diagnostic pool. This module establishes the final WP6
-quality boundary:
+Candidate ranking keeps useful partial rows for diagnostics. The answer layer
+needs a stricter result. This module:
 
-* fully supported candidates are preferred over partial matches;
-* partial candidates are used only when no complete match exists;
-* unsupported questions return no candidate evidence;
-* candidate, chunk, and character budgets are enforced deterministically;
-* every prompt-ready evidence block preserves PDF provenance.
+- decides whether evidence is supported, partial, or unsupported;
+- removes candidates below the support policy;
+- limits candidate count and chunks per candidate;
+- keeps the final context inside character and token estimates;
+- renders clear, source-labelled evidence blocks.
 
-No LLM is called here. The output is a bounded, source-traceable context package
-that a later work package may pass to an answer-generation layer.
+The output is the only CV evidence supplied to OpenAI, Gemini, or the
+deterministic answer formatter.
 """
 
 from __future__ import annotations
@@ -44,12 +42,12 @@ FinalRetrievalOutcome = Literal["supported", "partial", "unsupported"]
 
 
 class CvFinalRetrievalError(RuntimeError):
-    """Raised when final evidence selection or budgeting cannot complete."""
+    """Raised when support selection or context budgeting cannot complete."""
 
 
 @dataclass(frozen=True, slots=True)
 class FinalRetrievalConfig:
-    """Thresholds and hard budgets for final recruiter-question evidence."""
+    """Support thresholds and hard limits for the final evidence package."""
 
     default_candidate_limit: int = 5
     max_candidate_limit: int = 10
@@ -111,6 +109,7 @@ class FinalRetrievalConfig:
             )
 
     def resolve_candidate_limit(self, requested: int | None) -> int:
+        """Validate a requested final candidate limit or use the default."""
         value = self.default_candidate_limit if requested is None else requested
         if value < 1 or value > self.max_candidate_limit:
             raise ValueError(
@@ -122,7 +121,7 @@ class FinalRetrievalConfig:
 
 @dataclass(frozen=True, slots=True)
 class FinalCvRetrievalQuery:
-    """One recruiter question plus final-output controls."""
+    """One recruiter question and an optional final candidate limit."""
 
     text: str
     candidate_limit: int | None = None
@@ -145,7 +144,7 @@ class FinalCvRetrievalQuery:
 
 @dataclass(frozen=True, slots=True)
 class FinalCvEvidence:
-    """One budgeted prompt-ready evidence block and its source provenance."""
+    """One selected source chunk formatted for the final answer context."""
 
     order: int
     chunk_id: str
@@ -161,6 +160,7 @@ class FinalCvEvidence:
 
     @property
     def source_label(self) -> str:
+        """Return a readable PDF, page, and section label for this evidence."""
         return (
             f"{self.source.source_filename} | page {self.source.page_label} | "
             f"{self.source.section_name} | {self.chunk_id}"
@@ -169,7 +169,7 @@ class FinalCvEvidence:
 
 @dataclass(frozen=True, slots=True)
 class FinalCvCandidate:
-    """One final candidate safe to expose to answer generation."""
+    """One candidate approved for answer generation with bounded supporting evidence."""
 
     rank: int
     original_candidate_rank: int
@@ -216,7 +216,7 @@ class FinalCvCandidate:
 
 @dataclass(frozen=True, slots=True)
 class FinalCvRetrievalResult:
-    """Final bounded evidence output before any answer-generation model."""
+    """The complete supported, partial, or unsupported result before wording is generated."""
 
     query: FinalCvRetrievalQuery
     candidate_result: CandidateCvRetrievalResult
@@ -265,7 +265,7 @@ class FinalCvRetrievalResult:
 
 
 class FinalCvRetriever:
-    """Apply support thresholds and hard budgets to candidate-aware results."""
+    """Apply support rules and context budgets to candidate-aware results."""
 
     def __init__(
         self,
@@ -277,6 +277,7 @@ class FinalCvRetriever:
         self._candidate_retriever = candidate_retriever
 
     def retrieve(self, query: FinalCvRetrievalQuery) -> FinalCvRetrievalResult:
+        """Run candidate retrieval, classify support, and build the final evidence context."""
         try:
             final_candidate_limit = self._config.resolve_candidate_limit(
                 query.candidate_limit
@@ -310,7 +311,12 @@ def finalize_candidate_retrieval(
     config: FinalRetrievalConfig,
     candidate_limit: int | None = None,
 ) -> FinalCvRetrievalResult:
-    """Select supported candidates and construct bounded context deterministically."""
+    """Select answer-safe candidates and build bounded context text.
+
+    Complete matches are preferred. When no complete match exists, the configured
+    policy may return clearly labelled partial evidence. Weak similarity alone is
+    not enough to produce a supported answer.
+    """
 
     resolved_limit = config.resolve_candidate_limit(candidate_limit)
     supported_pool, outcome = _select_support_pool(candidate_result, config=config)
@@ -389,7 +395,7 @@ def finalize_candidate_retrieval(
 
 
 def build_final_cv_retriever(settings: Settings) -> FinalCvRetriever:
-    """Build the final WP6 retrieval boundary from application settings."""
+    """Build the complete retrieval pipeline from application settings."""
 
     return FinalCvRetriever(
         FinalRetrievalConfig(
@@ -432,6 +438,7 @@ def _select_support_pool(
     *,
     config: FinalRetrievalConfig,
 ) -> tuple[tuple[RankedCvCandidate, ...], FinalRetrievalOutcome]:
+    """Choose complete matches first, otherwise choose only allowed partial matches."""
     complete = tuple(
         candidate
         for candidate in candidate_result.candidates
@@ -462,6 +469,7 @@ def _budget_candidates(
     message: str,
     config: FinalRetrievalConfig,
 ) -> tuple[tuple[FinalCvCandidate, ...], str, bool]:
+    """Fit candidate evidence into the configured character and token budgets."""
     context_parts = [_context_preamble(question, outcome, message)]
     final_candidates: list[FinalCvCandidate] = []
     total_chunks = 0
@@ -569,6 +577,7 @@ def _budget_candidates(
 def _prioritized_candidate_evidence(
     candidate: RankedCvCandidate,
 ) -> tuple[CandidateEvidenceSelection, ...]:
+    """Order evidence so requirement-proving chunks are considered first."""
     return tuple(
         sorted(
             candidate.evidence,
@@ -586,6 +595,7 @@ def _context_preamble(
     outcome: FinalRetrievalOutcome,
     message: str,
 ) -> str:
+    """Write the question and support policy at the start of the model context."""
     return (
         f"QUESTION: {question}\n"
         f"RETRIEVAL OUTCOME: {outcome}\n"
@@ -599,6 +609,7 @@ def _candidate_header(
     *,
     support_level: FinalSupportLevel,
 ) -> str:
+    """Write one candidate identity and matched-requirement header."""
     name = candidate.candidate_name or "Unknown candidate"
     title = candidate.professional_title or "Unknown title"
     matched = "; ".join(
@@ -617,6 +628,7 @@ def _evidence_metadata(
     order: int,
     selection: CandidateEvidenceSelection,
 ) -> str:
+    """Write the source label and requirement coverage for one evidence block."""
     source = selection.hit.source
     supports = ", ".join(selection.condition_keys) or "support-only"
     return (
@@ -627,6 +639,7 @@ def _evidence_metadata(
 
 
 def _truncate_evidence(text: str, limit: int) -> str:
+    """Shorten one evidence excerpt without exceeding its remaining budget."""
     normalized = " ".join(text.split())
     if len(normalized) <= limit:
         return normalized
@@ -636,6 +649,7 @@ def _truncate_evidence(text: str, limit: int) -> str:
 
 
 def _render_empty_context(question: str, message: str) -> str:
+    """Build an explicit no-evidence context for unsupported questions."""
     return (
         f"QUESTION: {question}\n"
         "RETRIEVAL OUTCOME: unsupported\n"

@@ -1,4 +1,8 @@
-"""Inspect broad, typed, source-traceable retrieval before candidate ranking."""
+"""Show the broad semantic chunks returned before exact checks and ranking.
+
+Use this command to inspect Chroma distance order, candidate identity, PDF,
+page, section, and chunk text for one or more recruiter questions.
+"""
 
 import argparse
 from collections.abc import Sequence
@@ -15,7 +19,7 @@ from app.cv_retrieval import (
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """Create the WP6 raw-retrieval inspection command."""
+    """Create command-line options for raw semantic retrieval inspection."""
 
     parser = argparse.ArgumentParser(
         description=(
@@ -53,7 +57,7 @@ def run_cli(
     settings: Settings | None = None,
     retriever: RawCvRetriever | None = None,
 ) -> int:
-    """Retrieve each question and print inspectable typed evidence records."""
+    """Run each question and print the typed source-traceable chunk results."""
 
     arguments = build_parser().parse_args(argv)
     if arguments.preview_characters < 0:
@@ -123,7 +127,7 @@ def run_cli(
 
 
 def main() -> None:
-    """Run the CLI and expose shell-friendly exit status."""
+    """Run the command and return a shell-friendly exit code."""
 
     raise SystemExit(run_cli())
 

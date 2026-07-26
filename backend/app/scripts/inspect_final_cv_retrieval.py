@@ -1,4 +1,8 @@
-"""Inspect final support thresholds, budgets, and prompt-ready CV context."""
+"""Show final support classification and the exact context used for answers.
+
+The command makes it easy to inspect supported, partial, and unsupported
+outcomes together with candidate, evidence, character, and token budgets.
+"""
 
 import argparse
 from collections.abc import Sequence
@@ -15,6 +19,7 @@ from app.cv_retrieval import (
 
 
 def build_parser() -> argparse.ArgumentParser:
+    """Create command-line options for final retrieval inspection."""
     parser = argparse.ArgumentParser(
         description=(
             "Inspect the final supported-candidate boundary and bounded "
@@ -57,6 +62,7 @@ def run_cli(
     settings: Settings | None = None,
     retriever: FinalCvRetriever | None = None,
 ) -> int:
+    """Print final candidates, support policy, budgets, sources, and context text."""
     arguments = build_parser().parse_args(argv)
     if arguments.preview_characters < 0:
         print(
@@ -136,6 +142,7 @@ def run_cli(
 
 
 def main() -> None:
+    """Run the command and return a shell-friendly exit code."""
     raise SystemExit(run_cli())
 
 

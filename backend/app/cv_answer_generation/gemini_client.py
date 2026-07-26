@@ -1,4 +1,9 @@
-"""Google Gemini JSON-mode client for grounded CV answers."""
+"""Call Gemini JSON mode for one grounded CV answer.
+
+Gemini receives the same approved evidence and answer contract as OpenAI. The
+returned JSON is parsed into ``GroundedAnswerDraft`` before application-side
+candidate and citation checks run.
+"""
 
 from collections.abc import Sequence
 
@@ -18,7 +23,7 @@ from .prompt import (
 
 
 class GeminiGroundedAnswerProvider:
-    """Generate one validated recruiter answer through Gemini JSON mode."""
+    """Generate one schema-checked answer through Gemini JSON mode."""
 
     def __init__(
         self,
@@ -47,7 +52,7 @@ class GeminiGroundedAnswerProvider:
         *,
         correction_feedback: Sequence[str] = (),
     ) -> GroundedAnswerDraft:
-        """Return one Pydantic-valid draft for the supplied evidence package."""
+        """Send the approved evidence prompt and parse one Pydantic-valid draft."""
 
         try:
             response = self._client.models.generate_content(
