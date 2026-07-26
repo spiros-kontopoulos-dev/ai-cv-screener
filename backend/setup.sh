@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Configure the local answer provider without printing or committing API keys.
+# This script creates or updates the repository-root .env file.
+
 set -euo pipefail
 
 if [[ $# -ne 1 ]]; then
@@ -11,6 +14,7 @@ project_root=$1
 example_path="$project_root/.env.example"
 environment_path="$project_root/.env"
 
+# Replace one NAME=value line in .env, or add it when it is missing.
 set_environment_value() {
     local name=$1
     local value=$2
@@ -39,11 +43,12 @@ set_environment_value() {
 }
 
 trim_value() {
-    # API keys are pasted interactively. Trim accidental surrounding whitespace
-    # without printing the secret or passing it as a command-line argument.
+    # Remove spaces accidentally copied before or after an API key without
+    # printing the key or putting it in a command-line argument.
     printf '%s' "$1" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//'
 }
 
+# Read a provider key without showing the typed characters.
 read_secret_value() {
     local prompt=$1
     local secret
@@ -53,6 +58,8 @@ read_secret_value() {
     trim_value "$secret"
 }
 
+# Keep only the selected provider key. This prevents an old key from changing
+# provider selection later.
 clear_provider_keys() {
     set_environment_value "GEMINI_API_KEY" ""
     set_environment_value "GOOGLE_API_KEY" ""

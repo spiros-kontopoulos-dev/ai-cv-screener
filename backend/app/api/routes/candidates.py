@@ -1,4 +1,12 @@
-"""Candidate catalogue and trusted PDF delivery endpoints."""
+"""List indexed candidates and open their trusted PDF CV files.
+
+The candidate list comes from metadata stored with the PDF vector index. The
+route does not read the generated profile JSON to answer questions.
+
+The PDF route accepts a candidate ID, not a filesystem path. The catalogue
+service resolves the real file from trusted indexed metadata, which prevents a
+browser request from opening an arbitrary server file.
+"""
 
 from typing import Annotated
 
@@ -46,6 +54,8 @@ CandidateCatalogDependency = Annotated[
 def list_candidates(
     catalog: CandidateCatalogDependency,
 ) -> CandidateListResponse:
+    """Return the candidate identities used to build the frontend sidebar."""
+
     try:
         indexed = catalog.list_candidates()
     except CandidateCatalogError as error:
@@ -92,6 +102,8 @@ def open_candidate_cv(
     candidate_id: str,
     catalog: CandidateCatalogDependency,
 ) -> FileResponse:
+    """Open the indexed PDF that belongs to ``candidate_id`` in the browser."""
+
     try:
         candidate = catalog.get_candidate(candidate_id)
         path = catalog.resolve_candidate_pdf(candidate_id)

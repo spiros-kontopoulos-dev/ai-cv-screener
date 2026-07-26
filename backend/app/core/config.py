@@ -1,32 +1,39 @@
-"""
-Central application configuration.
+"""Load all backend settings from environment variables.
 
-This module defines the settings that the backend reads from environment
-variables. Keeping configuration here prevents values such as API keys,
-environment names, and file paths from being hard-coded throughout the
-application.
+The application uses one shared ``Settings`` object. Other modules ask for it
+through ``get_settings()`` instead of reading environment variables directly.
+This keeps paths, model names, limits, and API keys in one place.
+
+The settings are grouped in the same order as the main application flow:
+
+1. General application and provider keys.
+2. Candidate and portrait data preparation.
+3. PDF rendering and document ingestion.
+4. Chunking, embeddings, and ChromaDB storage.
+5. Candidate search and context limits.
+6. Grounded answer generation.
+
+Most values have safe defaults and can be changed in ``.env`` without editing
+Python code. Secret values use ``SecretStr`` so they are hidden when printed.
 """
 
-# lru_cache stores the result returned by get_settings().
-# This means the Settings object is created only once per Python process
-# instead of being recreated every time another module requests it.
+# ``get_settings`` is cached at the bottom of this file, so one Settings
+# object is reused for the lifetime of the Python process.
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-# Field adds numeric and text boundaries to configuration values.
-# SecretStr is a Pydantic type designed for sensitive values. When printed,
-# it hides the actual secret instead of displaying it directly.
+# ``Field`` validates limits such as minimum and maximum values.
+# ``SecretStr`` keeps API keys hidden in logs and normal string output.
 from pydantic import Field, SecretStr
 
-# BaseSettings automatically reads matching values from environment variables.
-# SettingsConfigDict controls how that environment-variable loading behaves.
+# ``BaseSettings`` maps fields to environment variables automatically.
+# ``SettingsConfigDict`` controls the loading rules.
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-# Resolve the committed plan relative to the backend package, not the shell's
-# current working directory. Developers may still override it through the
-# CANDIDATE_DATASET_PLAN_PATH environment variable.
+# These committed JSON files live inside the backend package. Absolute default
+# paths make them work no matter which directory started the Python process.
 DEFAULT_CANDIDATE_DATASET_PLAN_PATH = (
     Path(__file__).resolve().parents[1]
     / "dataset"
@@ -45,66 +52,52 @@ DEFAULT_CV_QUERY_ROBUSTNESS_MATRIX_PATH = (
 
 
 class Settings(BaseSettings):
-    """
-    Application settings loaded from environment variables.
+    """Validated settings shared by the whole backend.
 
-    BaseSettings matches each Python field with an environment variable.
-    For example:
-
-        app_name <- APP_NAME
-        openai_api_key <- OPENAI_API_KEY
-        candidate_generation_model <- CANDIDATE_GENERATION_MODEL
-
-    The default values are used when the corresponding environment variable
-    has not been provided.
+    Pydantic maps a field such as ``app_name`` to ``APP_NAME`` and converts the
+    text value into the correct Python type. A field's default is used when the
+    environment variable is missing.
     """
 
-    # General application configuration.
+    # Basic application and browser connection settings.
     app_name: str = "AI CV Screener API"
     app_env: str = "development"
     log_level: str = "INFO"
 
-    # The browser origin that will later be allowed to call the backend.
-    # This value will be used when we configure CORS.
+    # The only browser origin allowed to call the local API.
     frontend_origin: str = "http://localhost:5173"
 
-    # The key remains optional so health checks and dry-run plan inspection can
-    # work before OpenAI is configured. Real generation validates it explicitly.
+    # Provider keys are optional because deterministic answer mode, health
+    # checks, and dry-run scripts can work without a hosted provider.
     openai_api_key: SecretStr | None = None
-    # Google accepts either variable name. When both are present, the official
-    # SDK gives GOOGLE_API_KEY precedence, so provider selection mirrors it.
+    # The Google SDK accepts both names. If both are set, GOOGLE_API_KEY wins.
     gemini_api_key: SecretStr | None = None
     google_api_key: SecretStr | None = None
 
-    # WP3 candidate-generation configuration.
+    # Committed plans used to generate candidates, portraits, and query tests.
     candidate_dataset_plan_path: Path = DEFAULT_CANDIDATE_DATASET_PLAN_PATH
     candidate_portrait_plan_path: Path = DEFAULT_CANDIDATE_PORTRAIT_PLAN_PATH
     cv_query_robustness_matrix_path: Path = (
         DEFAULT_CV_QUERY_ROBUSTNESS_MATRIX_PATH
     )
 
-    # The generated profile collection is preparation data for WP4 PDF
-    # rendering. A relative path resolves from /app inside the backend
-    # container, where Compose mounts the repository's shared data directory.
+    # Generated profile JSON is used to render CVs. It is not used as answer
+    # evidence. Inside Docker, relative paths start from ``/app``.
     candidate_profiles_output_path: Path = Path(
         "data/candidate_profiles/candidate_profiles.json"
     )
 
-    # WP4 keeps visual assets in shared repository directories mounted at
-    # /app/data by Compose.  Candidate IDs provide the stable mapping between
-    # one validated profile, normalized portrait, HTML preview, and PDF file.
+    # Candidate IDs connect each profile to its portrait and rendered PDF.
     candidate_images_directory: Path = Path("data/candidate_images")
     cv_pdfs_output_directory: Path = Path("data/cv_pdfs")
 
-    # WP5 accepts arbitrary PDF paths, but --all needs one explicit default
-    # directory. Keeping this separate from the WP4 output setting makes the
-    # ingestion service reusable for future upload or administrator folders.
+    # ``--all`` scans this directory. Other ingestion commands can still point
+    # to a different file or directory.
     cv_ingestion_default_directory: Path = Path("data/cv_pdfs")
 
-    # WP5 section-aware chunking remains configurable without coupling the
-    # algorithm to the committed synthetic CV layout. The version is stored
-    # with every future vector record so an incompatible strategy change can
-    # trigger an explicit rebuild rather than silently mixing chunk formats.
+    # Chunk size and overlap settings. The version is stored with every vector.
+    # If the chunking rules change, the index must be rebuilt instead of mixing
+    # old and new chunk formats.
     cv_chunking_version: str = Field(
         default="cv-sections-v1",
         min_length=1,
@@ -126,9 +119,9 @@ class Settings(BaseSettings):
         le=1000,
     )
 
-    # WP5 uses one local Sentence Transformer for both document chunks and
-    # later user questions. The selected MiniLM model is compact enough for a
-    # CPU-only evaluator while producing 384-dimensional semantic vectors.
+    # One local Sentence Transformer embeds both CV chunks and user questions.
+    # The default model is small enough to run on CPU and returns 384 numbers
+    # for each piece of text.
     cv_embedding_model_name: str = Field(
         default="sentence-transformers/all-MiniLM-L6-v2",
         min_length=1,
@@ -152,9 +145,9 @@ class Settings(BaseSettings):
     )
     cv_embedding_cache_directory: Path = Path("storage/models")
 
-    # Chroma stores vectors supplied by our own embedding provider. Collection
-    # metadata records every compatibility boundary so a changed model, vector
-    # dimension, chunking strategy, or index version cannot be mixed silently.
+    # ChromaDB stores the vectors created by this application. Collection
+    # metadata records the model, vector size, chunking version, and index
+    # version so incompatible data is rejected instead of mixed silently.
     cv_vector_store_directory: Path = Path("storage/chroma")
     cv_vector_collection_name: str = Field(
         default="cv_chunks",
@@ -174,11 +167,9 @@ class Settings(BaseSettings):
         le=5000,
     )
 
-    # WP6 combines broad semantic recall, deterministic exact-text assistance,
-    # candidate-aware condition coverage, and a final source-traceable context
-    # budget. The final thresholds prevent zero-coverage diagnostic rows from
-    # leaking into later answer generation while retaining explicit partial
-    # results when no complete candidate exists.
+    # Search first retrieves a broad set of related chunks. Later steps add
+    # exact evidence, group the chunks by candidate, and remove weak matches.
+    # These limits control how much work each search stage may do.
     cv_raw_retrieval_default_limit: int = Field(
         default=50,
         ge=1,
@@ -220,9 +211,9 @@ class Settings(BaseSettings):
         le=20,
     )
 
-    # Final WP6 output controls. The candidate pool stays larger than the final
-    # result so support thresholds can filter diagnostic rows before strict
-    # candidate, evidence, and character budgets construct prompt-ready context.
+    # Final result and context limits. The search keeps a larger candidate pool
+    # at first, then applies score and coverage checks before building the small
+    # evidence context sent to the answer generator.
     cv_final_retrieval_default_candidate_limit: int = Field(
         default=5,
         ge=1,
@@ -279,9 +270,9 @@ class Settings(BaseSettings):
         le=1.0,
     )
 
-    # WP7 uses the final WP6 context as the only factual input to either a
-    # hosted structured-output model or the no-key deterministic fallback.
-    # "auto" prefers Gemini, then OpenAI, then deterministic output.
+    # Answer generation receives only the evidence approved by candidate search.
+    # ``auto`` uses Gemini when configured, then OpenAI, then the no-key
+    # deterministic answer writer.
     cv_grounded_answer_provider: Literal[
         "auto",
         "openai",
@@ -324,13 +315,12 @@ class Settings(BaseSettings):
         le=4000,
     )
 
-    # HTML previews are developer-only inspection artifacts.  They make CSS
-    # iteration faster but are not the source indexed by the future RAG system.
+    # HTML previews help developers inspect the CV layout. The searchable source
+    # remains the rendered PDF, not the preview HTML.
     cv_html_preview_directory: Path = Path("data/cv_html")
 
-    # WP4 portrait generation remains a developer-only dataset preparation
-    # workflow. The model and quality controls are configurable so a reviewer
-    # can trade cost against visual quality without editing application code.
+    # Portrait generation is a developer tool, not a public API feature. These
+    # settings control provider cost, image size, and retry behaviour.
     portrait_generation_model: str = Field(
         default="gpt-image-1",
         min_length=1,
@@ -363,9 +353,8 @@ class Settings(BaseSettings):
         le=600.0,
     )
 
-    # Every accepted provider image is decoded, centre-cropped, resized, and
-    # re-encoded locally. This gives the renderer one predictable WebP asset
-    # shape regardless of provider metadata or future model changes.
+    # Every generated image is cropped, resized, and saved again as WebP so the
+    # renderer always receives the same format and dimensions.
     portrait_normalized_size: int = Field(
         default=512,
         ge=256,
@@ -377,39 +366,38 @@ class Settings(BaseSettings):
         le=100,
     )
 
-    # The model is configurable because model availability and cost choices may
-    # change without requiring a code edit.
+    # Candidate-generation model settings.
     candidate_generation_model: str = Field(
         default="gpt-5.4-mini",
         min_length=1,
         max_length=100,
     )
 
-    # A bounded retry count prevents one malformed response from creating an
-    # endless or unexpectedly expensive generation loop.
+    # Stop one invalid response from causing an endless paid retry loop.
     candidate_generation_max_retries: int = Field(
         default=2,
         ge=0,
         le=5,
     )
 
-    # Provider calls should fail clearly rather than relying on the SDK's much
-    # longer default timeout. The application-level retry loop owns retries.
+    # Fail slow provider calls clearly. The application, not the SDK, decides
+    # whether another attempt should be made.
     candidate_generation_timeout_seconds: float = Field(
         default=120.0,
         ge=10.0,
         le=600.0,
     )
 
-    # A complete profile can be larger than a short chat response. The limit is
-    # still bounded to control cost and avoid unexpectedly verbose CV content.
+    # Candidate profiles need more output space than chat answers, but the limit
+    # still controls cost and prevents very long generated CV content.
     candidate_generation_max_completion_tokens: int = Field(
         default=6000,
         ge=1000,
         le=12000,
     )
 
-    # model_config configures how BaseSettings handles incoming values.
+    # Environment variable names are case-insensitive. Unknown values are ignored
+    # so one shared .env file can also contain frontend settings.
     model_config = SettingsConfigDict(
         case_sensitive=False,
         extra="ignore",
@@ -418,6 +406,6 @@ class Settings(BaseSettings):
 
 @lru_cache
 def get_settings() -> Settings:
-    """Create and return the application's shared Settings object."""
+    """Return the one cached Settings object used by the application."""
 
     return Settings()

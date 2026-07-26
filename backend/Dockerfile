@@ -5,9 +5,8 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-# WeasyPrint uses Pango and HarfBuzz to lay out text.  Installing only the
-# runtime libraries keeps the image small while supporting the prebuilt Python
-# wheels used by this project.  DejaVu provides predictable Latin/Greek fonts.
+# WeasyPrint needs these system libraries to turn HTML/CSS into PDFs.
+# DejaVu provides predictable Latin and Greek fonts.
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         fonts-dejavu-core \
@@ -28,10 +27,8 @@ COPY app ./app
 COPY tests ./tests
 COPY pytest.ini ./pytest.ini
 
-# The local setup implementation is also inspected by an automated safety
-# test.  Copy it into /app while keeping the repository-root setup.ps1 as the
-# stable commands that users run from the repository root on Windows,
-# Linux, or macOS.
+# Copy the setup scripts because automated tests check that they handle API
+# keys safely. Users still run the small wrapper script from the repository root.
 COPY setup.ps1 ./setup.ps1
 COPY setup.sh ./setup.sh
 

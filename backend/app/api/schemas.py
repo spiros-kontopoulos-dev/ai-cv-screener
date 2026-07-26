@@ -1,4 +1,14 @@
-"""Public HTTP request and response contracts for the WP8 application API."""
+"""Define the JSON data accepted and returned by the public API.
+
+FastAPI uses these Pydantic models for three jobs:
+
+- validate incoming request data;
+- convert Python objects into JSON responses;
+- build examples and field details for the Swagger page at ``/docs``.
+
+These models describe the HTTP contract only. Candidate search, ranking, and
+answer generation use their own internal models in other packages.
+"""
 
 from typing import Literal
 
@@ -8,27 +18,39 @@ from app.cv_answer_generation import GroundedAnswerOutcome, GroundedAnswerProvid
 
 
 class ApiSchema(BaseModel):
-    """Shared strict API model behaviour."""
+    """Base class used by every public request and response model.
+
+    Unknown fields are rejected instead of silently ignored. Text values also
+    have surrounding whitespace removed before validation.
+    """
 
     model_config = ConfigDict(extra="forbid", str_strip_whitespace=True)
 
 
 class ApiErrorDetail(ApiSchema):
+    """One field-level validation problem."""
+
     field: str
     message: str
 
 
 class ApiErrorBody(ApiSchema):
+    """The contents of the standard ``error`` object."""
+
     code: str = Field(min_length=1, max_length=100)
     message: str = Field(min_length=1, max_length=500)
     details: list[ApiErrorDetail] = Field(default_factory=list)
 
 
 class ApiErrorResponse(ApiSchema):
+    """The shared JSON shape returned for unsuccessful API requests."""
+
     error: ApiErrorBody
 
 
 class HealthProviderStatus(ApiSchema):
+    """Which answer mode was requested and which provider is actually active."""
+
     requested_mode: Literal["auto", "openai", "gemini", "deterministic"]
     active_provider: GroundedAnswerProviderName
     model: str = Field(min_length=1, max_length=150)
@@ -36,6 +58,8 @@ class HealthProviderStatus(ApiSchema):
 
 
 class HealthIndexStatus(ApiSchema):
+    """Simple counts that show whether the CV vector index is usable."""
+
     available: bool
     record_count: int = Field(ge=0)
     document_count: int = Field(ge=0)
@@ -45,6 +69,8 @@ class HealthIndexStatus(ApiSchema):
 
 
 class HealthResponse(ApiSchema):
+    """Response returned by ``GET /api/health``."""
+
     status: Literal["ok", "degraded"]
     service: str
     environment: str
@@ -79,6 +105,8 @@ class HealthResponse(ApiSchema):
 
 
 class CandidateListItem(ApiSchema):
+    """One candidate shown in the frontend sidebar."""
+
     candidate_id: str = Field(pattern=r"^candidate_\d{3}$")
     name: str = Field(min_length=1, max_length=200)
     professional_title: str = Field(min_length=1, max_length=200)
@@ -88,6 +116,8 @@ class CandidateListItem(ApiSchema):
 
 
 class CandidateListResponse(ApiSchema):
+    """Candidate catalogue returned by ``GET /api/candidates``."""
+
     count: int = Field(ge=0)
     candidates: list[CandidateListItem]
 
@@ -115,13 +145,19 @@ class CandidateListResponse(ApiSchema):
 
 
 class ChatRequest(ApiSchema):
+    """Question and result limit accepted by ``POST /api/chat``."""
+
     question: str = Field(min_length=1, max_length=2000)
     candidate_limit: int = Field(default=5, ge=1, le=10)
 
     @field_validator("question", mode="before")
     @classmethod
     def normalize_question(cls, value: object) -> object:
-        """Collapse whitespace so blank-only input fails normal validation."""
+        """Replace repeated whitespace with single spaces before validation.
+
+        This also turns input containing only spaces or line breaks into an
+        empty string, which then fails the normal ``min_length`` rule.
+        """
 
         if isinstance(value, str):
             return " ".join(value.split())
@@ -143,6 +179,8 @@ class ChatRequest(ApiSchema):
 
 
 class ChatCandidate(ApiSchema):
+    """One ranked candidate included in a grounded chat answer."""
+
     candidate_id: str = Field(pattern=r"^candidate_\d{3}$")
     name: str = Field(min_length=1, max_length=200)
     professional_title: str = Field(min_length=1, max_length=200)
@@ -156,6 +194,8 @@ class ChatCandidate(ApiSchema):
 
 
 class ChatSource(ApiSchema):
+    """One PDF evidence item cited by the answer or a candidate assessment."""
+
     source_id: str = Field(min_length=1, max_length=150)
     candidate_id: str = Field(pattern=r"^candidate_\d{3}$")
     candidate_name: str = Field(min_length=1, max_length=200)
@@ -170,6 +210,8 @@ class ChatSource(ApiSchema):
 
 
 class ChatResponse(ApiSchema):
+    """Complete response returned to the React chat interface."""
+
     question: str = Field(min_length=1, max_length=2000)
     outcome: GroundedAnswerOutcome
     answer: str = Field(min_length=1, max_length=12000)

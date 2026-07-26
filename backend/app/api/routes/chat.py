@@ -1,4 +1,19 @@
-"""Grounded candidate chat endpoint over the completed WP6/WP7 pipeline."""
+"""Accept recruiter questions and return grounded candidate answers.
+
+``POST /api/chat`` passes the question to the shared answer generator. That
+service runs the complete flow:
+
+1. Search the indexed CV chunks.
+2. Check exact words, numbers, and relationships where needed.
+3. Group evidence by candidate and rank the candidates.
+4. Decide whether the evidence is complete, partial, or unsupported.
+5. Build a small source-backed context.
+6. Write the answer with the selected provider or deterministic fallback.
+7. Validate that every candidate claim uses citations owned by that candidate.
+
+The route itself only validates HTTP input, calls the service, maps expected
+failures to safe HTTP errors, and presents the final response for React.
+"""
 
 from typing import Annotated
 
@@ -29,10 +44,9 @@ GroundedGeneratorDependency = Annotated[
     response_model=ChatResponse,
     summary="Ask a grounded candidate question",
     description=(
-        "Runs semantic recall, relation-aware evidence recovery, candidate "
-        "ranking, support classification, bounded context, grounded wording, "
-        "and application-validated candidate-owned citations. Unsupported "
-        "questions return HTTP 200 with outcome=unsupported."
+        "Searches indexed CV evidence, ranks whole candidates, writes a grounded "
+        "answer, and returns validated citations. Unsupported questions return "
+        "HTTP 200 with outcome=unsupported."
     ),
     responses={
         422: {
@@ -55,6 +69,8 @@ def ask_candidates(
     request: ChatRequest,
     generator: GroundedGeneratorDependency,
 ) -> ChatResponse:
+    """Run one grounded search request and return its browser-facing response."""
+
     try:
         result = generator.generate(
             FinalCvRetrievalQuery(
@@ -69,6 +85,9 @@ def ask_candidates(
             "or select deterministic mode.",
         ) from error
     except GroundedAnswerGenerationFailed as error:
+        # ``attempts > 0`` means retrieval succeeded but a hosted provider was
+        # called and failed. Zero attempts means the local retrieval path could
+        # not finish before any provider call.
         if error.attempts > 0:
             raise ApiUpstreamError(
                 "answer_provider_failed",

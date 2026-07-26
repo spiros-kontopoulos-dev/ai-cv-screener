@@ -1,4 +1,10 @@
-"""Convert validated WP7 domain results into the frozen WP8 API contract."""
+"""Convert internal search-and-answer results into the public chat response.
+
+The retrieval and answer modules use detailed domain models. The React client
+needs one stable response shape with candidate scores, source pages, and CV
+links. This file joins those already-validated results without running another
+search or changing which evidence was accepted.
+"""
 
 from app.cv_answer_generation import (
     GroundedAnswerGenerationResult,
@@ -11,10 +17,19 @@ from .schemas import ChatCandidate, ChatResponse, ChatSource
 def present_chat_response(
     result: GroundedAnswerGenerationResult,
 ) -> ChatResponse:
-    """Add ranking and page fields without weakening WP7 source validation."""
+    """Build the JSON-ready chat response used by the frontend.
+
+    The answer result already contains validated candidate names, citations,
+    and source ownership. The retrieval result adds values that the UI also
+    needs, such as ranking scores and the first page of each evidence chunk.
+    The two collections are joined by candidate ID and source ID.
+    """
 
     response = result.response
     retrieval = result.retrieval_result
+
+    # These lookups avoid repeatedly scanning the result lists while we build
+    # the public candidate and source objects.
     retrieval_by_id = {
         candidate.candidate_id: candidate for candidate in retrieval.candidates
     }
@@ -61,11 +76,10 @@ def present_chat_response(
             )
         )
 
-    # Hosted providers may phrase reassurance (for example, "no partial
-    # coverage") as a limitation. A fully supported hosted answer is not a
-    # degraded state, so the browser contract suppresses those free-form
-    # limitations. Deterministic, partial, and unsupported warnings remain
-    # visible because they describe real application behavior.
+    # A hosted model can sometimes return a harmless note such as "no partial
+    # matches" even when the answer is fully supported. The UI hides those
+    # notes. Real warnings for deterministic, partial, or unsupported answers
+    # remain visible.
     warnings = (
         []
         if response.outcome == "supported" and response.provider_called

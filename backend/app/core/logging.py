@@ -1,45 +1,29 @@
-"""
-Application logging configuration.
+"""Set one logging format and log level for the whole backend.
 
-This module keeps the logging setup in one place so every backend module
-uses the same log level and message format.
+Every module creates its own logger with ``logging.getLogger(__name__)``. This
+file configures the shared root logger once when FastAPI starts.
 """
 
 import logging
 
 
-# Define one consistent format for all backend log messages.
-#
-# Example output:
+# Example:
 # 2026-07-17 14:30:00 | INFO | app.main | Starting AI CV Screener API
 LOG_FORMAT = "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
 
 
 def configure_logging(log_level: str) -> None:
+    """Apply the requested log level to all backend loggers.
+
+    ``log_level`` normally comes from the ``LOG_LEVEL`` environment variable.
+    Unknown values fall back to ``INFO`` so a spelling mistake does not stop
+    the application from starting.
+
+    ``force=True`` replaces logging that Uvicorn may have configured before it
+    imported the application.
     """
-    Configure Python's root logger for the application.
 
-    Args:
-        log_level:
-            A text value such as "DEBUG", "INFO", "WARNING", or "ERROR".
-            The value comes from the LOG_LEVEL environment variable.
-    """
-
-    # Convert the text value, such as "INFO", into Python's numeric logging
-    # constant, such as logging.INFO.
-    #
-    # If an invalid value is supplied, the application safely falls back
-    # to INFO instead of failing during startup.
-    resolved_level = getattr(
-        logging,
-        log_level.upper(),
-        logging.INFO,
-    )
-
-    # basicConfig configures the root logger used by the whole application.
-    #
-    # force=True replaces any earlier logging configuration. This is useful
-    # because Uvicorn may configure logging before importing our application.
+    resolved_level = getattr(logging, log_level.upper(), logging.INFO)
     logging.basicConfig(
         level=resolved_level,
         format=LOG_FORMAT,

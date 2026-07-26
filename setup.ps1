@@ -1,3 +1,5 @@
+# Small Windows entry point for local setup.
+# The real implementation lives in backend/setup.ps1 so it can be tested.
 [CmdletBinding()]
 param()
 

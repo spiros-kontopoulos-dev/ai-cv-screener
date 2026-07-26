@@ -1,4 +1,4 @@
-"""OpenAPI contract coverage for the four frozen WP8 endpoints."""
+"""Check the public OpenAPI contract for the four application endpoints."""
 
 from fastapi.testclient import TestClient
 

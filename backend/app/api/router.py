@@ -1,4 +1,14 @@
-"""Central versioned application router for all public WP8 endpoints."""
+"""Collect the public API routes under one ``/api`` prefix.
+
+Each route file owns one small area of the HTTP API:
+
+- ``health`` reports whether the provider and vector index are ready;
+- ``candidates`` lists candidates and serves their PDF CVs;
+- ``chat`` runs the grounded candidate-question flow.
+
+``app.main`` includes only this router, so new public route groups can be added
+here without making the application entry point larger.
+"""
 
 from fastapi import APIRouter
 

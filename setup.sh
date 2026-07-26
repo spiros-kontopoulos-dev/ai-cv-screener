@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Small Linux/macOS entry point for local setup.
+# The real implementation lives in backend/setup.sh so it can be tested.
+
 set -euo pipefail
 
 project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

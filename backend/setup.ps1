@@ -1,3 +1,5 @@
+# Configure the local answer provider without printing or committing API keys.
+# This script creates or updates the repository-root .env file.
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)][string]$ProjectRoot
@@ -7,6 +9,7 @@ $ErrorActionPreference = "Stop"
 $ExamplePath = Join-Path $ProjectRoot ".env.example"
 $EnvironmentPath = Join-Path $ProjectRoot ".env"
 
+# Replace one NAME=value line in .env, or add it when it is missing.
 function Set-EnvironmentValue {
     param(
         [Parameter(Mandatory = $true)][string]$Name,
@@ -38,6 +41,8 @@ function Set-EnvironmentValue {
     )
 }
 
+# Read a key without showing the typed value, then convert it only long enough
+# to write it into the local .env file.
 function Read-SecretValue {
     param([Parameter(Mandatory = $true)][string]$Prompt)
 
@@ -69,6 +74,8 @@ Write-Host "  1. Gemini (free-tier option; requires a Google AI Studio key)"
 Write-Host "  2. OpenAI (requires an OpenAI API key and available credits)"
 Write-Host "  3. Deterministic no-key mode"
 
+# Keep only the selected provider key. This prevents an old key from changing
+# provider selection later.
 function Clear-ProviderKeys {
     Set-EnvironmentValue -Name "GEMINI_API_KEY" -Value ""
     Set-EnvironmentValue -Name "GOOGLE_API_KEY" -Value ""

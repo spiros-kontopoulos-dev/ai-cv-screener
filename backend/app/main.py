@@ -1,4 +1,18 @@
-"""FastAPI application entry point for the local AI CV Screener product."""
+"""Create and configure the FastAPI application.
+
+This is the backend starting point. Uvicorn imports ``app`` from this file.
+The setup happens in this order:
+
+1. Load the shared settings.
+2. Configure logging when the server starts.
+3. Create the FastAPI application.
+4. Allow the local React frontend to call the API.
+5. Install the shared error handlers.
+6. Attach all routes under the ``/api`` prefix.
+
+This file only connects the main parts of the backend. The real candidate
+search and answer logic stays in the service modules.
+"""
 
 import logging
 from collections.abc import AsyncIterator
@@ -19,7 +33,12 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
-    """Configure process logging and record clean startup/shutdown boundaries."""
+    """Run the small amount of work needed at server start and shutdown.
+
+    FastAPI enters this function before it accepts requests. Logging is set up
+    first so every later module uses the same format and log level. Code after
+    ``yield`` runs when the server is stopping.
+    """
 
     configure_logging(settings.log_level)
     logger.info("Starting %s in %s environment", settings.app_name, settings.app_env)
@@ -31,15 +50,15 @@ app = FastAPI(
     title=settings.app_name,
     version="0.8.0",
     description=(
-        "Thin HTTP API over the validated candidate-aware retrieval and "
-        "grounded answer pipeline."
+        "HTTP API for candidate search, grounded answers, source details, "
+        "and CV access."
     ),
     lifespan=lifespan,
 )
 
-# The frontend runs on a separate Vite origin during local development. Keep
-# this browser permission narrow: no credentials, no arbitrary origins, and
-# only the methods/headers used by the product UI.
+# React and FastAPI run on different local ports, so the browser needs CORS
+# permission. Only the configured frontend origin and the methods used by this
+# application are allowed. API keys are never sent to the browser.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[settings.frontend_origin],
@@ -48,5 +67,6 @@ app.add_middleware(
     allow_headers=["Accept", "Content-Type"],
 )
 
+# Use one error format across every route, then attach the public API routes.
 install_exception_handlers(app)
 app.include_router(api_router)

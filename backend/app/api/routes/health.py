@@ -1,4 +1,14 @@
-"""Non-secret application, provider, and index readiness endpoint."""
+"""Report whether the answer provider and CV index are ready.
+
+``GET /api/health`` is used by the frontend and by people checking a local
+installation. It returns only safe information:
+
+- which answer mode was requested;
+- which provider and model would be used;
+- whether the vector index contains complete candidate documents.
+
+API keys and provider error details are never included in the response.
+"""
 
 from typing import Annotated
 
@@ -40,6 +50,8 @@ def health_check(
     settings: SettingsDependency,
     catalog: CatalogDependency,
 ) -> HealthResponse:
+    """Return ``ok`` only when both answering and indexed CV data are ready."""
+
     provider = _provider_status(settings)
 
     try:
@@ -57,6 +69,8 @@ def health_check(
             incomplete_document_count=coverage.incomplete_document_count,
         )
     except CandidateCatalogError:
+        # A missing or unreadable Chroma index is reported as degraded health,
+        # not as an unhandled server error.
         index = HealthIndexStatus(
             available=False,
             record_count=0,
@@ -76,7 +90,12 @@ def health_check(
 
 
 def _provider_status(settings: Settings) -> HealthProviderStatus:
-    """Resolve provider diagnostics without exposing any secret value."""
+    """Describe provider readiness without reading or returning a secret value.
+
+    The normal provider resolver is used so health reports the same choice as a
+    real chat request. If an explicitly selected hosted provider has no key, we
+    still return its requested name and model with ``ready=False``.
+    """
 
     try:
         resolved = resolve_grounded_answer_provider(settings)

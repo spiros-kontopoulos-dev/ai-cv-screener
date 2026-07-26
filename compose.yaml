@@ -15,12 +15,12 @@ services:
       - ./backend/tests:/app/tests
       - ./backend/pytest.ini:/app/pytest.ini:ro
 
-      # Persist generated profiles and later CV assets on the host.
+      # Keep generated profiles, portraits, HTML previews, and PDFs on the host.
       - ./data:/app/data
 
-      # Persist Hugging Face model downloads and the local ChromaDB index.
-      # The application still receives explicit PDF embeddings rather than
-      # delegating embedding generation to Chroma.
+      # Keep downloaded embedding models and the local ChromaDB index on the
+      # host so they survive container restarts. The application creates the
+      # embeddings itself and passes them to ChromaDB.
       - ./storage:/app/storage
     command: >
       uvicorn app.main:app
