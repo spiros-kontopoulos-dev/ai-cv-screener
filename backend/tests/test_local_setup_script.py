@@ -1,10 +1,14 @@
 """Safety and parity checks for the cross-platform setup assistants."""
 
+import os
 from pathlib import Path
 import subprocess
 
 
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
+REPOSITORY_ROOT = Path(
+    os.environ.get("AI_CV_SCREENER_REPOSITORY_ROOT", BACKEND_ROOT.parent)
+)
 
 
 def _read_environment(path: Path) -> dict[str, str]:
@@ -105,7 +109,7 @@ def test_bash_setup_does_not_echo_hosted_provider_secret(tmp_path: Path) -> None
 def test_bash_setup_help_is_safe_and_complete() -> None:
     """Both Bash entry points explain usage without touching environment files."""
 
-    repository_root = BACKEND_ROOT.parent
+    repository_root = REPOSITORY_ROOT
     commands = (
         ["bash", str(repository_root / "setup.sh"), "--help"],
         ["bash", str(BACKEND_ROOT / "setup.sh"), "--help"],
@@ -127,7 +131,7 @@ def test_bash_setup_help_is_safe_and_complete() -> None:
 def test_powershell_setup_files_include_help_guides() -> None:
     """Windows wrappers expose explicit help plus PowerShell comment help."""
 
-    repository_root = BACKEND_ROOT.parent
+    repository_root = REPOSITORY_ROOT
     for path in (repository_root / "setup.ps1", BACKEND_ROOT / "setup.ps1"):
         script = path.read_text(encoding="utf-8")
         assert ".SYNOPSIS" in script
@@ -140,7 +144,7 @@ def test_powershell_setup_files_include_help_guides() -> None:
 def test_root_bash_setup_rejects_unknown_arguments_without_writing() -> None:
     """The public Bash wrapper fails clearly instead of ignoring bad options."""
 
-    repository_root = BACKEND_ROOT.parent
+    repository_root = REPOSITORY_ROOT
     result = subprocess.run(
         ["bash", str(repository_root / "setup.sh"), "--unknown"],
         text=True,

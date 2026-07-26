@@ -4,6 +4,10 @@ services:
       context: ./backend
     env_file:
       - .env
+    environment:
+      # Tests use this explicit path for the repository-root setup wrappers.
+      # This avoids guessing the repository layout from /app/tests inside Docker.
+      AI_CV_SCREENER_REPOSITORY_ROOT: /repository
     ports:
       - "8000:8000"
     volumes:
@@ -15,12 +19,21 @@ services:
       - ./backend/tests:/app/tests
       - ./backend/pytest.ini:/app/pytest.ini:ro
 
+      # The backend setup implementations are copied into the Docker image,
+      # but mounting them keeps script-help edits visible without rebuilding.
+      - ./backend/setup.sh:/app/setup.sh:ro
+      - ./backend/setup.ps1:/app/setup.ps1:ro
+
+      # Expose the public repository-root setup wrappers at an explicit,
+      # collision-free path for the cross-platform setup tests.
+      - ./setup.sh:/repository/setup.sh:ro
+      - ./setup.ps1:/repository/setup.ps1:ro
+
       # Keep generated profiles, portraits, HTML previews, and PDFs on the host.
       - ./data:/app/data
 
       # Keep downloaded embedding models and the local ChromaDB index on the
-      # host so they survive container restarts. The application creates the
-      # embeddings itself and passes them to ChromaDB.
+      # host so they survive container restarts.
       - ./storage:/app/storage
     command: >
       uvicorn app.main:app
@@ -29,31 +42,15 @@ services:
       --reload
 
   frontend:
-    # Build the React/Vite image from frontend/Dockerfile.
     build:
       context: ./frontend
-
-    # Vite variables are public browser configuration. Never place provider
-    # keys or other secrets in a VITE_ variable.
     environment:
       VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000}
-
-    # Expose Vite on the evaluator's local machine.
     ports:
       - "5173:5173"
-
     volumes:
-      # Mount the frontend project so Vite detects source-code changes.
       - ./frontend:/app
-
-      # Keep container-installed dependencies inside Docker.
-      #
-      # Without this separate volume, the local frontend mount would hide
-      # the node_modules directory installed during the Docker image build.
       - /app/node_modules
-
-    # Start the Vite development server and make it reachable outside
-    # the container.
     command:
       - npm
       - run
