@@ -1,3 +1,4 @@
+/** Visual labels for retrieval support and the active answer-provider mode. */
 import type { AnswerOutcome, AnswerProvider } from '../api/types'
 import { outcomeLabel, providerLabel } from '../utils'
 

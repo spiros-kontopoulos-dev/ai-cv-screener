@@ -19,6 +19,7 @@ from collections.abc import Sequence
 from pathlib import Path
 import sys
 
+from app.scripts.cli_help import build_cli_parser
 from app.core.config import Settings, get_settings
 from app.cv_ingestion import (
     CvChromaRepository,
@@ -36,11 +37,44 @@ from app.cv_ingestion import (
 def build_parser() -> argparse.ArgumentParser:
     """Define PDF selection, rebuild, replacement, and optional metadata arguments."""
 
-    parser = argparse.ArgumentParser(
+    parser = build_cli_parser(
         description=(
             "Extract, chunk, embed, and persist selected CV PDFs in the "
             "configured ChromaDB collection."
-        )
+        ),
+        sections=(
+            (
+                'Valid command combinations',
+                (
+                    '--file PATH: select one PDF; repeat --file to select several PDFs.',
+                    '--directory PATH: select PDFs directly inside one directory.',
+                    '--all: select PDFs from the configured default directory.',
+                    '--file, --directory, and --all are mutually exclusive.',
+                    '--recursive may be used with --directory or --all.',
+                    '--candidate-id, --candidate-name, and --professional-title require exactly one selected PDF.',
+                    '--rebuild deletes the complete collection before ingesting the selection.',
+                    '--replace-existing removes older revisions that share a source path or candidate ID.',
+                    '--rebuild and --replace-existing may be combined, but replacement is normally unnecessary after a rebuild.',
+                ),
+            ),
+            (
+                'What the command changes',
+                (
+                    'It extracts, chunks, embeds, and writes records to the configured Chroma collection.',
+                    '--rebuild is destructive for the complete configured collection.',
+                ),
+            ),
+            (
+                'Examples',
+                (
+                    'python -m app.scripts.ingest_cv_documents --all',
+                    'python -m app.scripts.ingest_cv_documents --all --rebuild',
+                    'python -m app.scripts.ingest_cv_documents --directory data/cv_pdfs --recursive',
+                    'python -m app.scripts.ingest_cv_documents --file data/cv_pdfs/example.pdf --replace-existing',
+                    'python -m app.scripts.ingest_cv_documents --file data/imports/cv.pdf --candidate-id candidate_031 --candidate-name "Alex Morgan" --professional-title "Python Engineer"',
+                ),
+            ),
+        ),
     )
     input_group = parser.add_mutually_exclusive_group(required=True)
     input_group.add_argument(

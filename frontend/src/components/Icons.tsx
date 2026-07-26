@@ -1,3 +1,4 @@
+/** Small inline SVG icon set used by the application components. */
 import type { SVGProps } from 'react'
 
 type IconProps = SVGProps<SVGSVGElement>

@@ -9,6 +9,7 @@ import argparse
 import sys
 from collections.abc import Sequence
 
+from app.scripts.cli_help import build_cli_parser
 from app.candidate_generation.persistence import (
     CandidateProfilesFileError,
     load_candidate_profiles,
@@ -51,11 +52,41 @@ def _positive_integer(value: str) -> int:
 def build_parser() -> argparse.ArgumentParser:
     """Define candidate selection, dry-run, HTML preview, and portrait-plan options."""
 
-    parser = argparse.ArgumentParser(
+    parser = build_cli_parser(
         description=(
             "Plan or render deterministic HTML and PDF CV artifacts from "
             "the validated candidate profile collection."
-        )
+        ),
+        sections=(
+            (
+                'Valid command combinations',
+                (
+                    '--candidate-id ID: select exactly one profile.',
+                    '--count N: select the first N profiles.',
+                    '--all: select every profile.',
+                    '--start-from ID may be used only with --count or --all.',
+                    '--dry-run may be combined with any selection and writes nothing.',
+                    '--keep-html may be combined with a normal render, but not with --dry-run.',
+                    '--enforce-portrait-plan may be added to any selection.',
+                ),
+            ),
+            (
+                'What the command changes',
+                (
+                    'A normal run writes PDF files and optionally standalone HTML previews.',
+                    '--dry-run only checks profiles, paths, and portrait readiness.',
+                ),
+            ),
+            (
+                'Examples',
+                (
+                    'python -m app.scripts.render_candidate_cvs --candidate-id candidate_003 --dry-run',
+                    'python -m app.scripts.render_candidate_cvs --count 3 --keep-html',
+                    'python -m app.scripts.render_candidate_cvs --all --enforce-portrait-plan',
+                    'python -m app.scripts.render_candidate_cvs --count 5 --start-from candidate_011',
+                ),
+            ),
+        ),
     )
 
     selection = parser.add_mutually_exclusive_group(required=True)

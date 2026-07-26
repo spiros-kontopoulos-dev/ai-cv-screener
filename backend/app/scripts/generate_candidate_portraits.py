@@ -10,6 +10,7 @@ import argparse
 import sys
 from collections.abc import Callable, Sequence
 
+from app.scripts.cli_help import build_cli_parser
 from app.candidate_generation.persistence import (
     CandidateProfilesFileError,
     load_candidate_profiles,
@@ -54,11 +55,42 @@ def _positive_integer(value: str) -> int:
 def build_parser() -> argparse.ArgumentParser:
     """Define portrait selection, dry-run, prompt display, retry, and overwrite options."""
 
-    parser = argparse.ArgumentParser(
+    parser = build_cli_parser(
         description=(
             "Generate fictional professional portraits and normalize them "
             "to deterministic WebP assets for CV rendering."
-        )
+        ),
+        sections=(
+            (
+                'Valid command combinations',
+                (
+                    '--candidate-id ID: select exactly one planned portrait.',
+                    '--count N: select the first N planned portraits.',
+                    '--all: select every planned portrait.',
+                    '--start-from ID may be used only with --count or --all.',
+                    '--dry-run may be combined with any selection and makes no provider call.',
+                    '--show-prompts may be combined with any selection.',
+                    '--overwrite may be combined with any non-dry-run selection to replace valid existing files.',
+                ),
+            ),
+            (
+                'What the command changes',
+                (
+                    'A normal run calls the configured image provider and writes normalized WebP files.',
+                    '--dry-run only reads profiles and the portrait plan.',
+                ),
+            ),
+            (
+                'Examples',
+                (
+                    'python -m app.scripts.generate_candidate_portraits --candidate-id candidate_003 --dry-run --show-prompts',
+                    'python -m app.scripts.generate_candidate_portraits --count 3',
+                    'python -m app.scripts.generate_candidate_portraits --count 5 --start-from candidate_011',
+                    'python -m app.scripts.generate_candidate_portraits --all',
+                    'python -m app.scripts.generate_candidate_portraits --candidate-id candidate_003 --overwrite',
+                ),
+            ),
+        ),
     )
 
     selection = parser.add_mutually_exclusive_group(required=True)

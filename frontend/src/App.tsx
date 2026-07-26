@@ -1,3 +1,9 @@
+/**
+ * Top-level application coordinator.
+ *
+ * Loads API health and the indexed candidate catalogue, owns the chat history,
+ * sends recruiter questions, and connects candidate results to the source panel.
+ */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ApiClientError,

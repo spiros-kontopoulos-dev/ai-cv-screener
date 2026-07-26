@@ -10,6 +10,7 @@ import argparse
 from collections.abc import Sequence
 import sys
 
+from app.scripts.cli_help import build_cli_parser
 from app.core.config import Settings, get_settings
 from app.cv_ingestion import (
     CvChromaRepository,
@@ -24,8 +25,31 @@ from app.cv_ingestion import (
 def build_parser() -> argparse.ArgumentParser:
     """Define one or more questions and the number of raw chunks to display."""
 
-    parser = argparse.ArgumentParser(
-        description="Query raw nearest CV chunks without final retrieval logic."
+    parser = build_cli_parser(
+        description="Query raw nearest CV chunks without final retrieval logic.",
+        sections=(
+            (
+                'Valid command combinations',
+                (
+                    '--query is required and may be repeated.',
+                    '--top-k controls raw matches per question.',
+                    '--preview-characters only changes printed detail.',
+                ),
+            ),
+            (
+                'What the command changes',
+                (
+                    'It reads the vector index and writes nothing.',
+                ),
+            ),
+            (
+                'Examples',
+                (
+                    'python -m app.scripts.smoke_test_cv_index --query "Python FastAPI"',
+                    'python -m app.scripts.smoke_test_cv_index --query "Python" --query "German" --top-k 10',
+                ),
+            ),
+        ),
     )
     parser.add_argument(
         "--query",

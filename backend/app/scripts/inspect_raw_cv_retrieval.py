@@ -8,6 +8,7 @@ import argparse
 from collections.abc import Sequence
 import sys
 
+from app.scripts.cli_help import build_cli_parser
 from app.core.config import Settings, get_settings
 from app.cv_retrieval import (
     CvRawRetrievalContractError,
@@ -21,10 +22,33 @@ from app.cv_retrieval import (
 def build_parser() -> argparse.ArgumentParser:
     """Create command-line options for raw semantic retrieval inspection."""
 
-    parser = argparse.ArgumentParser(
+    parser = build_cli_parser(
         description=(
             "Inspect broad semantic CV evidence with complete source metadata."
-        )
+        ),
+        sections=(
+            (
+                'Valid command combinations',
+                (
+                    '--query is required and may be repeated.',
+                    '--result-limit and its alias --top-k set the number of raw chunks.',
+                    '--preview-characters only changes printed detail.',
+                ),
+            ),
+            (
+                'What the command changes',
+                (
+                    'It reads the vector index and writes nothing.',
+                ),
+            ),
+            (
+                'Examples',
+                (
+                    'python -m app.scripts.inspect_raw_cv_retrieval --query "Python backend engineer"',
+                    'python -m app.scripts.inspect_raw_cv_retrieval --query "German native speaker" --top-k 20',
+                ),
+            ),
+        ),
     )
     parser.add_argument(
         "--query",

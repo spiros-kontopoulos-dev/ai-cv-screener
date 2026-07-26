@@ -16,6 +16,7 @@ import argparse
 import sys
 from collections.abc import Callable, Sequence
 
+from app.scripts.cli_help import build_cli_parser
 from app.candidate_generation import (
     CandidateGenerationFailed,
     CandidateGenerationSlot,
@@ -57,11 +58,45 @@ def _positive_integer(value: str) -> int:
 def build_parser() -> argparse.ArgumentParser:
     """Define the candidate selection, retry, dry-run, resume, and overwrite options."""
 
-    parser = argparse.ArgumentParser(
+    parser = build_cli_parser(
         description=(
             "Select controlled candidate slots and generate fictional "
             "profiles from the committed dataset plan."
-        )
+        ),
+        sections=(
+            (
+                'Valid command combinations',
+                (
+                    '--candidate-id ID: select exactly one dataset slot.',
+                    '--count N: select the first N slots.',
+                    '--all: select every remaining slot.',
+                    '--start-from ID may be used only with --count or --all.',
+                    '--dry-run may be combined with any selection and makes no provider call.',
+                    '--resume keeps existing profiles and skips selected IDs already present.',
+                    "--overwrite replaces the saved collection with only this command's selected profiles.",
+                    '--resume and --overwrite cannot be used together.',
+                    '--print-json may be added to a normal generation run.',
+                ),
+            ),
+            (
+                'What the command changes',
+                (
+                    'A normal run calls OpenAI and writes the candidate profile JSON collection.',
+                    '--dry-run reads and validates the plan without writing files.',
+                ),
+            ),
+            (
+                'Examples',
+                (
+                    'python -m app.scripts.generate_candidate_profiles --candidate-id candidate_003 --dry-run',
+                    'python -m app.scripts.generate_candidate_profiles --count 3',
+                    'python -m app.scripts.generate_candidate_profiles --count 5 --start-from candidate_011 --resume',
+                    'python -m app.scripts.generate_candidate_profiles --all --resume',
+                    'python -m app.scripts.generate_candidate_profiles --all --overwrite',
+                    'python -m app.scripts.generate_candidate_profiles --candidate-id candidate_003 --print-json',
+                ),
+            ),
+        ),
     )
 
     selection = parser.add_mutually_exclusive_group(required=True)

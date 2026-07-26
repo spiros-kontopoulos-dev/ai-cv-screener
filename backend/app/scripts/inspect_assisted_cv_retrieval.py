@@ -8,6 +8,7 @@ import argparse
 from collections.abc import Sequence
 import sys
 
+from app.scripts.cli_help import build_cli_parser
 from app.core.config import Settings, get_settings
 from app.cv_retrieval import (
     AssistedCvRetriever,
@@ -21,11 +22,35 @@ from app.cv_retrieval import (
 def build_parser() -> argparse.ArgumentParser:
     """Create command-line options for exact-evidence inspection."""
 
-    parser = argparse.ArgumentParser(
+    parser = build_cli_parser(
         description=(
             "Inspect semantic CV retrieval assisted by exact lexical and "
             "numeric evidence."
-        )
+        ),
+        sections=(
+            (
+                'Valid command combinations',
+                (
+                    '--query is required and may be repeated to inspect several questions.',
+                    '--result-limit or its alias --top-k changes broad semantic recall.',
+                    '--display-limit and --preview-characters only change printed detail.',
+                ),
+            ),
+            (
+                'What the command changes',
+                (
+                    'It reads the vector index and writes nothing.',
+                ),
+            ),
+            (
+                'Examples',
+                (
+                    'python -m app.scripts.inspect_assisted_cv_retrieval --query "Who has Python experience?"',
+                    'python -m app.scripts.inspect_assisted_cv_retrieval --query "Who has 5 years of Python?" --top-k 40 --display-limit 10',
+                    'python -m app.scripts.inspect_assisted_cv_retrieval --query "Who speaks German?" --query "Who managed 8 engineers?"',
+                ),
+            ),
+        ),
     )
     parser.add_argument(
         "--query",

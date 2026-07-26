@@ -1,3 +1,4 @@
+/** Keyboard focus management for modal-style panels such as source evidence. */
 import { useEffect, type RefObject } from 'react'
 
 const FOCUSABLE_SELECTOR = [

@@ -16,6 +16,7 @@ from collections.abc import Sequence
 from pathlib import Path
 import sys
 
+from app.scripts.cli_help import build_cli_parser
 from app.core.config import Settings, get_settings
 from app.cv_ingestion import (
     CvDocumentExtractionError,
@@ -30,11 +31,37 @@ from app.cv_ingestion import (
 def build_parser() -> argparse.ArgumentParser:
     """Define file, directory, recursion, and display options for the command."""
 
-    parser = argparse.ArgumentParser(
+    parser = build_cli_parser(
         description=(
             "Extract text and source metadata from one or more CV PDFs "
             "without writing chunks, embeddings, or vector records."
-        )
+        ),
+        sections=(
+            (
+                'Valid command combinations',
+                (
+                    '--file PATH may be repeated, or use one --directory PATH, or use --all.',
+                    '--file, --directory, and --all are mutually exclusive.',
+                    '--recursive may be used with --directory or --all.',
+                    'Candidate metadata overrides require exactly one selected PDF.',
+                    '--preview-characters may be added to any selection.',
+                ),
+            ),
+            (
+                'What the command changes',
+                (
+                    'It reads and extracts PDFs in memory. It writes nothing.',
+                ),
+            ),
+            (
+                'Examples',
+                (
+                    'python -m app.scripts.inspect_cv_documents --file data/cv_pdfs/example.pdf',
+                    'python -m app.scripts.inspect_cv_documents --directory data/cv_pdfs',
+                    'python -m app.scripts.inspect_cv_documents --all --recursive --preview-characters 400',
+                ),
+            ),
+        ),
     )
     input_group = parser.add_mutually_exclusive_group(required=True)
     input_group.add_argument(

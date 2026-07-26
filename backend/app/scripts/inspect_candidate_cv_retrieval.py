@@ -8,6 +8,7 @@ import argparse
 from collections.abc import Sequence
 import sys
 
+from app.scripts.cli_help import build_cli_parser
 from app.core.config import Settings, get_settings
 from app.cv_retrieval import (
     CandidateAwareCvRetriever,
@@ -21,11 +22,35 @@ from app.cv_retrieval import (
 def build_parser() -> argparse.ArgumentParser:
     """Create command-line options for candidate-level retrieval inspection."""
 
-    parser = argparse.ArgumentParser(
+    parser = build_cli_parser(
         description=(
             "Inspect candidate grouping, compound condition coverage, and "
             "bounded source evidence."
-        )
+        ),
+        sections=(
+            (
+                'Valid command combinations',
+                (
+                    '--query is required and may be repeated.',
+                    '--semantic-result-limit and its alias --raw-limit set broad recall.',
+                    '--candidate-limit sets returned candidates; --evidence-limit sets evidence kept per candidate.',
+                    '--display-limit and --preview-characters only change printed detail.',
+                ),
+            ),
+            (
+                'What the command changes',
+                (
+                    'It reads the vector index and writes nothing.',
+                ),
+            ),
+            (
+                'Examples',
+                (
+                    'python -m app.scripts.inspect_candidate_cv_retrieval --query "Who knows Python and PostgreSQL?"',
+                    'python -m app.scripts.inspect_candidate_cv_retrieval --query "Who managed 8 engineers?" --raw-limit 50 --candidate-limit 5 --evidence-limit 4',
+                ),
+            ),
+        ),
     )
     parser.add_argument(
         "--query",

@@ -117,6 +117,20 @@ GET  /api/candidates/{candidate_id}/cv
 The API returns safe validation/error envelopes and serves candidate PDFs only
 through trusted indexed metadata.
 
+## Developer script help
+
+Every runnable backend script supports `--help`, including commands that take
+no arguments. The help output lists valid argument combinations, side effects,
+and examples. For example:
+
+```powershell
+docker compose exec backend python -m app.scripts.ingest_cv_documents --help
+docker compose exec backend python -m app.scripts.inspect_final_cv_retrieval --help
+```
+
+The complete command catalogue is available in
+[`backend/app/scripts/README.md`](backend/app/scripts/README.md).
+
 ## Troubleshooting
 
 ### `The CV index is not available`

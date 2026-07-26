@@ -6,7 +6,10 @@ status.
 """
 
 import sys
+import argparse
 from collections.abc import Sequence
+
+from app.scripts.cli_help import build_cli_parser
 
 from app.candidate_generation.persistence import (
     CandidateProfilesFileError,
@@ -21,6 +24,34 @@ from app.portrait_generation import (
 )
 
 
+def build_parser() -> argparse.ArgumentParser:
+    """Describe the complete portrait collection validation command."""
+
+    return build_cli_parser(
+        description=(
+            "Validate portrait-plan coverage and every normalized candidate "
+            "image in the configured directory."
+        ),
+        sections=(
+            (
+                "Valid command combinations",
+                (
+                    "This command validates the complete configured collection and takes no filters.",
+                    "Use --help to display this reference.",
+                ),
+            ),
+            (
+                "What the command changes",
+                ("It reads profiles, the portrait plan, and image files. It writes nothing.",),
+            ),
+            (
+                "Example",
+                ("python -m app.scripts.validate_candidate_portraits",),
+            ),
+        ),
+    )
+
+
 def run_cli(
     argv: Sequence[str] | None = None,
     *,
@@ -28,9 +59,10 @@ def run_cli(
 ) -> int:
     """Validate the portrait plan and image directory, then print one summary report."""
 
-    if argv:
+    if argv and "--help" not in argv and "-h" not in argv:
         print("ERROR: This command accepts no arguments.", file=sys.stderr)
         return 2
+    build_parser().parse_args(tuple(argv or ()))
 
     active_settings = settings or get_settings()
 
@@ -90,7 +122,7 @@ def run_cli(
 def main() -> None:
     """Execute the command and expose its return status to the shell."""
 
-    raise SystemExit(run_cli())
+    raise SystemExit(run_cli(sys.argv[1:]))
 
 
 if __name__ == "__main__":

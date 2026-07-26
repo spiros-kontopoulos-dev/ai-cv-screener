@@ -14,6 +14,7 @@ import json
 from pathlib import Path
 import sys
 
+from app.scripts.cli_help import build_cli_parser
 from app.core.config import Settings, get_settings
 from app.cv_retrieval import (
     CvQueryRobustnessReport,
@@ -25,11 +26,39 @@ from app.cv_retrieval import (
 
 def build_parser() -> argparse.ArgumentParser:
     """Create filters, limits, detail options, and JSON output settings."""
-    parser = argparse.ArgumentParser(
+    parser = build_cli_parser(
         description=(
             "Evaluate recruiter-query paraphrases through the unchanged final "
             "retrieval pipeline without calling a hosted answer provider."
-        )
+        ),
+        sections=(
+            (
+                'Valid command combinations',
+                (
+                    'No filters: evaluate the complete committed matrix.',
+                    '--family-id ID: evaluate one family; repeat the flag for several families.',
+                    '--scenario-id ID: evaluate one scenario; repeat the flag for several scenarios.',
+                    '--family-id and --scenario-id may be combined to narrow the selected scenarios.',
+                    'Limit overrides, --verbose, --failed-only, --strict, and --json-output may be added to any selection.',
+                ),
+            ),
+            (
+                'What the command changes',
+                (
+                    'It reads the matrix and vector index. It never calls OpenAI or Gemini and never changes the index.',
+                    '--json-output is the only option that writes a file.',
+                ),
+            ),
+            (
+                'Examples',
+                (
+                    'python -m app.scripts.evaluate_cv_query_robustness',
+                    'python -m app.scripts.evaluate_cv_query_robustness --family-id numeric_experience --verbose',
+                    'python -m app.scripts.evaluate_cv_query_robustness --scenario-id scenario_001 --strict',
+                    'python -m app.scripts.evaluate_cv_query_robustness --failed-only --json-output data/reports/query-robustness.json',
+                ),
+            ),
+        ),
     )
     parser.add_argument(
         "--matrix",

@@ -1,3 +1,9 @@
+/**
+ * Accessible evidence drawer for one validated citation.
+ *
+ * Displays candidate-owned chunk text and opens the trusted PDF route at the
+ * cited page rather than constructing a filesystem URL in the browser.
+ */
 import { useCallback, useEffect, useRef } from 'react'
 import { buildApiUrl } from '../api/client'
 import type { ChatSource } from '../api/types'

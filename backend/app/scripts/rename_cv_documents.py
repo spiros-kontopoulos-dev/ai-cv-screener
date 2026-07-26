@@ -10,6 +10,7 @@ from collections.abc import Sequence
 from pathlib import Path
 import sys
 
+from app.scripts.cli_help import build_cli_parser
 from app.core.config import Settings, get_settings
 from app.cv_ingestion import (
     CvDocumentExtractionError,
@@ -25,11 +26,38 @@ from app.cv_ingestion import (
 def build_parser() -> argparse.ArgumentParser:
     """Define PDF selection and the explicit ``--apply`` option."""
 
-    parser = argparse.ArgumentParser(
+    parser = build_cli_parser(
         description=(
             "Create name-role-cv.pdf filenames from PDF-extracted metadata. "
             "The default is a dry-run preview."
-        )
+        ),
+        sections=(
+            (
+                'Valid command combinations',
+                (
+                    '--file PATH may be repeated, or use one --directory PATH, or use --all.',
+                    '--file, --directory, and --all are mutually exclusive.',
+                    '--recursive may be used with --directory or --all.',
+                    'Without --apply the command is always a preview.',
+                    '--apply may be added to any valid selection to perform the displayed renames.',
+                ),
+            ),
+            (
+                'What the command changes',
+                (
+                    'Preview mode writes nothing.',
+                    '--apply renames selected PDF files on disk. It does not rebuild Chroma automatically.',
+                ),
+            ),
+            (
+                'Examples',
+                (
+                    'python -m app.scripts.rename_cv_documents --all',
+                    'python -m app.scripts.rename_cv_documents --directory data/cv_pdfs --recursive',
+                    'python -m app.scripts.rename_cv_documents --file data/cv_pdfs/example.pdf --apply',
+                ),
+            ),
+        ),
     )
     input_group = parser.add_mutually_exclusive_group(required=True)
     input_group.add_argument(

@@ -17,6 +17,7 @@ import sys
 
 import numpy as np
 
+from app.scripts.cli_help import build_cli_parser
 from app.core.config import Settings, get_settings
 from app.cv_ingestion import (
     CvChunkingConfig,
@@ -36,11 +37,35 @@ from app.cv_ingestion import (
 def build_parser() -> argparse.ArgumentParser:
     """Define PDF selection and how many chunks should be embedded for inspection."""
 
-    parser = argparse.ArgumentParser(
+    parser = build_cli_parser(
         description=(
             "Extract, chunk, and embed selected CV PDFs without writing "
             "persistent vector records."
-        )
+        ),
+        sections=(
+            (
+                'Valid command combinations',
+                (
+                    '--file PATH may be repeated, or use one --directory PATH, or use --all.',
+                    '--file, --directory, and --all are mutually exclusive.',
+                    '--recursive may be used with --directory or --all.',
+                    '--limit-chunks and --preview-vectors may be added to any selection.',
+                ),
+            ),
+            (
+                'What the command changes',
+                (
+                    'It loads the local embedding model and works in memory. It writes no vector records.',
+                ),
+            ),
+            (
+                'Examples',
+                (
+                    'python -m app.scripts.inspect_cv_embeddings --file data/cv_pdfs/example.pdf --limit-chunks 5',
+                    'python -m app.scripts.inspect_cv_embeddings --all --limit-chunks 10 --preview-vectors 3',
+                ),
+            ),
+        ),
     )
     input_group = parser.add_mutually_exclusive_group(required=True)
     input_group.add_argument(

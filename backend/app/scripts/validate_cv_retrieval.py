@@ -9,6 +9,7 @@ from collections.abc import Sequence
 from pathlib import Path
 import sys
 
+from app.scripts.cli_help import build_cli_parser
 from app.core.config import Settings, get_settings
 from app.cv_retrieval import (
     CvRetrievalEvaluationReport,
@@ -20,11 +21,36 @@ from app.cv_retrieval import (
 
 def build_parser() -> argparse.ArgumentParser:
     """Create command-line options for controlled retrieval validation."""
-    parser = argparse.ArgumentParser(
+    parser = build_cli_parser(
         description=(
             "Run the final source-traceable retrieval pipeline against the "
             "committed search scenarios."
-        )
+        ),
+        sections=(
+            (
+                'Valid command combinations',
+                (
+                    'No scenario filter: validate every committed search scenario.',
+                    '--scenario-id ID: validate one scenario; repeat for several.',
+                    '--plan PATH may replace the configured dataset plan.',
+                    'Retrieval limit overrides may be added to either full or filtered validation.',
+                ),
+            ),
+            (
+                'What the command changes',
+                (
+                    'It reads the plan and vector index. It writes nothing and calls no answer provider.',
+                ),
+            ),
+            (
+                'Examples',
+                (
+                    'python -m app.scripts.validate_cv_retrieval',
+                    'python -m app.scripts.validate_cv_retrieval --scenario-id backend_python_fastapi_postgresql',
+                    'python -m app.scripts.validate_cv_retrieval --semantic-result-limit 50 --candidate-limit 10',
+                ),
+            ),
+        ),
     )
     parser.add_argument(
         "--plan",

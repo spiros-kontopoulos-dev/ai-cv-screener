@@ -1,3 +1,9 @@
+/**
+ * Candidate catalogue and result-highlighting panel.
+ *
+ * The catalogue comes from indexed PDF metadata. Latest chat results add score
+ * and coverage information without replacing the stable candidate identity.
+ */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   buildApiUrl,

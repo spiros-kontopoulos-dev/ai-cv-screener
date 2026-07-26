@@ -1,3 +1,4 @@
+/** Pure display helpers shared by candidate, evidence, and status components. */
 import type { AnswerOutcome, AnswerProvider } from './api/types'
 
 export function initials(name: string): string {

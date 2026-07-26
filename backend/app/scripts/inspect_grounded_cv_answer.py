@@ -9,6 +9,7 @@ import argparse
 from collections.abc import Sequence
 import sys
 
+from app.scripts.cli_help import build_cli_parser
 from app.core.config import Settings, get_settings
 from app.cv_answer_generation import (
     GroundedAnswerConfigurationError,
@@ -22,11 +23,35 @@ from app.cv_retrieval import CvRawRetrievalContractError, FinalCvRetrievalQuery
 def build_parser() -> argparse.ArgumentParser:
     """Create command-line options for grounded answer inspection."""
 
-    parser = argparse.ArgumentParser(
+    parser = build_cli_parser(
         description=(
             "Retrieve source-grounded CV evidence and inspect the structured "
             "recruiter answer, validated citations, and active provider."
-        )
+        ),
+        sections=(
+            (
+                'Valid command combinations',
+                (
+                    '--query is required and may be repeated.',
+                    '--semantic-result-limit and --candidate-limit change retrieval limits.',
+                    '--show-context prints the exact bounded evidence sent to the selected provider.',
+                ),
+            ),
+            (
+                'What the command changes',
+                (
+                    'It reads the vector index and may call OpenAI or Gemini according to provider settings.',
+                    'Deterministic mode makes no hosted call. The command writes nothing.',
+                ),
+            ),
+            (
+                'Examples',
+                (
+                    'python -m app.scripts.inspect_grounded_cv_answer --query "Who has Python and PostgreSQL experience?"',
+                    'python -m app.scripts.inspect_grounded_cv_answer --query "Who managed 8 engineers?" --candidate-limit 3 --show-context',
+                ),
+            ),
+        ),
     )
     parser.add_argument(
         "--query",

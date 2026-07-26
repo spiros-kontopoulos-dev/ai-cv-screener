@@ -1,3 +1,7 @@
+/**
+ * Conversation renderer for questions, grounded answers, candidate cards,
+ * citations, loading feedback, and retryable errors.
+ */
 import { useEffect, useMemo, useRef } from 'react'
 import type { ChatCandidate, ChatResponse, ChatSource } from '../api/types'
 import type { ChatTurn } from '../chatTypes'

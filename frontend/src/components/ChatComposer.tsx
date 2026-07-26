@@ -1,3 +1,4 @@
+/** Controlled recruiter-question input with keyboard submission and validation feedback. */
 import { useId } from 'react'
 import { SendIcon } from './Icons'
 

@@ -1,3 +1,9 @@
+/**
+ * TypeScript representation of the public FastAPI contracts.
+ *
+ * Keeping these response shapes in one place makes UI components depend on the
+ * API boundary instead of backend implementation details.
+ */
 export type ProviderMode = 'auto' | 'openai' | 'gemini' | 'deterministic'
 export type AnswerProvider = 'openai' | 'gemini' | 'deterministic'
 export type AnswerOutcome = 'supported' | 'partial' | 'unsupported'

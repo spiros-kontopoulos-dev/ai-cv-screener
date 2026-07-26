@@ -1,3 +1,4 @@
+/** Application header with catalogue count, mobile navigation, and conversation reset. */
 import { CheckCircleIcon, MenuIcon, TrashIcon } from './Icons'
 
 interface HeaderProps {

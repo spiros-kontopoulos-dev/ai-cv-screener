@@ -1,3 +1,9 @@
+/**
+ * Browser client for the FastAPI boundary.
+ *
+ * Centralizes base URLs, request timeouts, JSON parsing, safe API errors, and
+ * the small set of HTTP calls used by the React application.
+ */
 import type {
   ApiErrorResponse,
   CandidateListResponse,

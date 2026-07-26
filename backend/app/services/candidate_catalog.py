@@ -1,7 +1,7 @@
 """Read-only candidate catalogue assembled from persisted index metadata.
 
 The service deliberately uses Chroma metadata rather than candidate profile JSON.
-That keeps the API aligned with the PDF/index truth boundary established in WP5:
+That keeps the API aligned with the application's PDF/index truth boundary:
 sidebar identity may be displayed, but answer evidence still comes only from
 retrieved PDF chunks.
 """
@@ -239,7 +239,7 @@ class CandidateCatalogService:
 
 
 def build_candidate_catalog_service(settings: Settings) -> CandidateCatalogService:
-    """Build the catalogue over the same compatible Chroma collection as WP5-7."""
+    """Build the catalogue over the same compatible Chroma collection used by retrieval."""
 
     repository = CvChromaRepository(
         CvVectorStoreConfig(

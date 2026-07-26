@@ -4,11 +4,44 @@ It validates one correct fictional payload and then shows that an obvious
 seniority contradiction is rejected before data can be saved or rendered.
 """
 
+import argparse
+from collections.abc import Sequence
 from copy import deepcopy
+import sys
+
+from app.scripts.cli_help import build_cli_parser
 
 from pydantic import ValidationError
 
 from app.schemas import CandidateProfile
+
+
+def build_parser() -> argparse.ArgumentParser:
+    """Describe the fixed valid/invalid schema demonstration."""
+
+    return build_cli_parser(
+        description=(
+            "Run one valid candidate payload and one deliberately invalid "
+            "payload through the CandidateProfile schema."
+        ),
+        sections=(
+            (
+                "Valid command combinations",
+                (
+                    "This demonstration uses fixed in-memory examples and takes no arguments.",
+                    "Use --help to display this reference.",
+                ),
+            ),
+            (
+                "What the command changes",
+                ("It validates in-memory data only. It writes nothing and makes no provider call.",),
+            ),
+            (
+                "Example",
+                ("python -m app.scripts.validate_candidate_schema",),
+            ),
+        ),
+    )
 
 
 def build_example_payload() -> dict:
@@ -99,12 +132,20 @@ def demonstrate_rejected_profile(payload: dict) -> None:
         raise RuntimeError("The intentionally invalid payload was not rejected.")
 
 
-def main() -> None:
-    """Run the valid and invalid schema demonstrations."""
+def run_cli(argv: Sequence[str] | None = None) -> int:
+    """Parse help, then run the valid and invalid schema demonstrations."""
 
+    build_parser().parse_args(tuple(argv or ()))
     payload = build_example_payload()
     demonstrate_valid_profile(payload)
     demonstrate_rejected_profile(payload)
+    return 0
+
+
+def main() -> None:
+    """Execute the demonstration and expose its status to the shell."""
+
+    raise SystemExit(run_cli(sys.argv[1:]))
 
 
 if __name__ == "__main__":

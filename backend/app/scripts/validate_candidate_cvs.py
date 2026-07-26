@@ -5,7 +5,11 @@ visible facts, stays within the page limit, and supports the planned search
 scenarios using PDF-extracted text.
 """
 
+import argparse
+from collections.abc import Sequence
 import sys
+
+from app.scripts.cli_help import build_cli_parser
 
 from app.candidate_generation import (
     CandidatePlanError,
@@ -17,9 +21,42 @@ from app.core.config import Settings, get_settings
 from app.cv_rendering import validate_cv_pdf_collection
 
 
-def run_cli(*, settings: Settings | None = None) -> int:
+def build_parser() -> argparse.ArgumentParser:
+    """Describe the complete rendered CV validation command."""
+
+    return build_cli_parser(
+        description=(
+            "Validate every configured candidate PDF for existence, readable "
+            "text, expected facts, page limits, and search scenarios."
+        ),
+        sections=(
+            (
+                "Valid command combinations",
+                (
+                    "This command validates the complete configured PDF collection and takes no filters.",
+                    "Use --help to display this reference.",
+                ),
+            ),
+            (
+                "What the command changes",
+                ("It reads the plan, profiles, and PDF files. It writes nothing.",),
+            ),
+            (
+                "Example",
+                ("python -m app.scripts.validate_candidate_cvs",),
+            ),
+        ),
+    )
+
+
+def run_cli(
+    argv: Sequence[str] | None = None,
+    *,
+    settings: Settings | None = None,
+) -> int:
     """Load the plan and profiles, validate the PDF collection, and print pass/fail details."""
 
+    build_parser().parse_args(tuple(argv or ()))
     active_settings = settings or get_settings()
 
     try:
@@ -89,7 +126,7 @@ def run_cli(*, settings: Settings | None = None) -> int:
 def main() -> None:
     """Execute the validation command and expose its status to the shell."""
 
-    raise SystemExit(run_cli())
+    raise SystemExit(run_cli(sys.argv[1:]))
 
 
 if __name__ == "__main__":
