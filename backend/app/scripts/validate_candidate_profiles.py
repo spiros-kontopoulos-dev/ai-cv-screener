@@ -41,7 +41,7 @@ def build_parser() -> argparse.ArgumentParser:
                 ("It reads the plan and profile JSON. It writes nothing and makes no provider call.",),
             ),
             (
-                "Example",
+                "Examples",
                 ("python -m app.scripts.validate_candidate_profiles",),
             ),
         ),

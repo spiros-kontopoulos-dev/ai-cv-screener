@@ -43,8 +43,8 @@ def build_parser() -> argparse.ArgumentParser:
                     '--file PATH may be repeated, or use one --directory PATH, or use --all.',
                     '--file, --directory, and --all are mutually exclusive.',
                     '--recursive may be used with --directory or --all.',
-                    'Candidate metadata overrides require exactly one selected PDF.',
-                    '--preview-characters may be added to any selection.',
+                    '--candidate-id ID, --candidate-name NAME, and --professional-title TITLE may be combined, but require exactly one selected PDF.',
+                    '--preview-characters N may be added to any selection and changes only terminal output.',
                 ),
             ),
             (
@@ -59,6 +59,7 @@ def build_parser() -> argparse.ArgumentParser:
                     'python -m app.scripts.inspect_cv_documents --file data/cv_pdfs/example.pdf',
                     'python -m app.scripts.inspect_cv_documents --directory data/cv_pdfs',
                     'python -m app.scripts.inspect_cv_documents --all --recursive --preview-characters 400',
+                    'python -m app.scripts.inspect_cv_documents --file data/imports/cv.pdf --candidate-id candidate_031 --candidate-name "Alex Morgan" --professional-title "Python Engineer"',
                 ),
             ),
         ),

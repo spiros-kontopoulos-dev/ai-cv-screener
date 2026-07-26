@@ -1,9 +1,61 @@
+<#
+.SYNOPSIS
+Internal cross-platform setup implementation for Windows.
+
+.DESCRIPTION
+Creates or updates the repository-root .env file for Gemini, OpenAI, or
+deterministic no-key mode. The root setup.ps1 wrapper normally supplies the
+required project path.
+
+.PARAMETER ProjectRoot
+Absolute or relative path to the repository root containing .env.example.
+
+.PARAMETER Help
+Prints this internal command contract without reading or changing files.
+
+.EXAMPLE
+.\backend\setup.ps1 -ProjectRoot C:\projects\ai-cv-screener
+
+.EXAMPLE
+.\backend\setup.ps1 -Help
+#>
+
 # Configure the local answer provider without printing or committing API keys.
 # This script creates or updates the repository-root .env file.
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory = $true)][string]$ProjectRoot
+    [string]$ProjectRoot,
+    [switch]$Help
 )
+
+if ($Help) {
+    Write-Host @'
+AI CV Screener setup implementation
+
+Usage:
+  .\backend\setup.ps1 -ProjectRoot PATH
+  .\backend\setup.ps1 -Help
+
+Valid command combinations:
+  -ProjectRoot PATH   Run interactive setup for that repository root.
+  -Help               Print this guide and exit without changing anything.
+
+What the command changes:
+  Reads PATH\.env.example and creates or updates PATH\.env.
+  Stores only the selected provider mode and local provider key.
+  Clears keys for providers that are not selected.
+  Never prints the entered secret.
+
+Examples:
+  .\backend\setup.ps1 -ProjectRoot C:\projects\ai-cv-screener
+  .\backend\setup.ps1 -Help
+'@
+    return
+}
+
+if ([string]::IsNullOrWhiteSpace($ProjectRoot)) {
+    throw "-ProjectRoot is required. Run .\backend\setup.ps1 -Help for usage."
+}
 
 $ErrorActionPreference = "Stop"
 $ExamplePath = Join-Path $ProjectRoot ".env.example"

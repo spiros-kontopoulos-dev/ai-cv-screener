@@ -22,6 +22,33 @@ docker compose -p ai-cv-screener-openai exec backend `
 The shorter `python -m ...` form shown below is the part executed inside the
 container.
 
+## Coverage guarantee
+
+The command catalogue covers every Python module in this directory that has a
+runnable `__main__` entry point. The automated tests discover those modules from
+the source tree instead of relying on a manually maintained list. For every
+runnable command, the tests verify that:
+
+- `--help` exits successfully;
+- the help page contains the purpose, argument list, valid combinations, side
+  effects, and examples;
+- every long option such as `--candidate-id` or `--rebuild` is named in the
+  command-combination guide;
+- the central reference contains the command and every supported long option.
+
+The repository setup helpers are documented separately because they are shell
+and PowerShell commands rather than Python modules:
+
+```powershell
+.\setup.ps1 -Help
+.\backend\setup.ps1 -Help
+```
+
+```bash
+bash ./setup.sh --help
+bash backend/setup.sh --help
+```
+
 ## Quick safety guide
 
 | Command type | Reads data | Writes files | Changes Chroma | Hosted provider call |

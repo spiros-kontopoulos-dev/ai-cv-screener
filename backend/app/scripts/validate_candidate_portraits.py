@@ -45,7 +45,7 @@ def build_parser() -> argparse.ArgumentParser:
                 ("It reads profiles, the portrait plan, and image files. It writes nothing.",),
             ),
             (
-                "Example",
+                "Examples",
                 ("python -m app.scripts.validate_candidate_portraits",),
             ),
         ),

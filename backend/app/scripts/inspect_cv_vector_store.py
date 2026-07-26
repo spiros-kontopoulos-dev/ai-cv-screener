@@ -39,7 +39,7 @@ def build_parser() -> argparse.ArgumentParser:
                 ("It reads Chroma collection metadata and writes nothing.",),
             ),
             (
-                "Example",
+                "Examples",
                 ("python -m app.scripts.inspect_cv_vector_store",),
             ),
         ),

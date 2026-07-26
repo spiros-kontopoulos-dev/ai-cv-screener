@@ -100,3 +100,54 @@ def test_bash_setup_does_not_echo_hosted_provider_secret(tmp_path: Path) -> None
     assert values["OPENAI_API_KEY"] == ""
     assert secret not in result.stdout
     assert secret not in result.stderr
+
+
+def test_bash_setup_help_is_safe_and_complete() -> None:
+    """Both Bash entry points explain usage without touching environment files."""
+
+    repository_root = BACKEND_ROOT.parent
+    commands = (
+        ["bash", str(repository_root / "setup.sh"), "--help"],
+        ["bash", str(BACKEND_ROOT / "setup.sh"), "--help"],
+    )
+
+    for command in commands:
+        result = subprocess.run(
+            command,
+            text=True,
+            capture_output=True,
+            check=True,
+        )
+        assert "Usage:" in result.stdout
+        assert "Valid command combinations:" in result.stdout
+        assert "What the command changes:" in result.stdout
+        assert "Example" in result.stdout
+
+
+def test_powershell_setup_files_include_help_guides() -> None:
+    """Windows wrappers expose explicit help plus PowerShell comment help."""
+
+    repository_root = BACKEND_ROOT.parent
+    for path in (repository_root / "setup.ps1", BACKEND_ROOT / "setup.ps1"):
+        script = path.read_text(encoding="utf-8")
+        assert ".SYNOPSIS" in script
+        assert ".PARAMETER Help" in script
+        assert "[switch]$Help" in script
+        assert "Valid command combinations:" in script
+        assert "What the command changes:" in script
+
+
+def test_root_bash_setup_rejects_unknown_arguments_without_writing() -> None:
+    """The public Bash wrapper fails clearly instead of ignoring bad options."""
+
+    repository_root = BACKEND_ROOT.parent
+    result = subprocess.run(
+        ["bash", str(repository_root / "setup.sh"), "--unknown"],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 2
+    assert "unknown argument" in result.stderr
+    assert "--help" in result.stderr

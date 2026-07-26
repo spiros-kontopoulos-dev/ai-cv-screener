@@ -37,7 +37,7 @@ def build_parser() -> argparse.ArgumentParser:
                 ("It validates in-memory data only. It writes nothing and makes no provider call.",),
             ),
             (
-                "Example",
+                "Examples",
                 ("python -m app.scripts.validate_candidate_schema",),
             ),
         ),

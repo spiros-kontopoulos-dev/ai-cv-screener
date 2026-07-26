@@ -5,8 +5,42 @@
 
 set -euo pipefail
 
+show_help() {
+    cat <<'HELP'
+AI CV Screener setup implementation
+
+Usage:
+  bash backend/setup.sh PROJECT_ROOT
+  bash backend/setup.sh --help
+
+Valid command combinations:
+  PROJECT_ROOT      Run interactive setup for that repository root.
+  -h, --help        Print this guide and exit without changing anything.
+
+What the command changes:
+  Reads PROJECT_ROOT/.env.example and creates or updates PROJECT_ROOT/.env.
+  Stores only the selected provider mode and local provider key.
+  Clears keys for providers that are not selected.
+  Never prints the entered secret.
+
+Examples:
+  bash backend/setup.sh /home/user/projects/ai-cv-screener
+  bash backend/setup.sh --help
+HELP
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+    if [[ $# -ne 1 ]]; then
+        printf 'ERROR: --help cannot be combined with PROJECT_ROOT.\n' >&2
+        exit 2
+    fi
+    show_help
+    exit 0
+fi
+
 if [[ $# -ne 1 ]]; then
-    printf 'Usage: %s PROJECT_ROOT\n' "$0" >&2
+    printf 'ERROR: expected exactly one PROJECT_ROOT argument.\n' >&2
+    printf 'Run bash backend/setup.sh --help for usage.\n' >&2
     exit 2
 fi
 

@@ -61,6 +61,16 @@ Both setup assistants preserve unrelated `.env` settings, clear unused provider
 keys, and never print the entered secret. No Python or TypeScript source file
 needs to be edited for local setup.
 
+Display the setup guide without changing files:
+
+```powershell
+.\setup.ps1 -Help
+```
+
+```bash
+bash ./setup.sh --help
+```
+
 The Chroma index is a generated local artifact and is not committed to Git. The
 index command is therefore required once after cloning, and again only when the
 CV PDFs, extraction, chunking, embedding model, or indexing configuration changes.

@@ -36,10 +36,14 @@ def build_parser() -> argparse.ArgumentParser:
                 'Valid command combinations',
                 (
                     'No filters: evaluate the complete committed matrix.',
+                    '--matrix PATH: use another robustness matrix instead of the configured default.',
                     '--family-id ID: evaluate one family; repeat the flag for several families.',
                     '--scenario-id ID: evaluate one scenario; repeat the flag for several scenarios.',
                     '--family-id and --scenario-id may be combined to narrow the selected scenarios.',
-                    'Limit overrides, --verbose, --failed-only, --strict, and --json-output may be added to any selection.',
+                    '--semantic-result-limit N: temporarily change broad semantic recall for every selected scenario.',
+                    '--candidate-limit N: temporarily change the final candidate limit for every selected scenario.',
+                    '--diagnostic-candidate-limit N: change how many pre-threshold candidate rows are kept per question.',
+                    '--verbose, --failed-only, --strict, and --json-output may be added to any selection.',
                 ),
             ),
             (

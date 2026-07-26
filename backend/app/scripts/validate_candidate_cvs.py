@@ -42,7 +42,7 @@ def build_parser() -> argparse.ArgumentParser:
                 ("It reads the plan, profiles, and PDF files. It writes nothing.",),
             ),
             (
-                "Example",
+                "Examples",
                 ("python -m app.scripts.validate_candidate_cvs",),
             ),
         ),
